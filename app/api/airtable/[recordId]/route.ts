@@ -5,8 +5,8 @@ const AIRTABLE_BASE_ID = process.env.AIRTABLE_BASE_ID
 const TABLE_NAME = "Content"
 const PHOTOS_TABLE_NAME = "Fotos AI"
 
-export async function GET(request: NextRequest, { params }: { params: { recordId: string } }) {
-  const { recordId } = params
+export async function GET(request: NextRequest, { params }: { params: Promise<{ recordId: string }> }) {
+  const { recordId } = await params
 
   if (!AIRTABLE_API_KEY || !AIRTABLE_BASE_ID) {
     return NextResponse.json({ error: "Configuración de Airtable incompleta" }, { status: 500 })
@@ -64,8 +64,8 @@ export async function GET(request: NextRequest, { params }: { params: { recordId
   }
 }
 
-export async function PATCH(request: NextRequest, { params }: { params: { recordId: string } }) {
-  const { recordId } = params
+export async function PATCH(request: NextRequest, { params }: { params: Promise<{ recordId: string }> }) {
+  const { recordId } = await params
 
   if (!AIRTABLE_API_KEY || !AIRTABLE_BASE_ID) {
     return NextResponse.json({ error: "Configuración de Airtable incompleta" }, { status: 500 })
