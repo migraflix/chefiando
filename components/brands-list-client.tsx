@@ -1,10 +1,18 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useMemo } from "react"
 import { useLanguage } from "@/contexts/language-context"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import { Copy, Check } from "lucide-react"
+import { Input } from "@/components/ui/input"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { Copy, Check, Search } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { LanguageSelector } from "@/components/language-selector"
 
@@ -13,6 +21,11 @@ interface Brand {
   fields: {
     Negocio?: string
     "Upload Fotos Link"?: string
+    Location?: string
+    País?: string
+    Country?: string
+    Idioma?: string
+    Language?: string
     [key: string]: any
   }
 }
@@ -21,6 +34,9 @@ export function BrandsListClient() {
   const [brands, setBrands] = useState<Brand[]>([])
   const [loading, setLoading] = useState(true)
   const [copiedId, setCopiedId] = useState<string | null>(null)
+  const [searchTerm, setSearchTerm] = useState("")
+  const [selectedCountry, setSelectedCountry] = useState<string>("all")
+  const [selectedLanguage, setSelectedLanguage] = useState<string>("all")
   const { t } = useLanguage()
   const { toast } = useToast()
 
@@ -66,6 +82,49 @@ export function BrandsListClient() {
     window.open(`https://wa.me/?text=${encodeURIComponent(text + " " + url)}`, "_blank", "width=600,height=400")
   }
 
+  // Obtener lista única de países
+  const countries = useMemo(() => {
+    const countrySet = new Set<string>()
+    brands.forEach((brand) => {
+      const country = brand.fields.País
+      if (country && typeof country === "string") {
+        countrySet.add(country)
+      }
+    })
+    return Array.from(countrySet).sort()
+  }, [brands])
+
+  // Obtener lista única de idiomas
+  const languages = useMemo(() => {
+    const languageSet = new Set<string>()
+    brands.forEach((brand) => {
+      const language = brand.fields.Idioma || brand.fields.Language
+      if (language && typeof language === "string") {
+        languageSet.add(language)
+      }
+    })
+    return Array.from(languageSet).sort()
+  }, [brands])
+
+  // Filtrar marcas según búsqueda, país e idioma
+  const filteredBrands = useMemo(() => {
+    return brands.filter((brand) => {
+      // Filtro por término de búsqueda
+      const searchMatch = searchTerm === "" || 
+        (brand.fields.Negocio?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false)
+
+      // Filtro por país
+      const country = brand.fields.País
+      const countryMatch = selectedCountry === "all" || country === selectedCountry
+
+      // Filtro por idioma
+      const language = brand.fields.Idioma || brand.fields.Language
+      const languageMatch = selectedLanguage === "all" || language === selectedLanguage
+
+      return searchMatch && countryMatch && languageMatch
+    })
+  }, [brands, searchTerm, selectedCountry, selectedLanguage])
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background p-8">
@@ -94,6 +153,46 @@ export function BrandsListClient() {
           <LanguageSelector />
         </div>
 
+        {/* Filtros de búsqueda, país e idioma */}
+        <div className="mb-6 flex flex-col gap-4 sm:flex-row">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              type="text"
+              placeholder="Buscar marcas..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+          <Select value={selectedCountry} onValueChange={setSelectedCountry}>
+            <SelectTrigger className="w-full sm:w-[200px]">
+              <SelectValue placeholder="Todos los países" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos los países</SelectItem>
+              {countries.map((country) => (
+                <SelectItem key={country} value={country}>
+                  {country}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select value={selectedLanguage} onValueChange={setSelectedLanguage}>
+            <SelectTrigger className="w-full sm:w-[200px]">
+              <SelectValue placeholder="Todos los idiomas" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos los idiomas</SelectItem>
+              {languages.map((language) => (
+                <SelectItem key={language} value={language}>
+                  {language}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
         {brands.length === 0 ? (
           <Card className="p-8 text-center">
             <p className="text-muted-foreground">{t.brands.noBrands}</p>
@@ -109,7 +208,14 @@ export function BrandsListClient() {
                   </tr>
                 </thead>
                 <tbody>
-                  {brands.map((brand) => (
+                  {filteredBrands.length === 0 ? (
+                    <tr>
+                      <td colSpan={2} className="p-8 text-center text-muted-foreground">
+                        No se encontraron marcas con los filtros seleccionados
+                      </td>
+                    </tr>
+                  ) : (
+                    filteredBrands.map((brand) => (
                     <tr key={brand.id} className="border-b last:border-0 hover:bg-muted/30">
                       <td className="p-4">
                         <div className="font-medium">{brand.fields.Negocio || t.brands.table.noName}</div>
@@ -168,7 +274,8 @@ export function BrandsListClient() {
                         </div>
                       </td>
                     </tr>
-                  ))}
+                    ))
+                  )}
                 </tbody>
               </table>
             </div>
