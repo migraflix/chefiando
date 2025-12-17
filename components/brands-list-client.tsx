@@ -98,7 +98,7 @@ export function BrandsListClient() {
     return Array.from(countrySet).sort();
   }, [brands]);
 
-  // Obtener lista única de idiomas
+  // Obtener lista única de idiomas.
   const languages = useMemo(() => {
     const languageSet = new Set<string>();
     brands.forEach((brand) => {
@@ -121,7 +121,7 @@ export function BrandsListClient() {
         ) ??
           false);
 
-      // Filtro por país
+      // Filtro por país 2
       const country = brand.fields.País;
       const countryMatch =
         selectedCountry === "all" || country === selectedCountry;
