@@ -38,8 +38,17 @@ export async function POST(request: NextRequest) {
       body.emprendedor = "";
     }
 
-    // Validar datos con Zod
-    const validationResult = brandRegistrationSchema.safeParse(body)
+    // Validar datos con Zod (solo los campos de la sección 1)
+    const section1Fields = {
+      emprendedor: body.emprendedor,
+      negocio: body.negocio,
+      correo: body.correo,
+      ciudad: body.ciudad,
+      pais: body.pais,
+      whatsapp: body.whatsapp,
+    }
+
+    const validationResult = brandRegistrationSchema.partial().safeParse(section1Fields)
     
     console.log("✅ Validación Zod:", {
       success: validationResult.success,
@@ -56,8 +65,9 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Crear registro en Airtable
-    const result = await createBrand(validationResult.data)
+    // Crear registro en Airtable con Status "Basic Register"
+    const status = body.status || "Basic Register"
+    const result = await createBrand(validationResult.data, status)
 
     return NextResponse.json({
       success: true,

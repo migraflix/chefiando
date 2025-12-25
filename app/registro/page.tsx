@@ -1,24 +1,28 @@
 "use client";
 
 import { BrandRegistrationForm } from "@/components/forms/brand-registration-form";
-import { useLanguage } from "@/contexts/language-context";
 import { LanguageSelector } from "@/components/language-selector";
+import { ArrowLeft } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 export default function RegistroPage() {
-  const { t } = useLanguage();
-
   return (
-    <main className="min-h-screen bg-background py-12 px-4 sm:px-6 lg:px-8">
-      <div className="fixed top-4 right-4 z-50">
+    <div className="h-screen w-full overflow-hidden relative bg-background">
+      {/* Header fijo */}
+      <div className="absolute top-0 left-0 right-0 z-50 flex items-center justify-between px-4 pt-4 pb-2 safe-area-top bg-background/95 backdrop-blur-sm">
+        <Link href="/">
+          <Button variant="ghost" size="icon-sm" className="h-8 w-8 -ml-2">
+            <ArrowLeft className="h-4 w-4" />
+          </Button>
+        </Link>
         <LanguageSelector />
       </div>
-      <div className="max-w-4xl mx-auto">
-        <div className="mb-8 text-center">
-          <h1 className="text-4xl font-bold mb-2">{t.registration.title}</h1>
-          <p className="text-muted-foreground">{t.registration.subtitle}</p>
-        </div>
+
+      {/* Formulario */}
+      <div className="h-full pt-14 flex flex-col">
         <BrandRegistrationForm />
       </div>
-    </main>
+    </div>
   );
 }

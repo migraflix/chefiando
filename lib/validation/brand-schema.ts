@@ -10,6 +10,11 @@ export const brandRegistrationSchema = z.object({
     .string()
     .min(2, "El nombre del negocio es obligatorio")
     .max(100, "El nombre del negocio es demasiado largo"),
+  correo: z
+    .string()
+    .email("Por favor ingresa un email válido")
+    .optional()
+    .or(z.literal("")),
   ciudad: z.string().optional(),
   pais: z.string().optional(),
   whatsapp: z
