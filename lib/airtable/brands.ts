@@ -15,9 +15,15 @@ export function mapFormDataToAirtable(formData: BrandFormData) {
   };
 
   // Campos opcionales
-  if (formData.emprendedor) {
-    fields["Emprendedor"] = sanitizeString(formData.emprendedor);
-  }
+  // Emprendedor - SIEMPRE se guarda (incluso si está vacío)
+  const emprendedorValue = (formData.emprendedor || "").trim();
+  fields["Emprendedor"] = emprendedorValue;
+  
+  console.log("📝 Mapeando Emprendedor:", {
+    original: formData.emprendedor,
+    processed: emprendedorValue,
+    willSave: fields["Emprendedor"]
+  });
 
   if (formData.ciudad) {
     fields["Ciudad"] = sanitizeString(formData.ciudad);

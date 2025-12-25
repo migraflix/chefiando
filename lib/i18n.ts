@@ -8,8 +8,8 @@ export const translations = {
       hero: {
         title: "Conteúdo profissional para seu restaurante",
         description:
-          "Migraflix ajuda pequenos restaurantes na LATAM a criar conteúdo de qualidade que atrai mais clientes e aumenta vendas",
-        cta: "Começar agora",
+          "ChefIAndo ajuda pequenos restaurantes na LATAM a criar conteúdo de qualidade que atrai mais clientes e aumenta vendas",
+        cta: "Testear gratis",
         benefits: "Ver benefícios",
       },
       stats: {
@@ -18,7 +18,7 @@ export const translations = {
         engagement: "Aumento em engagement",
       },
       benefits: {
-        title: "Por que escolher Migraflix",
+        title: "Por que escolher ChefIAndo",
         subtitle: "Criamos conteúdo que conecta com sua audiência e gera resultados reais",
         professional: {
           title: "Conteúdo profissional",
@@ -47,8 +47,8 @@ export const translations = {
       },
       cta: {
         title: "Comece a criar conteúdo hoje",
-        subtitle: "Junte-se a centenas de restaurantes na LATAM que já estão crescendo com Migraflix",
-        button: "Solicitar demo gratuita",
+        subtitle: "Junte-se a centenas de restaurantes na LATAM que já estão crescendo com ChefIAndo",
+        button: "Testear gratis",
       },
       footer: {
         description: "Sistema de criação de conteúdo para restaurantes na LATAM",
@@ -57,7 +57,7 @@ export const translations = {
     },
     // Brand Page
     brand: {
-      title: "Migraflix IA",
+      title: "ChefIAndo IA",
       subtitle: "Conteúdo da marca",
       loading: "Carregando conteúdo...",
       error: "Erro",
@@ -129,11 +129,11 @@ export const translations = {
       message: "Seu feedback foi recebido com sucesso",
       description:
         "Agradecemos muito por dedicar seu tempo para avaliar este conteúdo. Suas opiniões nos ajudam a melhorar continuamente.",
-      button: "Voltar ao Migraflix",
+      button: "Voltar ao ChefIAndo",
     },
     // Brands List Page
     brands: {
-      title: "Migraflix IA",
+      title: "ChefIAndo IA",
       subtitle: "Todas as marcas",
       loading: "Carregando marcas...",
       error: "Erro",
@@ -141,7 +141,7 @@ export const translations = {
       noBrands: "Nenhuma marca encontrada",
       copied: "Link copiado!",
       copiedDescription: "O link foi copiado para a área de transferência",
-      shareText: "Confira o conteúdo desta marca no Migraflix:",
+      shareText: "Confira o conteúdo desta marca no ChefIAndo:",
       table: {
         name: "Nome da Marca",
         actions: "Ações",
@@ -246,9 +246,9 @@ export const translations = {
         description: "Por favor, aguarde enquanto processamos suas fotos e informações...",
       },
       thanks: {
-        title: "Obrigado!",
-        subtitle: "Estamos preparando suas fotos com Inteligência Artificial",
-        description: "Em breve você receberá seus posts insuperáveis prontos para compartilhar nas redes sociais.",
+        title: "Já está pronto para mudar a cara do seu negócio!",
+        subtitle: "Em minutos você receberá por Whatsapp os posts que ChefIAndo gerou.",
+        description: "Você também pode ver e compartilhar seus posts na sua página de marca.",
         button: "Ver minha marca",
       },
     },
@@ -260,8 +260,8 @@ export const translations = {
       hero: {
         title: "Contenido profesional para tu restaurante",
         description:
-          "Migraflix ayuda a pequeños restaurantes en LATAM a crear contenido de calidad que atrae más clientes y aumenta ventas",
-        cta: "Comenzar ahora",
+          "ChefIAndo ayuda a pequeños restaurantes en LATAM a crear contenido de calidad que atrae más clientes y aumenta ventas",
+        cta: "Testear gratis",
         benefits: "Ver beneficios",
       },
       stats: {
@@ -270,7 +270,7 @@ export const translations = {
         engagement: "Aumento en engagement",
       },
       benefits: {
-        title: "Por qué elegir Migraflix",
+        title: "Por qué elegir ChefIAndo",
         subtitle: "Creamos contenido que conecta con tu audiencia y genera resultados reais",
         professional: {
           title: "Contenido profesional",
@@ -299,7 +299,7 @@ export const translations = {
       },
       cta: {
         title: "Comienza a crear contenido hoy",
-        subtitle: "Únete a cientos de restaurantes en LATAM que ya están creciendo con Migraflix",
+        subtitle: "Únete a cientos de restaurantes en LATAM que ya están creciendo con ChefIAndo",
         button: "Solicitar demo gratuita",
       },
       footer: {
@@ -309,7 +309,7 @@ export const translations = {
     },
     // Brand Page
     brand: {
-      title: "Migraflix IA",
+      title: "ChefIAndo IA",
       subtitle: "Contenido de la marca",
       loading: "Cargando contenido...",
       error: "Error",
@@ -381,11 +381,11 @@ export const translations = {
       message: "Tu feedback ha sido recibido exitosamente",
       description:
         "Agradecemos mucho que hayas dedicado tu tiempo para calificar este contenido. Tus opiniones nos ayudan a mejorar continuamente.",
-      button: "Volver a Migraflix",
+      button: "Volver a ChefIAndo",
     },
     // Brands List Page
     brands: {
-      title: "Migraflix IA",
+      title: "ChefIAndo IA",
       subtitle: "Todas las marcas",
       loading: "Cargando marcas...",
       error: "Error",
@@ -393,7 +393,7 @@ export const translations = {
       noBrands: "No se encontraron marcas",
       copied: "¡Link copiado!",
       copiedDescription: "El link ha sido copiado al portapapeles",
-      shareText: "Mira el contenido de esta marca en Migraflix:",
+      shareText: "Mira el contenido de esta marca en ChefIAndo:",
       table: {
         name: "Nombre de la Marca",
         actions: "Acciones",
@@ -498,9 +498,9 @@ export const translations = {
         description: "Por favor, espera mientras procesamos tus fotos e información...",
       },
       thanks: {
-        title: "¡Gracias!",
-        subtitle: "Estamos preparando tus fotos con Inteligencia Artificial",
-        description: "Pronto recibirás tus posts insuperables listos para compartir en redes sociales.",
+        title: "¡Ya estás listo para cambiarle la cara a tu negocio!",
+        subtitle: "En minutos recibirás por Whatsapp los posts que ChefIAndo ha generado.",
+        description: "También puedes ver y compartir tus posts desde tu página de marca.",
         button: "Ver mi marca",
       },
     },

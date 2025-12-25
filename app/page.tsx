@@ -30,7 +30,7 @@ export default function HomePage() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
               <Button size="lg" className="text-lg px-8 py-6" asChild>
-                <Link href="https://migraflix.com">{t.landing.hero.cta}</Link>
+                <Link href="/registro">{t.landing.hero.cta}</Link>
               </Button>
               <Button size="lg" variant="outline" className="text-lg px-8 py-6 bg-transparent" asChild>
                 <Link href="#beneficios">{t.landing.hero.benefits}</Link>
@@ -133,7 +133,7 @@ export default function HomePage() {
                 {t.landing.cta.subtitle}
               </p>
               <Button size="lg" className="text-lg px-8 py-6" asChild>
-                <Link href="https://migraflix.com">{t.landing.cta.button}</Link>
+                <Link href="/registro">{t.landing.cta.button}</Link>
               </Button>
             </CardContent>
           </Card>
@@ -144,9 +144,9 @@ export default function HomePage() {
       <footer className="border-t py-12 bg-card">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto text-center space-y-4">
-            <div className="text-2xl font-bold">Migraflix</div>
+            <div className="text-2xl font-bold">ChefIAndo</div>
             <p className="text-muted-foreground">{t.landing.footer.description}</p>
-            <div className="pt-4 text-sm text-muted-foreground">© 2025 Migraflix. {t.landing.footer.rights}</div>
+            <div className="pt-4 text-sm text-muted-foreground">© 2025 ChefIAndo. {t.landing.footer.rights}</div>
           </div>
         </div>
       </footer>

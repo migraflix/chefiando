@@ -5,29 +5,24 @@
 /**
  * Infiere el idioma basado en el país seleccionado
  * @param pais - Nombre del país
- * @param ciudad - Nombre de la ciudad (opcional)
- * @returns Código del idioma (es, en, pt, etc.)
+ * @param ciudad - Nombre de la ciudad (opcional, no se usa por ahora)
+ * @returns Nombre del idioma (Español, Inglés, Portugués)
  */
 export function inferLanguage(pais?: string, ciudad?: string): string {
-  if (!pais) return "es"; // Default español
+  if (!pais) return "Español"; // Default español
 
-  const languageMap: Record<string, string> = {
-    Perú: "es",
-    Colombia: "es",
-    Chile: "es",
-    Argentina: "es",
-    México: "es",
-    España: "es",
-    Ecuador: "es",
-    Venezuela: "es",
-    "Estados Unidos": "en",
-    "United States": "en",
-    Brasil: "pt",
-    Portugal: "pt",
-    // Agregar más países según necesidad
-  };
+  // Brasil → Portugués
+  if (pais === "Brasil" || pais === "Brazil") {
+    return "Portugués";
+  }
 
-  return languageMap[pais] || "es"; // Default español
+  // Estados Unidos → Inglés
+  if (pais === "Estados Unidos" || pais === "United States" || pais === "USA") {
+    return "Inglés";
+  }
+
+  // Todos los demás países → Español
+  return "Español";
 }
 
 /**

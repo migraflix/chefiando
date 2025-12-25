@@ -26,8 +26,25 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
 
+    // Log para debug
+    console.log("📥 Recibiendo datos en API:", {
+      emprendedor: body.emprendedor,
+      tipo: typeof body.emprendedor,
+      todosLosDatos: body
+    });
+
+    // Asegurar que emprendedor siempre esté presente (incluso si es vacío)
+    if (body.emprendedor === undefined || body.emprendedor === null) {
+      body.emprendedor = "";
+    }
+
     // Validar datos con Zod
     const validationResult = brandRegistrationSchema.safeParse(body)
+    
+    console.log("✅ Validación Zod:", {
+      success: validationResult.success,
+      emprendedorEnValidado: validationResult.success ? validationResult.data.emprendedor : "error"
+    });
 
     if (!validationResult.success) {
       return NextResponse.json(

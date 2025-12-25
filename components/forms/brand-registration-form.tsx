@@ -53,33 +53,22 @@ export function BrandRegistrationForm() {
     trigger,
     watch,
     setValue,
+    reset,
   } = useForm<BrandFormData>({
     resolver: zodResolver(brandRegistrationSchema),
     mode: "onChange",
+    defaultValues: {
+      emprendedor: "",
+      negocio: "",
+      ciudad: "",
+      pais: "",
+      whatsapp: "",
+      instagram: "",
+      descripcion: "",
+    },
   });
 
-  // Guardar progreso en localStorage
-  useEffect(() => {
-    const savedData = localStorage.getItem("brandRegistrationForm");
-    if (savedData) {
-      try {
-        const data = JSON.parse(savedData);
-        Object.keys(data).forEach((key) => {
-          if (data[key]) {
-            setValue(key as keyof BrandFormData, data[key]);
-          }
-        });
-      } catch (error) {
-        console.error("Error loading saved form data:", error);
-      }
-    }
-  }, [setValue]);
-
-  // Guardar datos en localStorage cuando cambian
-  const formData = watch();
-  useEffect(() => {
-    localStorage.setItem("brandRegistrationForm", JSON.stringify(formData));
-  }, [formData]);
+  // NO guardar en localStorage - siempre empezar limpio
 
   const nextStep = async () => {
     // Validar campo actual antes de avanzar
@@ -92,21 +81,7 @@ export function BrandRegistrationForm() {
     }
 
     if (currentStep < TOTAL_STEPS) {
-      // Limpiar el campo actual al avanzar para mejor UX
-      // Esto hace que el campo quede limpio visualmente al avanzar
-      if (fieldToValidate) {
-        const fieldName = fieldToValidate as keyof BrandFormData;
-        // Limpiar todos los campos opcionales al avanzar
-        // Los obligatorios se mantienen porque ya fueron validados
-        if (fieldName === "emprendedor" || fieldName === "ciudad" || fieldName === "pais" || 
-            fieldName === "instagram" || fieldName === "descripcion") {
-          setValue(fieldName, "" as any);
-          // También limpiar el estado local de país "Otro"
-          if (fieldName === "pais") {
-            setOtherCountry("");
-          }
-        }
-      }
+      // NO limpiar campos - mantener los valores para el envío final
       setCurrentStep(currentStep + 1);
     }
   };
@@ -119,6 +94,14 @@ export function BrandRegistrationForm() {
 
   const onSubmit = async (data: BrandFormData) => {
     setIsSubmitting(true);
+    
+    // Log para debug - verificar que emprendedor se está enviando
+    console.log("📤 Enviando datos del formulario:", {
+      emprendedor: data.emprendedor,
+      negocio: data.negocio,
+      todosLosDatos: data
+    });
+    
     try {
       const response = await fetch("/api/brands", {
         method: "POST",
@@ -134,15 +117,15 @@ export function BrandRegistrationForm() {
         throw new Error(result.error || "Error al crear el registro");
       }
 
-      // Limpiar localStorage
-      localStorage.removeItem("brandRegistrationForm");
-
       // Mostrar éxito y redirigir
       toast({
         title: t.registration.success.title,
         description: t.registration.success.description,
       });
 
+      // Resetear formulario completamente para que siempre empiece limpio
+      reset();
+      
       router.push(`/fotos?marca=${result.recordId}`);
     } catch (error) {
       console.error("Error submitting form:", error);
