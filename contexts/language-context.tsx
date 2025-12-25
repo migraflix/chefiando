@@ -12,11 +12,14 @@ interface LanguageContextType {
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined)
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
+  // Inicializar con un valor por defecto que será consistente en SSR
   const [language, setLanguageState] = useState<Language>("pt")
   const [t, setT] = useState(getTranslations("pt"))
+  const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
-    // Load language from localStorage
+    // Solo después de montar en el cliente, cargar desde localStorage
+    setMounted(true)
     const savedLang = localStorage.getItem("language") as Language
     if (savedLang && (savedLang === "pt" || savedLang === "es")) {
       setLanguageState(savedLang)
@@ -27,7 +30,9 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   const setLanguage = (lang: Language) => {
     setLanguageState(lang)
     setT(getTranslations(lang))
-    localStorage.setItem("language", lang)
+    if (typeof window !== "undefined") {
+      localStorage.setItem("language", lang)
+    }
   }
 
   return <LanguageContext.Provider value={{ language, setLanguage, t }}>{children}</LanguageContext.Provider>

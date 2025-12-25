@@ -288,17 +288,11 @@ export function BrandsListClient() {
                               WhatsApp
                             </Button>
 
-                            {brand.fields["Upload Fotos Link"] && (
-                              <Button asChild variant="outline" size="sm">
-                                <a
-                                  href={brand.fields["Upload Fotos Link"]}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                >
-                                  {t.brands.table.uploadPhotos}
-                                </a>
-                              </Button>
-                            )}
+                            <Button asChild variant="outline" size="sm">
+                              <a href={`/fotos?marca=${brand.id}`}>
+                                {t.brands.table.uploadPhotos}
+                              </a>
+                            </Button>
 
                             <Button asChild>
                               <a href={`/marca/ver/${brand.id}`}>

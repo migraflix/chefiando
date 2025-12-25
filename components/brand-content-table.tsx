@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { ExternalLink, Loader2 } from "lucide-react"
+import { ExternalLink, Loader2, ImageIcon, FileText, CheckCircle2, Clock, AlertCircle } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
 import { useLanguage } from "@/contexts/language-context"
@@ -66,10 +66,8 @@ export function BrandContentTable({ recordIdMarca }: { recordIdMarca: string }) 
 
           const data = await response.json()
           const contents = data.records || []
-          const filteredContents = contents.filter(
-            (item: ContentItem) => item.fields.Post && item.fields.Post.trim() !== "",
-          )
-          setContentItems(filteredContents)
+          // Mostrar TODOS los contenidos, no solo los que tienen Post
+          setContentItems(contents)
         }
       } catch (err) {
         setError(err instanceof Error ? err.message : "Error desconocido")
@@ -86,7 +84,7 @@ export function BrandContentTable({ recordIdMarca }: { recordIdMarca: string }) 
       <Card className="p-12">
         <div className="flex flex-col items-center justify-center gap-4">
           <Loader2 className="h-8 w-8 animate-spin text-orange-500" />
-          <p className="text-gray-600">{t.brand.loading}</p>
+          <p className="text-gray-600" suppressHydrationWarning>{t.brand.loading}</p>
         </div>
       </Card>
     )
@@ -101,6 +99,107 @@ export function BrandContentTable({ recordIdMarca }: { recordIdMarca: string }) 
         </div>
       </Card>
     )
+  }
+
+  // Función para obtener el estado visual y el color según el Status
+  const getStatusInfo = (status: string | undefined) => {
+    if (!status) {
+      return {
+        label: t.brand.status.creating,
+        color: "bg-blue-100 text-blue-800",
+        icon: Clock,
+        description: t.brand.status.creatingDescription,
+        isProcessing: true,
+      }
+    }
+
+    const statusLower = status.toLowerCase()
+    
+    // Detectar "creando publicación" o "creando publicacion" (con o sin tilde)
+    if (statusLower.includes("creando publicación") || statusLower.includes("creando publicacion") || 
+        statusLower.includes("creating post") || statusLower.includes("creating publication")) {
+      return {
+        label: t.brand.status.creatingPost,
+        color: "bg-purple-100 text-purple-800",
+        icon: FileText,
+        description: t.brand.status.creatingPostDescription,
+        isProcessing: true,
+      }
+    }
+    
+    // Detectar "creando imagen"
+    if (statusLower.includes("creando imagen") || statusLower.includes("creating image")) {
+      return {
+        label: t.brand.status.creatingImage,
+        color: "bg-blue-100 text-blue-800",
+        icon: ImageIcon,
+        description: t.brand.status.creatingImageDescription,
+        isProcessing: true,
+      }
+    }
+    
+    // Detectar otros estados de creación/procesamiento
+    if (statusLower.includes("creando") || statusLower.includes("creating") || 
+        statusLower.includes("procesando") || statusLower.includes("processing") ||
+        statusLower.includes("generando") || statusLower.includes("generating")) {
+      if (statusLower.includes("imagen") || statusLower.includes("image")) {
+        return {
+          label: t.brand.status.creatingImage,
+          color: "bg-blue-100 text-blue-800",
+          icon: ImageIcon,
+          description: t.brand.status.creatingImageDescription,
+          isProcessing: true,
+        }
+      }
+      if (statusLower.includes("publicación") || statusLower.includes("publicacion") || 
+          statusLower.includes("post") || statusLower.includes("contenido") || 
+          statusLower.includes("content")) {
+        return {
+          label: t.brand.status.creatingPost,
+          color: "bg-purple-100 text-purple-800",
+          icon: FileText,
+          description: t.brand.status.creatingPostDescription,
+          isProcessing: true,
+        }
+      }
+      return {
+        label: t.brand.status.creating,
+        color: "bg-blue-100 text-blue-800",
+        icon: Clock,
+        description: t.brand.status.creatingDescription,
+        isProcessing: true,
+      }
+    }
+
+    if (statusLower.includes("revisar") || statusLower.includes("review") || 
+        statusLower.includes("pending") || statusLower.includes("manual review")) {
+      return {
+        label: t.brand.status.pendingReview,
+        color: "bg-yellow-100 text-yellow-800",
+        icon: AlertCircle,
+        description: t.brand.status.pendingReviewDescription,
+        isProcessing: false,
+      }
+    }
+
+    if (statusLower.includes("revisado") || statusLower.includes("reviewed") || 
+        statusLower.includes("approved") || statusLower.includes("aprobado")) {
+      return {
+        label: t.brand.status.reviewed,
+        color: "bg-green-100 text-green-800",
+        icon: CheckCircle2,
+        description: t.brand.status.reviewedDescription,
+        isProcessing: false,
+      }
+    }
+
+    return {
+      label: status,
+      color: "bg-gray-100 text-gray-800",
+      icon: Clock,
+      description: status,
+      isProcessing: false,
+    }
   }
 
   if (!contentItems.length) {
@@ -158,13 +257,11 @@ export function BrandContentTable({ recordIdMarca }: { recordIdMarca: string }) 
                 </p>
               )}
 
-              {brandData.fields["Upload Fotos Link"] && (
-                <Button asChild className="mt-4 bg-orange-500 hover:bg-orange-600">
-                  <a href={brandData.fields["Upload Fotos Link"]} target="_blank" rel="noopener noreferrer">
-                    {t.brand.uploadPhotos}
-                  </a>
-                </Button>
-              )}
+              <Button asChild className="mt-4 bg-orange-500 hover:bg-orange-600">
+                <a href={`/fotos?marca=${recordIdMarca}`}>
+                  {t.brand.uploadPhotos}
+                </a>
+              </Button>
             </div>
 
             <div className="text-right">
@@ -189,42 +286,74 @@ export function BrandContentTable({ recordIdMarca }: { recordIdMarca: string }) 
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              {contentItems.map((item) => (
-                <tr key={item.id} className="hover:bg-gray-50 transition-colors">
-                  <td className="px-6 py-4">
-                    {item.fields["📥 Image"]?.[0]?.url ? (
-                      <div className="relative w-20 h-20 rounded-lg overflow-hidden bg-gray-100">
-                        <Image
-                          src={item.fields["📥 Image"][0].url || "/placeholder.svg"}
-                          alt="Imagen del post"
-                          fill
-                          className="object-cover"
-                        />
+              {contentItems.map((item) => {
+                const statusInfo = getStatusInfo(item.fields.Status)
+                const StatusIcon = statusInfo.icon
+                const hasPost = item.fields.Post && item.fields.Post.trim() !== ""
+                const hasImage = item.fields["📥 Image"]?.[0]?.url
+                const isProcessing = statusInfo.isProcessing || false
+                
+                return (
+                  <tr key={item.id} className="hover:bg-gray-50 transition-colors">
+                    <td className="px-6 py-4">
+                      {hasImage ? (
+                        <div className="relative w-20 h-20 rounded-lg overflow-hidden bg-gray-100">
+                          <Image
+                            src={item.fields["📥 Image"][0].url || "/placeholder.svg"}
+                            alt="Imagen del post"
+                            fill
+                            className="object-cover"
+                          />
+                        </div>
+                      ) : isProcessing ? (
+                        <div className="w-20 h-20 rounded-lg bg-gray-200 flex items-center justify-center">
+                          <Loader2 className="h-6 w-6 text-blue-500 animate-spin" />
+                        </div>
+                      ) : (
+                        <div className="w-20 h-20 rounded-lg bg-gray-200 flex items-center justify-center">
+                          <span className="text-gray-400 text-xs">{t.brand.table.noImage}</span>
+                        </div>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 max-w-md">
+                      {hasPost ? (
+                        <p className="text-gray-600 text-sm line-clamp-3">{item.fields.Post}</p>
+                      ) : (
+                        <div className="flex items-center gap-2 text-gray-400 text-sm">
+                          <StatusIcon className="h-4 w-4" />
+                          <span>{statusInfo.description}</span>
+                        </div>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 text-center">
+                      <div className="flex flex-col items-center gap-1">
+                        <span className={`inline-flex items-center gap-1.5 px-3 py-1 ${statusInfo.color} text-xs font-medium rounded-full`}>
+                          {isProcessing && <Loader2 className="h-3 w-3 animate-spin" />}
+                          {!isProcessing && <StatusIcon className="h-3 w-3" />}
+                          {statusInfo.label}
+                        </span>
+                        {item.fields.Status && item.fields.Status !== statusInfo.label && (
+                          <span className="text-xs text-gray-500">{item.fields.Status}</span>
+                        )}
                       </div>
-                    ) : (
-                      <div className="w-20 h-20 rounded-lg bg-gray-200 flex items-center justify-center">
-                        <span className="text-gray-400 text-xs">{t.brand.table.noImage}</span>
-                      </div>
-                    )}
-                  </td>
-                  <td className="px-6 py-4 max-w-md">
-                    <p className="text-gray-600 text-sm line-clamp-3">{item.fields.Post || t.brand.table.noContent}</p>
-                  </td>
-                  <td className="px-6 py-4 text-center">
-                    <span className="inline-block px-3 py-1 bg-yellow-100 text-yellow-800 text-xs font-medium rounded-full">
-                      {item.fields.Status || t.brand.table.noStatus}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-center">
-                    <Link href={`/review/${item.id}?brandId=${recordIdMarca}`}>
-                      <Button size="sm" className="bg-orange-500 hover:bg-orange-600 text-white">
-                        <ExternalLink className="h-4 w-4 mr-2" />
-                        {t.brand.table.rate}
-                      </Button>
-                    </Link>
-                  </td>
-                </tr>
-              ))}
+                    </td>
+                    <td className="px-6 py-4 text-center">
+                      {hasPost ? (
+                        <Link href={`/review/${item.id}?brandId=${recordIdMarca}`}>
+                          <Button size="sm" className="bg-orange-500 hover:bg-orange-600 text-white">
+                            <ExternalLink className="h-4 w-4 mr-2" />
+                            {t.brand.table.rate}
+                          </Button>
+                        </Link>
+                      ) : (
+                        <div className="text-xs text-gray-400">
+                          {t.brand.status.waiting}
+                        </div>
+                      )}
+                    </td>
+                  </tr>
+                )
+              })}
             </tbody>
           </table>
         </div>
