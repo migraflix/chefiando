@@ -169,7 +169,7 @@ export function BrandsListClient() {
           <LanguageSelector />
         </div>
 
-        {/* Filtros de búsqueda, país e idioma. */}
+        {/* Filtros de búsqueda, país e idioma*/}
         <div className="mb-6 flex flex-col gap-4 sm:flex-row">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
