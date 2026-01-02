@@ -42,32 +42,61 @@ export function BrandsListClient() {
 
   useEffect(() => {
     async function fetchBrands() {
+      setLoading(true);
       try {
-        const response = await fetch("/api/brands");
+        console.log("🔍 [CLIENT] Iniciando fetch a /api/brands");
+        const response = await fetch("/api/brands", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+
+        console.log("📥 [CLIENT] Respuesta recibida:", {
+          ok: response.ok,
+          status: response.status,
+          statusText: response.statusText,
+        });
 
         if (!response.ok) {
-          const errorData = await response.json().catch(() => ({}));
-          console.error("Error fetching brands:", {
+          const errorText = await response.text();
+          let errorData;
+          try {
+            errorData = JSON.parse(errorText);
+          } catch {
+            errorData = { raw: errorText };
+          }
+
+          console.error("❌ [CLIENT] Error en respuesta:", {
             status: response.status,
             statusText: response.statusText,
             error: errorData,
           });
+
           throw new Error(
             errorData.error ||
+              errorData.details ||
               `Error ${response.status}: ${response.statusText}`
           );
         }
 
         const data = await response.json();
+        console.log("✅ [CLIENT] Datos recibidos:", {
+          recordsCount: data.records?.length || 0,
+          hasRecords: !!(data.records && data.records.length > 0),
+        });
+
         setBrands(data.records || []);
       } catch (error) {
-        console.error("Error fetching brands:", error);
+        console.error("❌ [CLIENT] Error fetching brands:", error);
         toast({
           title: t.brands.error,
           description:
             error instanceof Error ? error.message : t.brands.errorDescription,
           variant: "destructive",
         });
+        // Asegurar que brands esté vacío en caso de error
+        setBrands([]);
       } finally {
         setLoading(false);
       }

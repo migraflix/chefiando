@@ -19,75 +19,91 @@ export async function GET() {
       )
     }
 
-    // SIEMPRE usar "Brands" como nombre de tabla (funciona en producción y desarrollo)
-    // El ID de tabla solo se usa si está explícitamente configurado Y "Brands" falla
-    const TABLE_NAME = "Brands"
-    const encodedTableName = encodeURIComponent(TABLE_NAME)
-    const url = `https://api.airtable.com/v0/${process.env.AIRTABLE_BASE_ID}/${encodedTableName}`
-    
-    console.log("🔍 [BRANDS API] Iniciando fetch:", {
-      baseId: process.env.AIRTABLE_BASE_ID?.substring(0, 10) + "...",
-      tableName: TABLE_NAME,
-      encodedTableName,
-      url: url.replace(process.env.AIRTABLE_BASE_ID!, "[BASE_ID]"),
-      apiKeyLength: process.env.AIRTABLE_API_KEY?.length || 0,
-      timestamp: new Date().toISOString(),
-    })
+    // Intentar con diferentes nombres de tabla (por si hay diferencias entre dev y prod)
+    const possibleTableNames = [
+      "Brands",      // Nombre estándar
+      "brands",      // Minúsculas (por si acaso)
+      process.env.AIRTABLE_BRANDS_TABLE_ID || "apprcCvYyrWqDXKay", // ID como último recurso
+    ]
 
-    const response = await fetch(url, {
-      headers: {
-        Authorization: `Bearer ${process.env.AIRTABLE_API_KEY}`,
-      },
-    })
+    let lastError: any = null
+    let lastStatus: number = 0
 
-    if (!response.ok) {
-      const errorText = await response.text()
-      let errorData
+    for (const TABLE_NAME of possibleTableNames) {
       try {
-        errorData = JSON.parse(errorText)
-      } catch {
-        errorData = { raw: errorText }
-      }
-      
-      console.error("❌ [BRANDS API] Error de Airtable:", {
-        status: response.status,
-        statusText: response.statusText,
-        statusCode: response.status,
-        error: errorData,
-        url: url.replace(process.env.AIRTABLE_BASE_ID!, "[BASE_ID]"),
-        headers: {
-          hasAuth: !!response.headers.get("authorization"),
-          contentType: response.headers.get("content-type"),
-        },
-        timestamp: new Date().toISOString(),
-      })
-      
-      // Logs adicionales según el tipo de error
-      if (response.status === 401) {
-        console.error("🔐 [BRANDS API] Error 401: API Key inválida o expirada")
-      } else if (response.status === 403) {
-        console.error("🚫 [BRANDS API] Error 403: Sin permisos para acceder a esta base")
-      } else if (response.status === 404) {
-        console.error("🔍 [BRANDS API] Error 404: Base ID o tabla no encontrada")
-      }
-      
-      return NextResponse.json(
-        {
-          error: "Failed to fetch brands",
-          details: errorData.error?.message || errorData.raw || `Status: ${response.status}`,
+        const encodedTableName = encodeURIComponent(TABLE_NAME)
+        const url = `https://api.airtable.com/v0/${process.env.AIRTABLE_BASE_ID}/${encodedTableName}`
+        
+        console.log("🔍 [BRANDS API] Intentando con tabla:", {
+          tableName: TABLE_NAME,
+          encodedTableName,
+          url: url.replace(process.env.AIRTABLE_BASE_ID!, "[BASE_ID]"),
+          timestamp: new Date().toISOString(),
+        })
+
+        const response = await fetch(url, {
+          headers: {
+            Authorization: `Bearer ${process.env.AIRTABLE_API_KEY}`,
+          },
+        })
+
+        if (response.ok) {
+          const data = await response.json()
+          console.log("✅ [BRANDS API] Brands fetched successfully con tabla:", TABLE_NAME, {
+            recordsCount: data.records?.length || 0,
+            hasRecords: !!(data.records && data.records.length > 0),
+            timestamp: new Date().toISOString(),
+          })
+          return NextResponse.json(data)
+        }
+
+        // Si no es exitoso, guardar el error y continuar con el siguiente
+        const errorText = await response.text()
+        let errorData
+        try {
+          errorData = JSON.parse(errorText)
+        } catch {
+          errorData = { raw: errorText }
+        }
+
+        lastError = errorData
+        lastStatus = response.status
+
+        console.warn("⚠️ [BRANDS API] Tabla no funcionó:", TABLE_NAME, {
           status: response.status,
-        },
-        { status: response.status >= 500 ? 500 : response.status }
-      )
+          error: errorData.error?.message || errorData.raw,
+        })
+
+        // Si es 404, continuar con el siguiente nombre
+        // Si es 403 o 401, también continuar (puede ser que el nombre sea diferente)
+        if (response.status === 404) {
+          continue // Probar siguiente nombre
+        }
+        
+      } catch (fetchError) {
+        console.error("❌ [BRANDS API] Error al intentar con tabla:", TABLE_NAME, fetchError)
+        lastError = { message: fetchError instanceof Error ? fetchError.message : "Error desconocido" }
+        continue // Probar siguiente nombre
+      }
     }
 
-    const data = await response.json()
-    console.log("✅ [BRANDS API] Brands fetched successfully:", {
-      recordsCount: data.records?.length || 0,
-      hasRecords: !!(data.records && data.records.length > 0),
+    // Si llegamos aquí, ninguna tabla funcionó
+    console.error("❌ [BRANDS API] Todas las tablas fallaron:", {
+      triedTables: possibleTableNames,
+      lastError,
+      lastStatus,
       timestamp: new Date().toISOString(),
     })
-    return NextResponse.json(data)
+
+    return NextResponse.json(
+      {
+        error: "Failed to fetch brands",
+        details: lastError?.error?.message || lastError?.message || lastError?.raw || `Status: ${lastStatus || 500}`,
+        triedTables: possibleTableNames,
+        status: lastStatus || 500,
+      },
+      { status: lastStatus >= 500 ? 500 : lastStatus || 500 }
+    )
   } catch (error) {
     console.error("❌ Error fetching brands:", error)
     return NextResponse.json(
