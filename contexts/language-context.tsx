@@ -78,39 +78,50 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     // Solo después de montar en el cliente
     setMounted(true)
     
-    // SIEMPRE detectar primero el idioma por IP
+    // Verificar primero si hay un idioma guardado manualmente
+    const userManuallyChanged = localStorage.getItem("language_manually_changed") === "true"
+    const savedLang = localStorage.getItem("language") as Language
+    
+    if (userManuallyChanged && savedLang && (savedLang === "pt" || savedLang === "es")) {
+      // El usuario cambió manualmente el idioma, usar ese primero
+      console.log("🌐 [LANG] Usando idioma manual guardado:", savedLang)
+      setLanguageState(savedLang)
+      setT(getTranslations(savedLang))
+      // Aún así, detectar la ubicación en segundo plano (sin cambiar el idioma)
+      detectLanguageFromIP().then((result) => {
+        setLocationInfo(result.locationInfo)
+        console.log("🌐 [LANG] Ubicación detectada (idioma manual activo):", result.locationInfo.country)
+      }).catch(() => {
+        // Ignorar errores si ya tenemos idioma manual
+      })
+      return
+    }
+    
+    // Si no hay idioma manual, SIEMPRE detectar por IP y usar ese idioma
+    console.log("🌐 [LANG] Detectando idioma por IP...")
     detectLanguageFromIP().then((result) => {
       setLocationInfo(result.locationInfo)
       
-      // Verificar si el usuario ya eligió manualmente el idioma
-      const userManuallyChanged = localStorage.getItem("language_manually_changed") === "true"
-      const savedLang = localStorage.getItem("language") as Language
-      
-      if (userManuallyChanged && savedLang && (savedLang === "pt" || savedLang === "es")) {
-        // El usuario cambió manualmente el idioma, respetar su elección
-        console.log("🌐 Usando idioma manual:", savedLang)
-        setLanguageState(savedLang)
-        setT(getTranslations(savedLang))
-      } else {
-        // Usar el idioma detectado por IP (sobrescribe cualquier idioma guardado anterior)
-        console.log("🌐 Usando idioma detectado por IP:", result.language, "País:", result.locationInfo.country)
-        setLanguageState(result.language)
-        setT(getTranslations(result.language))
-        // Guardar el idioma detectado
-        localStorage.setItem("language", result.language)
-        // Asegurar que NO está marcado como cambio manual
-        localStorage.removeItem("language_manually_changed")
-      }
+      // Usar el idioma detectado por IP (sobrescribe cualquier idioma guardado anterior)
+      console.log("🌐 [LANG] Idioma detectado por IP:", result.language, "País:", result.locationInfo.country, "Code:", result.locationInfo.countryCode)
+      setLanguageState(result.language)
+      setT(getTranslations(result.language))
+      // Guardar el idioma detectado
+      localStorage.setItem("language", result.language)
+      // Asegurar que NO está marcado como cambio manual
+      localStorage.removeItem("language_manually_changed")
     }).catch((error) => {
-      console.error("Error detecting language:", error)
+      console.error("❌ [LANG] Error detecting language:", error)
       // En caso de error, verificar si hay idioma guardado
       const savedLang = localStorage.getItem("language") as Language
       if (savedLang && (savedLang === "pt" || savedLang === "es")) {
+        console.log("🌐 [LANG] Usando idioma guardado (fallback):", savedLang)
         setLanguageState(savedLang)
         setT(getTranslations(savedLang))
       } else {
         // Usar español por defecto
         const defaultLang: Language = "es"
+        console.log("🌐 [LANG] Usando español por defecto (sin detección)")
         setLanguageState(defaultLang)
         setT(getTranslations(defaultLang))
         localStorage.setItem("language", defaultLang)

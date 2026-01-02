@@ -1,21 +1,22 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { useLanguage } from "@/contexts/language-context"
-import { Button } from "@/components/ui/button"
-import { Languages } from "lucide-react"
+import { useState, useEffect } from "react";
+import { useLanguage } from "@/contexts/language-context";
+import { Button } from "@/components/ui/button";
+import { Languages } from "lucide-react";
 
 export function LanguageSelector() {
-  const { language, setLanguage } = useLanguage()
-  const [mounted, setMounted] = useState(false)
+  const { language, setLanguage } = useLanguage();
+  const [mounted, setMounted] = useState(false);
 
   // Evitar mismatch de hidratación
   useEffect(() => {
-    setMounted(true)
-  }, [])
+    setMounted(true);
+  }, []);
 
-  // Durante SSR y antes de montar, usar un valor por defecto consistente
-  const displayLanguage = mounted ? language : "es"
+  // Usar el idioma del contexto (ya detectado por IP)
+  // Durante SSR usar "es" por defecto para consistencia
+  const displayLanguage = mounted ? language : "es";
 
   return (
     <div className="flex items-center gap-2 bg-card border rounded-lg p-1">
@@ -37,5 +38,5 @@ export function LanguageSelector() {
         ES
       </Button>
     </div>
-  )
+  );
 }
