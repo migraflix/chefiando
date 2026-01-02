@@ -4,21 +4,69 @@ import { brandRegistrationSchema } from "@/lib/validation/brand-schema"
 
 export async function GET() {
   try {
-    const response = await fetch(`https://api.airtable.com/v0/${process.env.AIRTABLE_BASE_ID}/Brands`, {
+    // Verificar que las variables de entorno estén configuradas
+    if (!process.env.AIRTABLE_BASE_ID || !process.env.AIRTABLE_API_KEY) {
+      console.error("❌ Variables de entorno faltantes:", {
+        hasBaseId: !!process.env.AIRTABLE_BASE_ID,
+        hasApiKey: !!process.env.AIRTABLE_API_KEY,
+      })
+      return NextResponse.json(
+        { 
+          error: "Configuración de Airtable incompleta",
+          details: "Faltan AIRTABLE_BASE_ID o AIRTABLE_API_KEY en las variables de entorno"
+        },
+        { status: 500 }
+      )
+    }
+
+    const encodedTableName = encodeURIComponent("Brands")
+    const url = `https://api.airtable.com/v0/${process.env.AIRTABLE_BASE_ID}/${encodedTableName}`
+    
+    console.log("🔍 Fetching brands from:", url.replace(process.env.AIRTABLE_BASE_ID!, "[BASE_ID]"))
+
+    const response = await fetch(url, {
       headers: {
         Authorization: `Bearer ${process.env.AIRTABLE_API_KEY}`,
       },
     })
 
     if (!response.ok) {
-      throw new Error("Failed to fetch brands")
+      const errorText = await response.text()
+      let errorData
+      try {
+        errorData = JSON.parse(errorText)
+      } catch {
+        errorData = { raw: errorText }
+      }
+      
+      console.error("❌ Error de Airtable:", {
+        status: response.status,
+        statusText: response.statusText,
+        error: errorData,
+      })
+      
+      return NextResponse.json(
+        {
+          error: "Failed to fetch brands",
+          details: errorData.error?.message || errorData.raw || `Status: ${response.status}`,
+          status: response.status,
+        },
+        { status: response.status >= 500 ? 500 : response.status }
+      )
     }
 
     const data = await response.json()
+    console.log("✅ Brands fetched successfully:", data.records?.length || 0, "records")
     return NextResponse.json(data)
   } catch (error) {
-    console.error("Error fetching brands:", error)
-    return NextResponse.json({ error: "Failed to fetch brands" }, { status: 500 })
+    console.error("❌ Error fetching brands:", error)
+    return NextResponse.json(
+      {
+        error: "Failed to fetch brands",
+        details: error instanceof Error ? error.message : "Error desconocido",
+      },
+      { status: 500 }
+    )
   }
 }
 

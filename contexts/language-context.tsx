@@ -12,41 +12,23 @@ interface LanguageContextType {
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined)
 
 /**
- * Detecta el idioma basado en la ubicación del usuario
- * Usa el idioma del navegador como fuente principal
+ * Detecta el idioma basado en la IP del usuario
+ * Solo Brasil es portugués, todo lo demás es español
  */
-function detectLanguageFromLocation(): Language {
+async function detectLanguageFromIP(): Promise<Language> {
   if (typeof window === "undefined") return "es" // Default para SSR
   
-  // Intentar detectar por idioma del navegador (más confiable)
-  const browserLang = navigator.language || navigator.languages?.[0] || "es"
-  const langCode = browserLang.split("-")[0].toLowerCase()
-  
-  // Si el idioma del navegador es portugués, usar portugués
-  if (langCode === "pt") {
-    return "pt"
-  }
-  
-  // Intentar detectar por timezone (Brasil usa timezone de América/São_Paulo)
-  // Esto es un fallback si el idioma del navegador no está configurado correctamente
   try {
-    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone
-    // Timezones de Brasil
-    const brazilTimezones = [
-      "America/Sao_Paulo", "America/Fortaleza", "America/Recife", "America/Bahia",
-      "America/Manaus", "America/Cuiaba", "America/Campo_Grande", "America/Belem",
-      "America/Araguaina", "America/Maceio", "America/Noronha", "America/Boa_Vista",
-      "America/Rio_Branco", "America/Porto_Velho"
-    ]
-    
-    if (brazilTimezones.some(tz => timezone.includes(tz))) {
-      return "pt"
+    const response = await fetch("/api/detect-language")
+    if (response.ok) {
+      const data = await response.json()
+      return data.language === "pt" ? "pt" : "es"
     }
-  } catch (e) {
-    // Si falla, continuar con la detección por idioma
+  } catch (error) {
+    console.error("Error detecting language from IP:", error)
   }
   
-  // Por defecto, español para países de habla hispana y otros
+  // Fallback: usar español por defecto
   return "es"
 }
 
@@ -69,13 +51,21 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
       return
     }
     
-    // Si no hay idioma guardado, detectar automáticamente SOLO LA PRIMERA VEZ
-    // Esto evita que se cambie el idioma después de que el usuario ya lo haya seleccionado
-    const detectedLang = detectLanguageFromLocation()
-    setLanguageState(detectedLang)
-    setT(getTranslations(detectedLang))
-    // Guardar el idioma detectado para que no cambie en futuras visitas
-    localStorage.setItem("language", detectedLang)
+    // Si no hay idioma guardado, detectar automáticamente por IP
+    // Solo Brasil es portugués, todo lo demás es español
+    detectLanguageFromIP().then((detectedLang) => {
+      setLanguageState(detectedLang)
+      setT(getTranslations(detectedLang))
+      // Guardar el idioma detectado para que no cambie en futuras visitas
+      localStorage.setItem("language", detectedLang)
+    }).catch((error) => {
+      console.error("Error detecting language:", error)
+      // En caso de error, usar español por defecto
+      const defaultLang: Language = "es"
+      setLanguageState(defaultLang)
+      setT(getTranslations(defaultLang))
+      localStorage.setItem("language", defaultLang)
+    })
   }, [])
 
   const setLanguage = (lang: Language) => {
