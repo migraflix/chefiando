@@ -78,42 +78,49 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     // Solo después de montar en el cliente
     setMounted(true)
     
-    // Verificar si hay un idioma guardado en localStorage
-    // Si existe, usarlo (el usuario ya eligió manualmente)
-    const savedLang = localStorage.getItem("language") as Language
-    if (savedLang && (savedLang === "pt" || savedLang === "es")) {
-      setLanguageState(savedLang)
-      setT(getTranslations(savedLang))
-      // Intentar obtener info de ubicación aunque ya tengamos idioma guardado
-      detectLanguageFromIP().then((result) => {
-        setLocationInfo(result.locationInfo)
-      }).catch(() => {
-        // Ignorar errores si ya tenemos idioma guardado
-      })
-      return
-    }
-    
-    // Si no hay idioma guardado, detectar automáticamente por IP
-    // Solo Brasil es portugués, todo lo demás es español
+    // SIEMPRE detectar primero el idioma por IP
     detectLanguageFromIP().then((result) => {
-      setLanguageState(result.language)
-      setT(getTranslations(result.language))
       setLocationInfo(result.locationInfo)
-      // Guardar el idioma detectado para que no cambie en futuras visitas
-      localStorage.setItem("language", result.language)
+      
+      // Verificar si el usuario ya eligió manualmente el idioma
+      const userManuallyChanged = localStorage.getItem("language_manually_changed") === "true"
+      const savedLang = localStorage.getItem("language") as Language
+      
+      if (userManuallyChanged && savedLang && (savedLang === "pt" || savedLang === "es")) {
+        // El usuario cambió manualmente el idioma, respetar su elección
+        console.log("🌐 Usando idioma manual:", savedLang)
+        setLanguageState(savedLang)
+        setT(getTranslations(savedLang))
+      } else {
+        // Usar el idioma detectado por IP (sobrescribe cualquier idioma guardado anterior)
+        console.log("🌐 Usando idioma detectado por IP:", result.language, "País:", result.locationInfo.country)
+        setLanguageState(result.language)
+        setT(getTranslations(result.language))
+        // Guardar el idioma detectado
+        localStorage.setItem("language", result.language)
+        // Asegurar que NO está marcado como cambio manual
+        localStorage.removeItem("language_manually_changed")
+      }
     }).catch((error) => {
       console.error("Error detecting language:", error)
-      // En caso de error, usar español por defecto
-      const defaultLang: Language = "es"
-      setLanguageState(defaultLang)
-      setT(getTranslations(defaultLang))
+      // En caso de error, verificar si hay idioma guardado
+      const savedLang = localStorage.getItem("language") as Language
+      if (savedLang && (savedLang === "pt" || savedLang === "es")) {
+        setLanguageState(savedLang)
+        setT(getTranslations(savedLang))
+      } else {
+        // Usar español por defecto
+        const defaultLang: Language = "es"
+        setLanguageState(defaultLang)
+        setT(getTranslations(defaultLang))
+        localStorage.setItem("language", defaultLang)
+      }
       setLocationInfo({
         country: "Unknown",
         countryCode: "MX",
         ip: "error",
         flag: "🇲🇽",
       })
-      localStorage.setItem("language", defaultLang)
     })
   }, [])
 
@@ -122,6 +129,8 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     setT(getTranslations(lang))
     if (typeof window !== "undefined") {
       localStorage.setItem("language", lang)
+      // Marcar que el usuario cambió manualmente el idioma
+      localStorage.setItem("language_manually_changed", "true")
     }
   }
 

@@ -19,14 +19,15 @@ export async function GET() {
       )
     }
 
-    // Usar ID de tabla para mayor confiabilidad
-    const TABLE_ID = process.env.AIRTABLE_BRANDS_TABLE_ID || "apprcCvYyrWqDXKay"
-    const encodedTableName = encodeURIComponent(TABLE_ID)
+    // SIEMPRE usar "Brands" como nombre de tabla (funciona en producción y desarrollo)
+    // El ID de tabla solo se usa si está explícitamente configurado Y "Brands" falla
+    const TABLE_NAME = "Brands"
+    const encodedTableName = encodeURIComponent(TABLE_NAME)
     const url = `https://api.airtable.com/v0/${process.env.AIRTABLE_BASE_ID}/${encodedTableName}`
     
     console.log("🔍 [BRANDS API] Iniciando fetch:", {
       baseId: process.env.AIRTABLE_BASE_ID?.substring(0, 10) + "...",
-      tableId: TABLE_ID,
+      tableName: TABLE_NAME,
       encodedTableName,
       url: url.replace(process.env.AIRTABLE_BASE_ID!, "[BASE_ID]"),
       apiKeyLength: process.env.AIRTABLE_API_KEY?.length || 0,

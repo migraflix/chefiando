@@ -44,13 +44,28 @@ export function BrandsListClient() {
     async function fetchBrands() {
       try {
         const response = await fetch("/api/brands");
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          console.error("Error fetching brands:", {
+            status: response.status,
+            statusText: response.statusText,
+            error: errorData,
+          });
+          throw new Error(
+            errorData.error ||
+              `Error ${response.status}: ${response.statusText}`
+          );
+        }
+
         const data = await response.json();
         setBrands(data.records || []);
       } catch (error) {
         console.error("Error fetching brands:", error);
         toast({
           title: t.brands.error,
-          description: t.brands.errorDescription,
+          description:
+            error instanceof Error ? error.message : t.brands.errorDescription,
           variant: "destructive",
         });
       } finally {
