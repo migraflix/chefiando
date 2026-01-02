@@ -27,11 +27,25 @@ export function inferLanguage(pais?: string, ciudad?: string): string {
 
 /**
  * Sanitiza un string para Airtable
- * Elimina caracteres problemáticos y trim
+ * Elimina caracteres problemáticos, escapa caracteres especiales y trim
  */
 export function sanitizeString(value: string | undefined): string | undefined {
   if (!value) return undefined;
-  return value.trim();
+  
+  // Trim primero
+  let sanitized = value.trim();
+  
+  // Reemplazar caracteres problemáticos comunes
+  sanitized = sanitized
+    .replace(/\r\n/g, '\n') // Normalizar line breaks
+    .replace(/\r/g, '\n') // Normalizar line breaks
+    .replace(/\t/g, ' ') // Reemplazar tabs con espacios
+    .replace(/[\u200B-\u200D\uFEFF]/g, '') // Eliminar zero-width characters
+    .replace(/[\u0000-\u001F]/g, '') // Eliminar caracteres de control excepto \n
+    .replace(/\u00A0/g, ' ') // Reemplazar non-breaking space con espacio normal
+    .trim();
+  
+  return sanitized;
 }
 
 /**

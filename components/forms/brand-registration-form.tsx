@@ -21,18 +21,18 @@ import { useLanguage } from "@/contexts/language-context";
 import { Loader2, ArrowRight, Camera, Sparkles } from "lucide-react";
 
 const COUNTRIES = [
-  "Perú",
-  "Colombia",
-  "Chile",
   "Argentina",
-  "México",
+  "Brasil",
+  "Chile",
+  "Colombia",
   "Ecuador",
-  "Venezuela",
   "España",
   "Estados Unidos",
-  "Brasil",
+  "México",
+  "Perú",
+  "Venezuela",
   "Otro",
-];
+].sort();
 
 export function BrandRegistrationForm() {
   const [currentSection, setCurrentSection] = useState(1);

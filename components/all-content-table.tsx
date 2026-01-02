@@ -184,10 +184,10 @@ export function AllContentTable({ status }: { status: "pending" | "reviewed" }) 
                     <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">{t.brand.table.image}</th>
                     <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">{t.brand.table.post}</th>
                     <th className="px-6 py-4 text-center text-sm font-semibold text-gray-900">
-                      {t.brand.table.status}
+                      {t.lang === "pt" ? "Ações" : "Acciones"}
                     </th>
                     <th className="px-6 py-4 text-center text-sm font-semibold text-gray-900">
-                      {t.lang === "pt" ? "Ações" : "Acciones"}
+                      {t.brand.table.status}
                     </th>
                   </tr>
                 </thead>
@@ -224,6 +224,14 @@ export function AllContentTable({ status }: { status: "pending" | "reviewed" }) 
                         </p>
                       </td>
                       <td className="px-6 py-4 text-center">
+                        <Link href={`/review/${item.id}?brandId=${item.brandId}`}>
+                          <Button size="sm" className="bg-orange-500 hover:bg-orange-600 text-white">
+                            <ExternalLink className="h-4 w-4 mr-2" />
+                            {status === "pending" ? t.brand.table.rate : t.lang === "pt" ? "Ver" : "Ver"}
+                          </Button>
+                        </Link>
+                      </td>
+                      <td className="px-6 py-4 text-center">
                         <span
                           className={`inline-block px-3 py-1 text-xs font-medium rounded-full ${
                             item.fields.Status === "Manual Review"
@@ -235,14 +243,6 @@ export function AllContentTable({ status }: { status: "pending" | "reviewed" }) 
                         >
                           {item.fields.Status || t.brand.table.noStatus}
                         </span>
-                      </td>
-                      <td className="px-6 py-4 text-center">
-                        <Link href={`/review/${item.id}?brandId=${item.brandId}`}>
-                          <Button size="sm" className="bg-orange-500 hover:bg-orange-600 text-white">
-                            <ExternalLink className="h-4 w-4 mr-2" />
-                            {status === "pending" ? t.brand.table.rate : t.lang === "pt" ? "Ver" : "Ver"}
-                          </Button>
-                        </Link>
                       </td>
                     </tr>
                   ))}

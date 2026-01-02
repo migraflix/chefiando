@@ -281,8 +281,8 @@ export function BrandContentTable({ recordIdMarca }: { recordIdMarca: string }) 
               <tr>
                 <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">{t.brand.table.image}</th>
                 <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">{t.brand.table.post}</th>
-                <th className="px-6 py-4 text-center text-sm font-semibold text-gray-900">{t.brand.table.status}</th>
                 <th className="px-6 py-4 text-center text-sm font-semibold text-gray-900">{t.brand.table.rate}</th>
+                <th className="px-6 py-4 text-center text-sm font-semibold text-gray-900">{t.brand.table.status}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
@@ -326,18 +326,6 @@ export function BrandContentTable({ recordIdMarca }: { recordIdMarca: string }) 
                       )}
                     </td>
                     <td className="px-6 py-4 text-center">
-                      <div className="flex flex-col items-center gap-1">
-                        <span className={`inline-flex items-center gap-1.5 px-3 py-1 ${statusInfo.color} text-xs font-medium rounded-full`}>
-                          {isProcessing && <Loader2 className="h-3 w-3 animate-spin" />}
-                          {!isProcessing && <StatusIcon className="h-3 w-3" />}
-                          {statusInfo.label}
-                        </span>
-                        {item.fields.Status && item.fields.Status !== statusInfo.label && (
-                          <span className="text-xs text-gray-500">{item.fields.Status}</span>
-                        )}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-center">
                       {hasPost ? (
                         <Link href={`/review/${item.id}?brandId=${recordIdMarca}`}>
                           <Button size="sm" className="bg-orange-500 hover:bg-orange-600 text-white">
@@ -350,6 +338,18 @@ export function BrandContentTable({ recordIdMarca }: { recordIdMarca: string }) 
                           {t.brand.status.waiting}
                         </div>
                       )}
+                    </td>
+                    <td className="px-6 py-4 text-center">
+                      <div className="flex flex-col items-center gap-1">
+                        <span className={`inline-flex items-center gap-1.5 px-3 py-1 ${statusInfo.color} text-xs font-medium rounded-full`}>
+                          {isProcessing && <Loader2 className="h-3 w-3 animate-spin" />}
+                          {!isProcessing && <StatusIcon className="h-3 w-3" />}
+                          {statusInfo.label}
+                        </span>
+                        {item.fields.Status && item.fields.Status !== statusInfo.label && (
+                          <span className="text-xs text-gray-500">{item.fields.Status}</span>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 )
