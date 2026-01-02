@@ -43,12 +43,58 @@ export async function GET(request: NextRequest) {
                       ip.startsWith("172.31.")
 
     if (isLocalIp) {
-      // IP local, usar español por defecto
+      // IP local - en desarrollo, intentar obtener IP pública usando un servicio externo
+      try {
+        // Intentar obtener IP pública desde un servicio externo
+        const publicIpResponse = await fetch("https://api.ipify.org?format=json", {
+          headers: {
+            "User-Agent": "Migraflix/1.0",
+          },
+        })
+        
+        if (publicIpResponse.ok) {
+          const publicIpData = await publicIpResponse.json()
+          const publicIp = publicIpData.ip
+          
+          // Ahora usar la IP pública para geolocalización
+          const geoResponse = await fetch(`http://ip-api.com/json/${publicIp}?fields=status,message,country,countryCode`, {
+            headers: {
+              "User-Agent": "Migraflix/1.0",
+            },
+          })
+
+          if (geoResponse.ok) {
+            const geoData = await geoResponse.json()
+            
+            if (geoData.status === "success") {
+              const country = geoData.country || ""
+              const countryCode = geoData.countryCode || ""
+              const language = countryCode === "BR" || country.toLowerCase().includes("brazil") ? "pt" : "es"
+              
+              return NextResponse.json({
+                language,
+                country,
+                countryCode,
+                ip: publicIp,
+                localIp: ip,
+                method: "ip-api-public",
+                flag: countryCode === "BR" ? "🇧🇷" : "🇲🇽",
+              })
+            }
+          }
+        }
+      } catch (error) {
+        console.error("Error obteniendo IP pública:", error)
+      }
+      
+      // Si no se pudo obtener IP pública, usar español por defecto
       return NextResponse.json({ 
         language: "es", 
-        country: "Local", 
+        country: "Local (Desarrollo)", 
+        countryCode: "MX",
         method: "local-ip",
-        ip: ip || "unknown"
+        ip: ip || "localhost",
+        flag: "🇲🇽",
       })
     }
 
@@ -75,7 +121,9 @@ export async function GET(request: NextRequest) {
             language,
             country,
             countryCode,
+            ip,
             method: "ip-api",
+            flag: countryCode === "BR" ? "🇧🇷" : "🇲🇽", // Bandera de Brasil o México
           })
         }
       }
@@ -84,11 +132,25 @@ export async function GET(request: NextRequest) {
     }
 
     // Fallback: usar español por defecto
-    return NextResponse.json({ language: "es", country: "Unknown", method: "fallback" })
+    return NextResponse.json({ 
+      language: "es", 
+      country: "Unknown", 
+      countryCode: "MX",
+      ip: ip || "unknown",
+      method: "fallback",
+      flag: "🇲🇽",
+    })
   } catch (error) {
     console.error("Error detecting language:", error)
     // En caso de error, retornar español por defecto
-    return NextResponse.json({ language: "es", country: "Unknown", method: "error" })
+    return NextResponse.json({ 
+      language: "es", 
+      country: "Unknown", 
+      countryCode: "MX",
+      ip: "error",
+      method: "error",
+      flag: "🇲🇽",
+    })
   }
 }
 

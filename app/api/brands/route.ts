@@ -19,10 +19,19 @@ export async function GET() {
       )
     }
 
-    const encodedTableName = encodeURIComponent("Brands")
+    // Usar ID de tabla para mayor confiabilidad
+    const TABLE_ID = process.env.AIRTABLE_BRANDS_TABLE_ID || "apprcCvYyrWqDXKay"
+    const encodedTableName = encodeURIComponent(TABLE_ID)
     const url = `https://api.airtable.com/v0/${process.env.AIRTABLE_BASE_ID}/${encodedTableName}`
     
-    console.log("🔍 Fetching brands from:", url.replace(process.env.AIRTABLE_BASE_ID!, "[BASE_ID]"))
+    console.log("🔍 [BRANDS API] Iniciando fetch:", {
+      baseId: process.env.AIRTABLE_BASE_ID?.substring(0, 10) + "...",
+      tableId: TABLE_ID,
+      encodedTableName,
+      url: url.replace(process.env.AIRTABLE_BASE_ID!, "[BASE_ID]"),
+      apiKeyLength: process.env.AIRTABLE_API_KEY?.length || 0,
+      timestamp: new Date().toISOString(),
+    })
 
     const response = await fetch(url, {
       headers: {
@@ -39,11 +48,27 @@ export async function GET() {
         errorData = { raw: errorText }
       }
       
-      console.error("❌ Error de Airtable:", {
+      console.error("❌ [BRANDS API] Error de Airtable:", {
         status: response.status,
         statusText: response.statusText,
+        statusCode: response.status,
         error: errorData,
+        url: url.replace(process.env.AIRTABLE_BASE_ID!, "[BASE_ID]"),
+        headers: {
+          hasAuth: !!response.headers.get("authorization"),
+          contentType: response.headers.get("content-type"),
+        },
+        timestamp: new Date().toISOString(),
       })
+      
+      // Logs adicionales según el tipo de error
+      if (response.status === 401) {
+        console.error("🔐 [BRANDS API] Error 401: API Key inválida o expirada")
+      } else if (response.status === 403) {
+        console.error("🚫 [BRANDS API] Error 403: Sin permisos para acceder a esta base")
+      } else if (response.status === 404) {
+        console.error("🔍 [BRANDS API] Error 404: Base ID o tabla no encontrada")
+      }
       
       return NextResponse.json(
         {
@@ -56,7 +81,11 @@ export async function GET() {
     }
 
     const data = await response.json()
-    console.log("✅ Brands fetched successfully:", data.records?.length || 0, "records")
+    console.log("✅ [BRANDS API] Brands fetched successfully:", {
+      recordsCount: data.records?.length || 0,
+      hasRecords: !!(data.records && data.records.length > 0),
+      timestamp: new Date().toISOString(),
+    })
     return NextResponse.json(data)
   } catch (error) {
     console.error("❌ Error fetching brands:", error)

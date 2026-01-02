@@ -53,7 +53,9 @@ export async function GET(request: Request) {
 
     if (brandIds.length > 0) {
       const brandFilter = `OR(${brandIds.map((id) => `RECORD_ID() = '${id}'`).join(", ")})`
-      const brandsUrl = `https://api.airtable.com/v0/${baseId}/Brands?filterByFormula=${encodeURIComponent(brandFilter)}`
+      // Usar ID de tabla para mayor confiabilidad
+      const BRANDS_TABLE_ID = process.env.AIRTABLE_BRANDS_TABLE_ID || "apprcCvYyrWqDXKay"
+      const brandsUrl = `https://api.airtable.com/v0/${baseId}/${BRANDS_TABLE_ID}?filterByFormula=${encodeURIComponent(brandFilter)}`
 
       const brandsResponse = await fetch(brandsUrl, {
         headers: {

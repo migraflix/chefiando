@@ -275,13 +275,13 @@ export function BrandContentTable({ recordIdMarca }: { recordIdMarca: string }) 
       )}
 
       <Card className="overflow-hidden">
-        <div className="overflow-x-auto">
+        {/* Vista Desktop: Tabla completa */}
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full">
             <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
                 <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">{t.brand.table.image}</th>
                 <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">{t.brand.table.post}</th>
-                <th className="px-6 py-4 text-center text-sm font-semibold text-gray-900">{t.brand.table.rate}</th>
                 <th className="px-6 py-4 text-center text-sm font-semibold text-gray-900">{t.brand.table.status}</th>
               </tr>
             </thead>
@@ -296,24 +296,39 @@ export function BrandContentTable({ recordIdMarca }: { recordIdMarca: string }) 
                 return (
                   <tr key={item.id} className="hover:bg-gray-50 transition-colors">
                     <td className="px-6 py-4">
-                      {hasImage ? (
-                        <div className="relative w-20 h-20 rounded-lg overflow-hidden bg-gray-100">
-                          <Image
-                            src={item.fields["📥 Image"][0].url || "/placeholder.svg"}
-                            alt="Imagen del post"
-                            fill
-                            className="object-cover"
-                          />
-                        </div>
-                      ) : isProcessing ? (
-                        <div className="w-20 h-20 rounded-lg bg-gray-200 flex items-center justify-center">
-                          <Loader2 className="h-6 w-6 text-blue-500 animate-spin" />
-                        </div>
-                      ) : (
-                        <div className="w-20 h-20 rounded-lg bg-gray-200 flex items-center justify-center">
-                          <span className="text-gray-400 text-xs">{t.brand.table.noImage}</span>
-                        </div>
-                      )}
+                      <div className="space-y-3">
+                        {hasImage ? (
+                          <div className="relative w-32 h-32 rounded-lg overflow-hidden bg-gray-100 shadow-md">
+                            <Image
+                              src={item.fields["📥 Image"][0].url || "/placeholder.svg"}
+                              alt="Imagen del post"
+                              fill
+                              className="object-cover"
+                            />
+                          </div>
+                        ) : isProcessing ? (
+                          <div className="w-32 h-32 rounded-lg bg-gray-200 flex items-center justify-center shadow-md">
+                            <Loader2 className="h-6 w-6 text-blue-500 animate-spin" />
+                          </div>
+                        ) : (
+                          <div className="w-32 h-32 rounded-lg bg-gray-200 flex items-center justify-center shadow-md">
+                            <span className="text-gray-400 text-xs">{t.brand.table.noImage}</span>
+                          </div>
+                        )}
+                        {/* Botón de Review debajo de la foto en desktop también */}
+                        {hasPost ? (
+                          <Link href={`/review/${item.id}?brandId=${recordIdMarca}`}>
+                            <Button size="sm" className="w-full bg-orange-500 hover:bg-orange-600 text-white">
+                              <ExternalLink className="h-4 w-4 mr-2" />
+                              {t.brand.table.rate}
+                            </Button>
+                          </Link>
+                        ) : (
+                          <div className="text-xs text-gray-400 text-center py-2">
+                            {t.brand.status.waiting}
+                          </div>
+                        )}
+                      </div>
                     </td>
                     <td className="px-6 py-4 max-w-md">
                       {hasPost ? (
@@ -322,20 +337,6 @@ export function BrandContentTable({ recordIdMarca }: { recordIdMarca: string }) 
                         <div className="flex items-center gap-2 text-gray-400 text-sm">
                           <StatusIcon className="h-4 w-4" />
                           <span>{statusInfo.description}</span>
-                        </div>
-                      )}
-                    </td>
-                    <td className="px-6 py-4 text-center">
-                      {hasPost ? (
-                        <Link href={`/review/${item.id}?brandId=${recordIdMarca}`}>
-                          <Button size="sm" className="bg-orange-500 hover:bg-orange-600 text-white">
-                            <ExternalLink className="h-4 w-4 mr-2" />
-                            {t.brand.table.rate}
-                          </Button>
-                        </Link>
-                      ) : (
-                        <div className="text-xs text-gray-400">
-                          {t.brand.status.waiting}
                         </div>
                       )}
                     </td>
@@ -356,6 +357,81 @@ export function BrandContentTable({ recordIdMarca }: { recordIdMarca: string }) 
               })}
             </tbody>
           </table>
+        </div>
+
+        {/* Vista Mobile: Foto y botón primero */}
+        <div className="md:hidden">
+          <div className="divide-y divide-gray-200">
+            {contentItems.map((item) => {
+              const statusInfo = getStatusInfo(item.fields.Status)
+              const StatusIcon = statusInfo.icon
+              const hasPost = item.fields.Post && item.fields.Post.trim() !== ""
+              const hasImage = item.fields["📥 Image"]?.[0]?.url
+              const isProcessing = statusInfo.isProcessing || false
+              
+              return (
+                <div key={item.id} className="p-4 space-y-4">
+                  {/* Foto - Primero en móvil */}
+                  <div className="flex justify-center">
+                    {hasImage ? (
+                      <div className="relative w-32 h-32 rounded-lg overflow-hidden bg-gray-100 shadow-md">
+                        <Image
+                          src={item.fields["📥 Image"][0].url || "/placeholder.svg"}
+                          alt="Imagen del post"
+                          fill
+                          className="object-cover"
+                        />
+                      </div>
+                    ) : isProcessing ? (
+                      <div className="w-32 h-32 rounded-lg bg-gray-200 flex items-center justify-center shadow-md">
+                        <Loader2 className="h-8 w-8 text-blue-500 animate-spin" />
+                      </div>
+                    ) : (
+                      <div className="w-32 h-32 rounded-lg bg-gray-200 flex items-center justify-center shadow-md">
+                        <span className="text-gray-400 text-xs text-center px-2">{t.brand.table.noImage}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Botón de Review - Debajo de la foto */}
+                  <div>
+                    {hasPost ? (
+                      <Link href={`/review/${item.id}?brandId=${recordIdMarca}`} className="block">
+                        <Button size="lg" className="w-full bg-orange-500 hover:bg-orange-600 text-white">
+                          <ExternalLink className="h-5 w-5 mr-2" />
+                          {t.brand.table.rate}
+                        </Button>
+                      </Link>
+                    ) : (
+                      <div className="text-sm text-gray-400 text-center py-2">
+                        {t.brand.status.waiting}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Post y Status - Después en móvil */}
+                  <div className="space-y-2">
+                    {hasPost && (
+                      <div>
+                        <p className="text-gray-600 text-sm line-clamp-2">{item.fields.Post}</p>
+                      </div>
+                    )}
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2 text-gray-400 text-sm">
+                        <StatusIcon className="h-4 w-4" />
+                        <span>{statusInfo.description}</span>
+                      </div>
+                      <span className={`inline-flex items-center gap-1.5 px-3 py-1 ${statusInfo.color} text-xs font-medium rounded-full`}>
+                        {isProcessing && <Loader2 className="h-3 w-3 animate-spin" />}
+                        {!isProcessing && <StatusIcon className="h-3 w-3" />}
+                        {statusInfo.label}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
         </div>
       </Card>
     </div>

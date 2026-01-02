@@ -2,7 +2,8 @@ import { type NextRequest, NextResponse } from "next/server"
 
 const AIRTABLE_API_KEY = process.env.AIRTABLE_API_KEY
 const AIRTABLE_BASE_ID = process.env.AIRTABLE_BASE_ID
-const TABLE_NAME = "Brands"
+// Usar ID de tabla para mayor confiabilidad (también funciona con "Brands")
+const TABLE_NAME = process.env.AIRTABLE_BRANDS_TABLE_ID || "apprcCvYyrWqDXKay"
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ recordId: string }> }) {
   const { recordId } = await params

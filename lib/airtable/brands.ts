@@ -3,7 +3,8 @@ import { inferLanguage, sanitizeString, generateUploadPhotosLink } from "./utils
 
 const AIRTABLE_API_KEY = process.env.AIRTABLE_API_KEY;
 const AIRTABLE_BASE_ID = process.env.AIRTABLE_BASE_ID;
-const TABLE_NAME = "Brands";
+// Usar ID de tabla para mayor confiabilidad (también funciona con "Brands")
+const TABLE_NAME = process.env.AIRTABLE_BRANDS_TABLE_ID || "apprcCvYyrWqDXKay";
 
 /**
  * Mapea los datos del formulario a los campos de Airtable
