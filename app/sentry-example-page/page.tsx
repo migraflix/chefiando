@@ -29,17 +29,10 @@ export default function SentryExamplePage() {
       Sentry.captureException(uniqueError);
       
       // Forzar el envío inmediato
-      Sentry.flush(2000).then(() => {
-        console.log("✅ Error enviado a Sentry");
-      });
+      Sentry.flush(2000);
       
       setErrorMessage(uniqueError.message);
-      
-      // También mostrar en consola
-      console.error("Error capturado por Sentry:", uniqueError);
-      console.log("Esperando confirmación de envío...");
     } catch (error) {
-      console.error("Error al capturar:", error);
       setErrorMessage("Error al capturar: " + (error instanceof Error ? error.message : String(error)));
     }
   };
@@ -63,13 +56,9 @@ export default function SentryExamplePage() {
       Sentry.captureException(error);
       
       // Forzar el envío inmediato
-      Sentry.flush(2000).then(() => {
-        console.log("✅ Error enviado a Sentry");
-      });
+      Sentry.flush(2000);
       
       setErrorMessage(error instanceof Error ? error.message : "Error: función no definida");
-      console.error("Error capturado por Sentry:", error);
-      console.log("Esperando confirmación de envío...");
     }
   };
 
@@ -87,7 +76,6 @@ export default function SentryExamplePage() {
     } catch (error) {
       Sentry.captureException(error);
       setErrorMessage(error instanceof Error ? error.message : "Error asíncrono desconocido");
-      console.error("Error asíncrono capturado por Sentry:", error);
     }
   };
 

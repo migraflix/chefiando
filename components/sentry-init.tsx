@@ -6,8 +6,8 @@ import { useEffect } from "react";
 export function SentryInit() {
   useEffect(() => {
     // Importar dinámicamente la configuración del cliente
-    import("../sentry.client.config").catch((error) => {
-      console.error("[Sentry] Error al cargar configuración:", error);
+    import("../sentry.client.config").catch(() => {
+      // Error silencioso - Sentry se inicializará automáticamente
     });
   }, []);
 

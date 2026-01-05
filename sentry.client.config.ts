@@ -8,8 +8,6 @@ const dsn = process.env.NEXT_PUBLIC_SENTRY_DSN;
 
 // Solo inicializar si tenemos un DSN
 if (dsn) {
-  console.log('[Sentry] Inicializando Sentry con DSN:', dsn.substring(0, 30) + '...');
-  
   Sentry.init({
     dsn: dsn,
 
@@ -20,7 +18,7 @@ if (dsn) {
     tracesSampleRate: process.env.NODE_ENV === 'production' ? 0.1 : 1,
 
     // Setting this option to true will print useful information to the console while you're setting up Sentry.
-    debug: process.env.NODE_ENV === 'development',
+    debug: false,
 
     // Session Replay - Grabar sesiones cuando hay errores
     replaysOnErrorSampleRate: 1.0,
@@ -76,9 +74,5 @@ if (dsn) {
     // Capturar errores no manejados automáticamente
     captureUnhandledRejections: true,
   });
-
-  console.log('[Sentry] ✅ Sentry inicializado correctamente');
-} else {
-  console.warn('[Sentry] ⚠️ NEXT_PUBLIC_SENTRY_DSN no está configurado');
 }
 

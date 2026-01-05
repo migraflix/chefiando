@@ -33,13 +33,6 @@ export async function GET() {
       try {
         const encodedTableName = encodeURIComponent(TABLE_NAME)
         const url = `https://api.airtable.com/v0/${process.env.AIRTABLE_BASE_ID}/${encodedTableName}`
-        
-        console.log("🔍 [BRANDS API] Intentando con tabla:", {
-          tableName: TABLE_NAME,
-          encodedTableName,
-          url: url.replace(process.env.AIRTABLE_BASE_ID!, "[BASE_ID]"),
-          timestamp: new Date().toISOString(),
-        })
 
         const response = await fetch(url, {
           headers: {
@@ -49,11 +42,6 @@ export async function GET() {
 
         if (response.ok) {
           const data = await response.json()
-          console.log("✅ [BRANDS API] Brands fetched successfully con tabla:", TABLE_NAME, {
-            recordsCount: data.records?.length || 0,
-            hasRecords: !!(data.records && data.records.length > 0),
-            timestamp: new Date().toISOString(),
-          })
           return NextResponse.json(data)
         }
 
@@ -69,11 +57,6 @@ export async function GET() {
         lastError = errorData
         lastStatus = response.status
 
-        console.warn("⚠️ [BRANDS API] Tabla no funcionó:", TABLE_NAME, {
-          status: response.status,
-          error: errorData.error?.message || errorData.raw,
-        })
-
         // Si es 404, continuar con el siguiente nombre
         // Si es 403 o 401, también continuar (puede ser que el nombre sea diferente)
         if (response.status === 404) {
@@ -81,20 +64,12 @@ export async function GET() {
         }
         
       } catch (fetchError) {
-        console.error("❌ [BRANDS API] Error al intentar con tabla:", TABLE_NAME, fetchError)
         lastError = { message: fetchError instanceof Error ? fetchError.message : "Error desconocido" }
         continue // Probar siguiente nombre
       }
     }
 
     // Si llegamos aquí, ninguna tabla funcionó
-    console.error("❌ [BRANDS API] Todas las tablas fallaron:", {
-      triedTables: possibleTableNames,
-      lastError,
-      lastStatus,
-      timestamp: new Date().toISOString(),
-    })
-
     return NextResponse.json(
       {
         error: "Failed to fetch brands",
@@ -120,13 +95,6 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
 
-    // Log para debug
-    console.log("📥 Recibiendo datos en API:", {
-      emprendedor: body.emprendedor,
-      tipo: typeof body.emprendedor,
-      todosLosDatos: body
-    });
-
     // Asegurar que emprendedor siempre esté presente (incluso si es vacío)
     if (body.emprendedor === undefined || body.emprendedor === null) {
       body.emprendedor = "";
@@ -143,11 +111,6 @@ export async function POST(request: NextRequest) {
     }
 
     const validationResult = brandRegistrationSchema.partial().safeParse(section1Fields)
-    
-    console.log("✅ Validación Zod:", {
-      success: validationResult.success,
-      emprendedorEnValidado: validationResult.success ? validationResult.data.emprendedor : "error"
-    });
 
     if (!validationResult.success) {
       return NextResponse.json(
