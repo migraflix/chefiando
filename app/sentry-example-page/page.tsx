@@ -85,6 +85,22 @@ export default function SentryExamplePage() {
     setErrorTriggered(true);
   };
 
+  const testServerError = async () => {
+    try {
+      setErrorTriggered(true);
+      setErrorMessage(null);
+      
+      const response = await fetch("/api/test-error");
+      const data = await response.json();
+      
+      if (data.success) {
+        setErrorMessage("✅ Error del servidor generado y enviado a Sentry");
+      }
+    } catch (error) {
+      setErrorMessage("Error al llamar al endpoint: " + (error instanceof Error ? error.message : String(error)));
+    }
+  };
+
   return (
     <div className="container mx-auto p-6 max-w-4xl">
       <Card>
@@ -178,7 +194,15 @@ export default function SentryExamplePage() {
               variant="destructive"
               className="w-full"
             >
-              🚨 Generar Error Simple
+              🚨 Generar Error Simple (Cliente)
+            </Button>
+
+            <Button
+              onClick={testServerError}
+              variant="destructive"
+              className="w-full"
+            >
+              🖥️ Generar Error del Servidor (API)
             </Button>
 
             <Button
@@ -215,9 +239,26 @@ export default function SentryExamplePage() {
                 </a>
               </li>
               <li>Los errores aparecen en 5-10 segundos después de generarlos</li>
+              <li>
+                <strong>Ambiente actual:</strong> {process.env.NODE_ENV || "development"}
+              </li>
               <li>Revisa la consola del navegador (F12) para ver los logs de debug</li>
             </ul>
           </div>
+
+          {/* Información de Producción */}
+          {typeof window !== 'undefined' && window.location.hostname !== 'localhost' && (
+            <div className="mt-4 p-4 rounded-lg bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800">
+              <h3 className="font-semibold mb-2 text-green-800 dark:text-green-200">
+                ✅ Estás en Producción
+              </h3>
+              <p className="text-sm text-green-700 dark:text-green-300">
+                Los errores que generes aquí se capturarán en Sentry con el tag{" "}
+                <code className="bg-green-100 dark:bg-green-900 px-1 rounded">environment: production</code>.
+                Ve a tu dashboard de Sentry para verlos en tiempo real.
+              </p>
+            </div>
+          )}
 
           {/* Guía rápida */}
           <div className="mt-4 p-4 rounded-lg bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800">
