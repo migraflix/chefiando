@@ -41,7 +41,7 @@ npm run dev
 
 **Solución:** Verifica tu `.env.local` y reinicia el servidor
 
-### Paso 3: Verifica en la Página de Debug
+### Paso 3: Verifica en la Página de Debug.
 
 1. Ve a: `http://localhost:3000/debug/sentry`
 2. Verifica que diga:
