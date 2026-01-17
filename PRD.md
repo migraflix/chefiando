@@ -1,0 +1,32 @@
+# Product Requirements Document - Migraflix
+
+## Estado del Proyecto
+- âœ… Proyecto Next.js organizado y limpio
+- âœ… Sistema de internacionalizaciÃ³n funcionando
+- âœ… Formularios de registro completos
+- âœ… API de Airtable integrada
+- âœ… Selectores de idioma mejorados
+
+
+## Tareas Pendientes
+
+- [ ] Optimizar rendimiento de carga de imÃ¡genes
+- [✅] Agregar validaciones adicionales en formularios
+  - [✅] 2.1 - Mejorar validación de email (dominios válidos, formato estricto)
+  - [✅] 2.2 - Reforzar validación de URLs (Instagram, HTTPS obligatorio)
+  - [✅] 2.3 - Mejorar validación de WhatsApp (formatos por país)
+  - [✅] 2.4 - Agregar validaciones de seguridad (XSS, caracteres peligrosos)
+  - [✅] 2.5 - Validaciones de longitud más apropiadas
+  - [⏸️] 2.6 - Validación en tiempo real con feedback visual (requiere componentes React)
+  - [✅] 2.7 - Tests de validación exhaustivos
+- [ ] Implementar sistema de notificaciones
+- [ ] Mejorar UX en dispositivos mÃ³viles
+- [ ] Agregar tests automatizados
+
+## Mejoras Futuras
+
+- [ ] Implementar PWA (Progressive Web App)
+- [ ] Agregar modo oscuro
+- [ ] Sistema de reseÃ±as de restaurantes
+- [ ] IntegraciÃ³n con Google Maps
+- [ ] Dashboard de analytics
