@@ -19,23 +19,28 @@ export function LanguageSelector() {
   const displayLanguage = mounted ? language : "es";
 
   return (
-    <div className="flex items-center gap-2 bg-card border rounded-lg p-1">
-      <Languages className="h-4 w-4 text-muted-foreground ml-2" />
+    <div className="flex items-center gap-1 bg-card border rounded-lg p-2 shadow-sm">
+      <Languages className="h-4 w-4 text-muted-foreground" />
+      <span className="text-xs font-medium mr-2">
+        {displayLanguage === "pt" ? "Português" : "Español"}
+      </span>
       <Button
         variant={displayLanguage === "pt" ? "default" : "ghost"}
         size="sm"
         onClick={() => setLanguage("pt")}
-        className="text-xs"
+        className="text-xs px-3 h-7"
+        title="Alterar para português"
       >
-        PT
+        🇧🇷 PT
       </Button>
       <Button
         variant={displayLanguage === "es" ? "default" : "ghost"}
         size="sm"
         onClick={() => setLanguage("es")}
-        className="text-xs"
+        className="text-xs px-3 h-7"
+        title="Cambiar a español"
       >
-        ES
+        🇪🇸 ES
       </Button>
     </div>
   );

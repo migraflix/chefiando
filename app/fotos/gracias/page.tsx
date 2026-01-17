@@ -11,7 +11,7 @@ export default function GraciasPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const marca = searchParams.get("marca");
-  const { t } = useLanguage();
+  const { t, language, locationInfo } = useLanguage();
 
   const handleGoToBrand = () => {
     if (marca) {
@@ -21,9 +21,10 @@ export default function GraciasPage() {
 
   return (
     <main className="min-h-screen bg-background py-12 px-4 sm:px-6 lg:px-8">
-      <div className="fixed top-4 right-4 z-50">
+      <div className="fixed top-4 right-4 z-50 bg-background/80 backdrop-blur-sm border rounded-lg p-2 shadow-lg">
         <LanguageSelector />
       </div>
+
       <div className="max-w-2xl mx-auto">
         <Card className="text-center">
           <CardContent className="pt-12 pb-12 px-8">

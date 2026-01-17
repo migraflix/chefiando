@@ -2,7 +2,15 @@
   "permissions": {
     "allow": [
       "Bash(find:*)",
-      "Bash(npm run build:*)"
+      "Bash(npm run build:*)",
+      "Bash(gh repo view:*)",
+      "Bash(cat:*)",
+      "Bash(if [ -f ralphy.jpeg ])",
+      "Bash(then mv ralphy.jpeg loopwise.jpeg)",
+      "Bash(fi)",
+      "Bash(./loopwise.sh:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
     ]
   }
 }
