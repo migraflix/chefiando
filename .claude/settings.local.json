@@ -10,7 +10,8 @@
       "Bash(fi)",
       "Bash(./loopwise.sh:*)",
       "Bash(git add:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(./gabo.sh:*)"
     ]
   }
 }
