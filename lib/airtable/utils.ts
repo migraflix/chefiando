@@ -31,10 +31,10 @@ export function inferLanguage(pais?: string, ciudad?: string): string {
  */
 export function sanitizeString(value: string | undefined): string | undefined {
   if (!value) return undefined;
-
+  
   // Trim primero
   let sanitized = value.trim();
-
+  
   // Reemplazar caracteres problemáticos comunes
   sanitized = sanitized
     .replace(/\r\n/g, '\n') // Normalizar line breaks
@@ -44,7 +44,7 @@ export function sanitizeString(value: string | undefined): string | undefined {
     .replace(/[\u0000-\u001F]/g, '') // Eliminar caracteres de control excepto \n
     .replace(/\u00A0/g, ' ') // Reemplazar non-breaking space con espacio normal
     .trim();
-
+  
   return sanitized;
 }
 

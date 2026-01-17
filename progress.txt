@@ -1,3 +1,0 @@
-# Progress log for Ralphy
-# This file is automatically updated by Ralphy when tasks are completed
-# Format: Task completion logs and progress tracking
