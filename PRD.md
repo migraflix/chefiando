@@ -17,8 +17,8 @@
   - [✅] 2.3 - Mejorar validación de WhatsApp (formatos por país)
   - [✅] 2.4 - Agregar validaciones de seguridad (XSS, caracteres peligrosos)
   - [✅] 2.5 - Validaciones de longitud más apropiadas
-  - [⏸️] 2.6 - Validación en tiempo real con feedback visual (requiere componentes React)
   - [✅] 2.7 - Tests de validación exhaustivos
+- [ ] Implementar validación en tiempo real con feedback visual (componentes React)
 - [ ] Implementar sistema de notificaciones
 - [ ] Mejorar UX en dispositivos mÃ³viles
 - [ ] Agregar tests automatizados
