@@ -69,8 +69,8 @@ export function ProductUploadForm({ marca }: { marca: string }) {
   const removeProduct = (id: string) => {
     if (products.length === 1) {
       toast({
-        title: "Error",
-        description: "Debes tener al menos un producto",
+        title: t.products.error.title,
+        description: t.products.validation.minOneProduct,
         variant: "destructive",
       });
       return;
@@ -265,7 +265,7 @@ export function ProductUploadForm({ marca }: { marca: string }) {
                   >
                     <div className="flex items-center gap-2 px-4 py-2 border rounded-md hover:bg-accent">
                       <Upload className="h-4 w-4" />
-                      <span>{product.photo ? product.photo.name : "Subir foto"}</span>
+                      <span>{product.photo ? product.photo.name : t.products.validation.uploadPhoto}</span>
                     </div>
                   </Label>
                 </div>
@@ -280,7 +280,7 @@ export function ProductUploadForm({ marca }: { marca: string }) {
                 )}
               </div>
               <p className="text-sm text-muted-foreground">
-                Máximo 5MB. Formatos: JPG, PNG
+                {t.products.validation.photoSizeFormat}
               </p>
             </div>
 
@@ -293,7 +293,7 @@ export function ProductUploadForm({ marca }: { marca: string }) {
                 id={`name-${product.id}`}
                 value={product.name}
                 onChange={(e) => updateProduct(product.id, { name: e.target.value })}
-                placeholder="Ej: Arepa Reina Pepiada"
+                placeholder={t.products.fields.namePlaceholder}
                 className="h-12 text-base"
               />
             </div>

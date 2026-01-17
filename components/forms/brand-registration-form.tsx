@@ -78,8 +78,8 @@ export function BrandRegistrationForm() {
     const isValid = await trigger(fieldsToValidate);
     if (!isValid) {
       toast({
-        title: "Error de validación",
-        description: "Por favor, completa todos los campos requeridos",
+        title: t.registration.error.title,
+        description: t.registration.errors.validation,
         variant: "destructive",
       });
       return;
@@ -118,14 +118,14 @@ export function BrandRegistrationForm() {
       setCurrentSection(2);
 
       toast({
-        title: "¡Perfecto!",
-        description: "Información básica guardada",
+        title: t.registration.success.perfect,
+        description: t.registration.success.basicSaved,
       });
     } catch (error: any) {
       console.error("Error saving section 1:", error);
       toast({
-        title: "Error",
-        description: error.message || "No se pudo guardar la información",
+        title: t.registration.error.title,
+        description: error.message || t.registration.error.saveFailed,
         variant: "destructive",
       });
     } finally {
@@ -144,8 +144,8 @@ export function BrandRegistrationForm() {
 
     if (!recordId) {
       toast({
-        title: "Error",
-        description: "No se encontró el registro. Por favor, recarga la página.",
+        title: t.registration.error.title,
+        description: t.registration.errors.noRecord,
         variant: "destructive",
       });
       return;
@@ -169,7 +169,7 @@ export function BrandRegistrationForm() {
       });
 
       if (!updateFieldsResponse.ok) {
-        throw new Error("Error al actualizar los campos");
+        throw new Error(t.registration.error.saveFailed);
       }
 
       // Actualizar status a "New"
@@ -182,20 +182,20 @@ export function BrandRegistrationForm() {
       });
 
       if (!updateStatusResponse.ok) {
-        throw new Error("Error al actualizar el status");
+        throw new Error(t.registration.error.saveFailed);
       }
 
       setCurrentSection(3);
 
       toast({
-        title: "¡Excelente!",
-        description: "Información adicional guardada",
+        title: t.registration.success.excellent,
+        description: t.registration.success.additionalSaved,
       });
     } catch (error: any) {
       console.error("Error saving section 2:", error);
       toast({
-        title: "Error",
-        description: error.message || "No se pudo guardar la información",
+        title: t.registration.error.title,
+        description: error.message || t.registration.error.saveFailed,
         variant: "destructive",
       });
     } finally {
@@ -207,8 +207,8 @@ export function BrandRegistrationForm() {
   const handleSection3 = () => {
     if (!recordId) {
       toast({
-        title: "Error",
-        description: "No se encontró el registro",
+        title: t.registration.error.title,
+        description: t.registration.errors.noRecord,
         variant: "destructive",
       });
       return;
@@ -238,9 +238,9 @@ export function BrandRegistrationForm() {
           ))}
         </div>
         <h2 className="text-xl font-semibold">
-          {currentSection === 1 && "Información Básica"}
-          {currentSection === 2 && "Redes Sociales"}
-          {currentSection === 3 && "Subir Fotos"}
+          {currentSection === 1 && t.registration.sections.basic}
+          {currentSection === 2 && t.registration.sections.social}
+          {currentSection === 3 && t.registration.sections.photos}
         </h2>
       </div>
 
@@ -251,11 +251,11 @@ export function BrandRegistrationForm() {
             <div className="space-y-4 max-w-md mx-auto">
               <div className="space-y-1.5">
                 <Label htmlFor="emprendedor" className="text-sm font-medium">
-                  Nombre del Propietario
+                  {t.registration.labels.ownerName}
                 </Label>
                 <Input
                   id="emprendedor"
-                  placeholder="Tu nombre completo"
+                  placeholder={t.registration.placeholders.name}
                   {...register("emprendedor")}
                   className="h-11 text-base"
                 />
@@ -266,11 +266,11 @@ export function BrandRegistrationForm() {
 
               <div className="space-y-1.5">
                 <Label htmlFor="negocio" className="text-sm font-medium">
-                  Nombre del Negocio <span className="text-destructive">*</span>
+                  {t.registration.labels.businessName} <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   id="negocio"
-                  placeholder="Nombre de tu restaurante"
+                  placeholder={t.registration.placeholders.business}
                   {...register("negocio")}
                   className="h-11 text-base"
                   required
@@ -282,12 +282,12 @@ export function BrandRegistrationForm() {
 
               <div className="space-y-1.5">
                 <Label htmlFor="correo" className="text-sm font-medium">
-                  Correo Electrónico
+                  {t.registration.labels.email}
                 </Label>
                 <Input
                   id="correo"
                   type="email"
-                  placeholder="tu@email.com"
+                  placeholder={t.registration.placeholders.email}
                   {...register("correo")}
                   className="h-11 text-base"
                   inputMode="email"
@@ -299,12 +299,12 @@ export function BrandRegistrationForm() {
 
               <div className="space-y-1.5">
                 <Label htmlFor="whatsapp" className="text-sm font-medium">
-                  WhatsApp <span className="text-destructive">*</span>
+                  {t.registration.labels.whatsapp} <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   id="whatsapp"
                   type="tel"
-                  placeholder="+51987654321"
+                  placeholder={t.registration.placeholders.whatsapp}
                   {...register("whatsapp")}
                   className="h-11 text-base"
                   inputMode="tel"
@@ -317,11 +317,11 @@ export function BrandRegistrationForm() {
 
               <div className="space-y-1.5">
                 <Label htmlFor="ciudad" className="text-sm font-medium">
-                  Ciudad
+                  {t.registration.labels.city}
                 </Label>
                 <Input
                   id="ciudad"
-                  placeholder="Tu ciudad"
+                  placeholder={t.registration.placeholders.city}
                   {...register("ciudad")}
                   className="h-11 text-base"
                 />
@@ -332,7 +332,7 @@ export function BrandRegistrationForm() {
 
               <div className="space-y-1.5">
                 <Label htmlFor="pais" className="text-sm font-medium">
-                  País
+                  {t.registration.labels.country}
                 </Label>
                 <Select
                   value={isOtherCountry ? "Otro" : selectedCountry || ""}
@@ -345,7 +345,7 @@ export function BrandRegistrationForm() {
                   }}
                 >
                   <SelectTrigger id="pais" className="h-11 text-base">
-                    <SelectValue placeholder="Selecciona tu país" />
+                    <SelectValue placeholder={t.registration.placeholders.country} />
                   </SelectTrigger>
                   <SelectContent>
                     {COUNTRIES.map((country) => (
@@ -367,12 +367,12 @@ export function BrandRegistrationForm() {
             <div className="space-y-4 max-w-md mx-auto">
               <div className="space-y-1.5">
                 <Label htmlFor="instagram" className="text-sm font-medium">
-                  Instagram
+                  {t.registration.labels.instagram}
                 </Label>
                 <Input
                   id="instagram"
                   type="url"
-                  placeholder="https://www.instagram.com/tu_restaurante/"
+                  placeholder={t.registration.placeholders.instagram}
                   {...register("instagram")}
                   className="h-11 text-base"
                   inputMode="url"
@@ -384,11 +384,11 @@ export function BrandRegistrationForm() {
 
               <div className="space-y-1.5">
                 <Label htmlFor="descripcion" className="text-sm font-medium">
-                  Historia del Emprendedor
+                  {t.registration.labels.story}
                 </Label>
                 <Textarea
                   id="descripcion"
-                  placeholder="Cuéntanos sobre tu restaurante, su historia, especialidades..."
+                  placeholder={t.registration.placeholders.story}
                   {...register("descripcion")}
                   rows={8}
                   className="text-base resize-none"
@@ -412,14 +412,14 @@ export function BrandRegistrationForm() {
                 <div className="space-y-3">
                   <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
                     <Sparkles className="w-4 h-4 animate-pulse" />
-                    <span>Estamos analizando tus últimas publicaciones...</span>
+                    <span>{t.registration.photosSection.analyzing}</span>
                   </div>
                   <div>
                     <h3 className="text-2xl font-semibold mb-3">
-                      Es momento de subir tus fotos
+                      {t.registration.photosSection.title}
                     </h3>
                     <p className="text-muted-foreground text-base leading-relaxed">
-                      Comparte las mejores imágenes de tus platillos para crear contenido increíble
+                      {t.registration.photosSection.description}
                     </p>
                   </div>
                 </div>
@@ -441,11 +441,11 @@ export function BrandRegistrationForm() {
                 {isSubmitting ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Guardando...
+                    {t.registration.buttons.submitting}
                   </>
                 ) : (
                   <>
-                    Continuar
+                    {t.registration.buttons.next}
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </>
                 )}
@@ -460,7 +460,7 @@ export function BrandRegistrationForm() {
                   onClick={() => setCurrentSection(1)}
                   className="flex-1 h-12"
                 >
-                  Atrás
+                  {t.registration.buttons.back}
                 </Button>
                 <Button
                   type="button"
@@ -471,11 +471,11 @@ export function BrandRegistrationForm() {
                   {isSubmitting ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Guardando...
+                      {t.registration.buttons.submitting}
                     </>
                   ) : (
                     <>
-                      Continuar
+                      {t.registration.buttons.next}
                       <ArrowRight className="ml-2 h-4 w-4" />
                     </>
                   )}
@@ -489,7 +489,7 @@ export function BrandRegistrationForm() {
                 onClick={handleSection3}
                 className="w-full h-12 text-base font-semibold"
               >
-                Subir Fotos
+                {t.registration.buttons.uploadPhotos}
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             )}
