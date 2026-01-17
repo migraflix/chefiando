@@ -22,6 +22,12 @@
 - [ ] Implementar sistema de notificaciones
 - [ ] Mejorar UX en dispositivos mÃ³viles
 - [ ] Agregar tests automatizados
+- [✅] Sistema de Comunicación Diaria con Gabo
+  - [✅] Crear carpeta actividades/ para resúmenes diarios
+  - [✅] Implementar formato .md documentado por día
+  - [✅] Sistema de archivo diario con métricas y hallazgos
+  - [✅] Template reutilizable para futuras sesiones
+  - [✅] Integración con PRD.md para seguimiento de progreso
 
 ## Mejoras Futuras
 
