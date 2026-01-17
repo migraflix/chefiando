@@ -21,18 +21,18 @@ import { useLanguage } from "@/contexts/language-context";
 import { Loader2, ArrowRight, Camera, Sparkles } from "lucide-react";
 
 const COUNTRIES = [
-  "Perú",
-  "Colombia",
-  "Chile",
   "Argentina",
-  "México",
+  "Brasil",
+  "Chile",
+  "Colombia",
   "Ecuador",
-  "Venezuela",
   "España",
   "Estados Unidos",
-  "Brasil",
+  "México",
+  "Perú",
+  "Venezuela",
   "Otro",
-];
+].sort();
 
 export function BrandRegistrationForm() {
   const [currentSection, setCurrentSection] = useState(1);
@@ -78,8 +78,8 @@ export function BrandRegistrationForm() {
     const isValid = await trigger(fieldsToValidate);
     if (!isValid) {
       toast({
-        title: t.registration.error.title,
-        description: t.registration.errors.validation,
+        title: "Error de validación",
+        description: "Por favor, completa todos los campos requeridos",
         variant: "destructive",
       });
       return;
@@ -118,14 +118,14 @@ export function BrandRegistrationForm() {
       setCurrentSection(2);
 
       toast({
-        title: t.registration.success.perfect,
-        description: t.registration.success.basicSaved,
+        title: "¡Perfecto!",
+        description: "Información básica guardada",
       });
     } catch (error: any) {
       console.error("Error saving section 1:", error);
       toast({
-        title: t.registration.error.title,
-        description: error.message || t.registration.error.saveFailed,
+        title: "Error",
+        description: error.message || "No se pudo guardar la información",
         variant: "destructive",
       });
     } finally {
@@ -144,8 +144,8 @@ export function BrandRegistrationForm() {
 
     if (!recordId) {
       toast({
-        title: t.registration.error.title,
-        description: t.registration.errors.noRecord,
+        title: "Error",
+        description: "No se encontró el registro. Por favor, recarga la página.",
         variant: "destructive",
       });
       return;
@@ -169,7 +169,7 @@ export function BrandRegistrationForm() {
       });
 
       if (!updateFieldsResponse.ok) {
-        throw new Error(t.registration.error.saveFailed);
+        throw new Error("Error al actualizar los campos");
       }
 
       // Actualizar status a "New"
@@ -182,20 +182,20 @@ export function BrandRegistrationForm() {
       });
 
       if (!updateStatusResponse.ok) {
-        throw new Error(t.registration.error.saveFailed);
+        throw new Error("Error al actualizar el status");
       }
 
       setCurrentSection(3);
 
       toast({
-        title: t.registration.success.excellent,
-        description: t.registration.success.additionalSaved,
+        title: "¡Excelente!",
+        description: "Información adicional guardada",
       });
     } catch (error: any) {
       console.error("Error saving section 2:", error);
       toast({
-        title: t.registration.error.title,
-        description: error.message || t.registration.error.saveFailed,
+        title: "Error",
+        description: error.message || "No se pudo guardar la información",
         variant: "destructive",
       });
     } finally {
@@ -207,8 +207,8 @@ export function BrandRegistrationForm() {
   const handleSection3 = () => {
     if (!recordId) {
       toast({
-        title: t.registration.error.title,
-        description: t.registration.errors.noRecord,
+        title: "Error",
+        description: "No se encontró el registro",
         variant: "destructive",
       });
       return;
@@ -238,9 +238,9 @@ export function BrandRegistrationForm() {
           ))}
         </div>
         <h2 className="text-xl font-semibold">
-          {currentSection === 1 && t.registration.sections.basic}
-          {currentSection === 2 && t.registration.sections.social}
-          {currentSection === 3 && t.registration.sections.photos}
+          {currentSection === 1 && "Información Básica"}
+          {currentSection === 2 && "Redes Sociales"}
+          {currentSection === 3 && "Subir Fotos"}
         </h2>
       </div>
 
@@ -251,11 +251,11 @@ export function BrandRegistrationForm() {
             <div className="space-y-4 max-w-md mx-auto">
               <div className="space-y-1.5">
                 <Label htmlFor="emprendedor" className="text-sm font-medium">
-                  {t.registration.labels.ownerName}
+                  Nombre del Propietario
                 </Label>
                 <Input
                   id="emprendedor"
-                  placeholder={t.registration.placeholders.name}
+                  placeholder="Tu nombre completo"
                   {...register("emprendedor")}
                   className="h-11 text-base"
                 />
@@ -266,11 +266,11 @@ export function BrandRegistrationForm() {
 
               <div className="space-y-1.5">
                 <Label htmlFor="negocio" className="text-sm font-medium">
-                  {t.registration.labels.businessName} <span className="text-destructive">*</span>
+                  Nombre del Negocio <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   id="negocio"
-                  placeholder={t.registration.placeholders.business}
+                  placeholder="Nombre de tu restaurante"
                   {...register("negocio")}
                   className="h-11 text-base"
                   required
@@ -282,12 +282,12 @@ export function BrandRegistrationForm() {
 
               <div className="space-y-1.5">
                 <Label htmlFor="correo" className="text-sm font-medium">
-                  {t.registration.labels.email}
+                  Correo Electrónico
                 </Label>
                 <Input
                   id="correo"
                   type="email"
-                  placeholder={t.registration.placeholders.email}
+                  placeholder="tu@email.com"
                   {...register("correo")}
                   className="h-11 text-base"
                   inputMode="email"
@@ -299,12 +299,12 @@ export function BrandRegistrationForm() {
 
               <div className="space-y-1.5">
                 <Label htmlFor="whatsapp" className="text-sm font-medium">
-                  {t.registration.labels.whatsapp} <span className="text-destructive">*</span>
+                  WhatsApp <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   id="whatsapp"
                   type="tel"
-                  placeholder={t.registration.placeholders.whatsapp}
+                  placeholder="+51987654321"
                   {...register("whatsapp")}
                   className="h-11 text-base"
                   inputMode="tel"
@@ -317,11 +317,11 @@ export function BrandRegistrationForm() {
 
               <div className="space-y-1.5">
                 <Label htmlFor="ciudad" className="text-sm font-medium">
-                  {t.registration.labels.city}
+                  Ciudad
                 </Label>
                 <Input
                   id="ciudad"
-                  placeholder={t.registration.placeholders.city}
+                  placeholder="Tu ciudad"
                   {...register("ciudad")}
                   className="h-11 text-base"
                 />
@@ -332,7 +332,7 @@ export function BrandRegistrationForm() {
 
               <div className="space-y-1.5">
                 <Label htmlFor="pais" className="text-sm font-medium">
-                  {t.registration.labels.country}
+                  País
                 </Label>
                 <Select
                   value={isOtherCountry ? "Otro" : selectedCountry || ""}
@@ -345,7 +345,7 @@ export function BrandRegistrationForm() {
                   }}
                 >
                   <SelectTrigger id="pais" className="h-11 text-base">
-                    <SelectValue placeholder={t.registration.placeholders.country} />
+                    <SelectValue placeholder="Selecciona tu país" />
                   </SelectTrigger>
                   <SelectContent>
                     {COUNTRIES.map((country) => (
@@ -367,12 +367,12 @@ export function BrandRegistrationForm() {
             <div className="space-y-4 max-w-md mx-auto">
               <div className="space-y-1.5">
                 <Label htmlFor="instagram" className="text-sm font-medium">
-                  {t.registration.labels.instagram}
+                  Instagram
                 </Label>
                 <Input
                   id="instagram"
                   type="url"
-                  placeholder={t.registration.placeholders.instagram}
+                  placeholder="https://www.instagram.com/tu_restaurante/"
                   {...register("instagram")}
                   className="h-11 text-base"
                   inputMode="url"
@@ -384,11 +384,11 @@ export function BrandRegistrationForm() {
 
               <div className="space-y-1.5">
                 <Label htmlFor="descripcion" className="text-sm font-medium">
-                  {t.registration.labels.story}
+                  Historia del Emprendedor
                 </Label>
                 <Textarea
                   id="descripcion"
-                  placeholder={t.registration.placeholders.story}
+                  placeholder="Cuéntanos sobre tu restaurante, su historia, especialidades..."
                   {...register("descripcion")}
                   rows={8}
                   className="text-base resize-none"
@@ -412,14 +412,14 @@ export function BrandRegistrationForm() {
                 <div className="space-y-3">
                   <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
                     <Sparkles className="w-4 h-4 animate-pulse" />
-                    <span>{t.registration.photosSection.analyzing}</span>
+                    <span>Estamos analizando tus últimas publicaciones...</span>
                   </div>
                   <div>
                     <h3 className="text-2xl font-semibold mb-3">
-                      {t.registration.photosSection.title}
+                      Es momento de subir tus fotos
                     </h3>
                     <p className="text-muted-foreground text-base leading-relaxed">
-                      {t.registration.photosSection.description}
+                      Comparte las mejores imágenes de tus platillos para crear contenido increíble
                     </p>
                   </div>
                 </div>
@@ -441,11 +441,11 @@ export function BrandRegistrationForm() {
                 {isSubmitting ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    {t.registration.buttons.submitting}
+                    Guardando...
                   </>
                 ) : (
                   <>
-                    {t.registration.buttons.next}
+                    Continuar
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </>
                 )}
@@ -460,7 +460,7 @@ export function BrandRegistrationForm() {
                   onClick={() => setCurrentSection(1)}
                   className="flex-1 h-12"
                 >
-                  {t.registration.buttons.back}
+                  Atrás
                 </Button>
                 <Button
                   type="button"
@@ -471,11 +471,11 @@ export function BrandRegistrationForm() {
                   {isSubmitting ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      {t.registration.buttons.submitting}
+                      Guardando...
                     </>
                   ) : (
                     <>
-                      {t.registration.buttons.next}
+                      Continuar
                       <ArrowRight className="ml-2 h-4 w-4" />
                     </>
                   )}
@@ -489,7 +489,7 @@ export function BrandRegistrationForm() {
                 onClick={handleSection3}
                 className="w-full h-12 text-base font-semibold"
               >
-                {t.registration.buttons.uploadPhotos}
+                Subir Fotos
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             )}

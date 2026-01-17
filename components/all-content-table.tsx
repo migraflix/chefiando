@@ -174,7 +174,8 @@ export function AllContentTable({ status }: { status: "pending" | "reviewed" }) 
           </Card>
         ) : (
           <Card className="overflow-hidden">
-            <div className="overflow-x-auto">
+            {/* Vista Desktop: Tabla completa */}
+            <div className="hidden md:block overflow-x-auto">
               <table className="w-full">
                 <thead className="bg-gray-50 border-b border-gray-200">
                   <tr>
@@ -184,10 +185,10 @@ export function AllContentTable({ status }: { status: "pending" | "reviewed" }) 
                     <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">{t.brand.table.image}</th>
                     <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">{t.brand.table.post}</th>
                     <th className="px-6 py-4 text-center text-sm font-semibold text-gray-900">
-                      {t.brand.table.status}
+                      {t.lang === "pt" ? "Ações" : "Acciones"}
                     </th>
                     <th className="px-6 py-4 text-center text-sm font-semibold text-gray-900">
-                      {t.lang === "pt" ? "Ações" : "Acciones"}
+                      {t.brand.table.status}
                     </th>
                   </tr>
                 </thead>
@@ -224,6 +225,14 @@ export function AllContentTable({ status }: { status: "pending" | "reviewed" }) 
                         </p>
                       </td>
                       <td className="px-6 py-4 text-center">
+                        <Link href={`/review/${item.id}?brandId=${item.brandId}`}>
+                          <Button size="sm" className="bg-orange-500 hover:bg-orange-600 text-white">
+                            <ExternalLink className="h-4 w-4 mr-2" />
+                            {status === "pending" ? t.brand.table.rate : t.lang === "pt" ? "Ver" : "Ver"}
+                          </Button>
+                        </Link>
+                      </td>
+                      <td className="px-6 py-4 text-center">
                         <span
                           className={`inline-block px-3 py-1 text-xs font-medium rounded-full ${
                             item.fields.Status === "Manual Review"
@@ -236,18 +245,79 @@ export function AllContentTable({ status }: { status: "pending" | "reviewed" }) 
                           {item.fields.Status || t.brand.table.noStatus}
                         </span>
                       </td>
-                      <td className="px-6 py-4 text-center">
-                        <Link href={`/review/${item.id}?brandId=${item.brandId}`}>
-                          <Button size="sm" className="bg-orange-500 hover:bg-orange-600 text-white">
-                            <ExternalLink className="h-4 w-4 mr-2" />
-                            {status === "pending" ? t.brand.table.rate : t.lang === "pt" ? "Ver" : "Ver"}
-                          </Button>
-                        </Link>
-                      </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
+            </div>
+
+            {/* Vista Mobile: Foto y botón primero */}
+            <div className="md:hidden">
+              <div className="divide-y divide-gray-200">
+                {filteredItems.map((item) => (
+                  <div key={item.id} className="p-4 space-y-4">
+                    {/* Foto y Botón - Primero en móvil */}
+                    <div className="flex items-center gap-4">
+                      <div className="flex-shrink-0">
+                        {item.fields["📥 Image"]?.[0]?.url ? (
+                          <div className="relative w-24 h-24 rounded-lg overflow-hidden bg-gray-100">
+                            <Image
+                              src={item.fields["📥 Image"][0].url || "/placeholder.svg"}
+                              alt="Imagen del post"
+                              fill
+                              className="object-cover"
+                            />
+                          </div>
+                        ) : (
+                          <div className="w-24 h-24 rounded-lg bg-gray-200 flex items-center justify-center">
+                            <span className="text-gray-400 text-xs text-center px-2">{t.brand.table.noImage}</span>
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <Link href={`/review/${item.id}?brandId=${item.brandId}`} className="block">
+                          <Button size="lg" className="w-full bg-orange-500 hover:bg-orange-600 text-white">
+                            <ExternalLink className="h-5 w-5 mr-2" />
+                            {status === "pending" ? t.brand.table.rate : t.lang === "pt" ? "Ver" : "Ver"}
+                          </Button>
+                        </Link>
+                      </div>
+                    </div>
+
+                    {/* Marca, Post y Status - Después en móvil */}
+                    <div className="space-y-2">
+                      <div>
+                        <Link
+                          href={`/marca/ver/${item.brandId}`}
+                          className="text-orange-600 hover:text-orange-700 font-medium hover:underline text-sm"
+                        >
+                          {item.brandName}
+                        </Link>
+                      </div>
+                      {item.fields.Post && (
+                        <div>
+                          <p className="text-gray-600 text-sm line-clamp-2">
+                            {item.fields.Post}
+                          </p>
+                        </div>
+                      )}
+                      <div className="flex items-center justify-end">
+                        <span
+                          className={`inline-block px-3 py-1 text-xs font-medium rounded-full ${
+                            item.fields.Status === "Manual Review"
+                              ? "bg-yellow-100 text-yellow-800"
+                              : item.fields.Status === "Approved"
+                                ? "bg-green-100 text-green-800"
+                                : "bg-blue-100 text-blue-800"
+                          }`}
+                        >
+                          {item.fields.Status || t.brand.table.noStatus}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           </Card>
         )}

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { sanitizeString } from "@/lib/airtable/utils";
 
 const AIRTABLE_API_KEY = process.env.AIRTABLE_API_KEY;
 const AIRTABLE_BASE_ID = process.env.AIRTABLE_BASE_ID;
@@ -17,9 +18,9 @@ async function createPhotoRecordInAirtable(
     const encodedTableName = encodeURIComponent(PHOTOS_TABLE_NAME);
     
     const fields: Record<string, any> = {
-      Nombre: productData.name,
-      Ingredientes: productData.description,
-      Tags: productData.tags.join(", "),
+      Nombre: sanitizeString(productData.name),
+      Ingredientes: sanitizeString(productData.description),
+      Tags: productData.tags.map(tag => sanitizeString(tag)).filter(Boolean).join(", "),
     };
 
     if (productData.price && productData.price.trim() !== "") {

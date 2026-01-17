@@ -50,5 +50,3 @@ export const brandRegistrationSchema = z.object({
 
 export type BrandFormData = z.infer<typeof brandRegistrationSchema>;
 
-
-

@@ -7,6 +7,7 @@ import "./globals.css"
 import { Suspense } from "react"
 import { Toaster } from "@/components/ui/toaster"
 import { LanguageProvider } from "@/contexts/language-context"
+import { SentryInit } from "@/components/sentry-init"
 
 export const metadata: Metadata = {
   title: "Migraflix IA",
@@ -22,6 +23,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`font-sans ${GeistSans.variable} ${GeistMono.variable}`}>
+        <SentryInit />
         <LanguageProvider>
           <Suspense fallback={<div>Loading...</div>}>{children}</Suspense>
           <Analytics />

@@ -3,6 +3,7 @@ import { inferLanguage, sanitizeString, generateUploadPhotosLink } from "./utils
 
 const AIRTABLE_API_KEY = process.env.AIRTABLE_API_KEY;
 const AIRTABLE_BASE_ID = process.env.AIRTABLE_BASE_ID;
+// SIEMPRE usar "Brands" como nombre de tabla (funciona en producción y desarrollo)
 const TABLE_NAME = "Brands";
 
 /**

@@ -2,6 +2,7 @@ import { type NextRequest, NextResponse } from "next/server"
 
 const AIRTABLE_API_KEY = process.env.AIRTABLE_API_KEY
 const AIRTABLE_BASE_ID = process.env.AIRTABLE_BASE_ID
+// SIEMPRE usar "Brands" como nombre de tabla (funciona en producción y desarrollo)
 const TABLE_NAME = "Brands"
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ recordId: string }> }) {
