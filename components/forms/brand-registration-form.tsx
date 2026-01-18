@@ -78,8 +78,8 @@ export function BrandRegistrationForm() {
     const isValid = await trigger(fieldsToValidate);
     if (!isValid) {
       toast({
-        title: "Error de validación",
-        description: "Por favor, completa todos los campos requeridos",
+        title: t.registration.error.title,
+        description: t.registration.errors.validation,
         variant: "destructive",
       });
       return;
@@ -118,8 +118,8 @@ export function BrandRegistrationForm() {
       setCurrentSection(2);
 
       toast({
-        title: "¡Perfecto!",
-        description: "Información básica guardada",
+        title: t.registration.success.perfect,
+        description: t.registration.success.basicSaved,
       });
     } catch (error: any) {
       console.error("Error saving section 1:", error);
@@ -238,7 +238,7 @@ export function BrandRegistrationForm() {
           ))}
         </div>
         <h2 className="text-xl font-semibold">
-          {currentSection === 1 && "Información Básica"}
+          {currentSection === 1 && t.registration.sections.basic}
           {currentSection === 2 && "Redes Sociales"}
           {currentSection === 3 && "Subir Fotos"}
         </h2>
@@ -251,11 +251,11 @@ export function BrandRegistrationForm() {
             <div className="space-y-4 max-w-md mx-auto">
               <div className="space-y-1.5">
                 <Label htmlFor="emprendedor" className="text-sm font-medium">
-                  Nombre del Propietario
+                  {t.registration.labels.ownerName}
                 </Label>
                 <Input
                   id="emprendedor"
-                  placeholder="Tu nombre completo"
+                  placeholder={t.registration.placeholders.name}
                   {...register("emprendedor")}
                   className="h-11 text-base"
                 />
@@ -266,11 +266,11 @@ export function BrandRegistrationForm() {
 
               <div className="space-y-1.5">
                 <Label htmlFor="negocio" className="text-sm font-medium">
-                  Nombre del Negocio <span className="text-destructive">*</span>
+                  {t.registration.labels.businessName} <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   id="negocio"
-                  placeholder="Nombre de tu restaurante"
+                  placeholder={t.registration.placeholders.business}
                   {...register("negocio")}
                   className="h-11 text-base"
                   required
@@ -282,12 +282,12 @@ export function BrandRegistrationForm() {
 
               <div className="space-y-1.5">
                 <Label htmlFor="correo" className="text-sm font-medium">
-                  Correo Electrónico
+                  {t.registration.labels.email}
                 </Label>
                 <Input
                   id="correo"
                   type="email"
-                  placeholder="tu@email.com"
+                  placeholder={t.registration.placeholders.email}
                   {...register("correo")}
                   className="h-11 text-base"
                   inputMode="email"
@@ -299,12 +299,12 @@ export function BrandRegistrationForm() {
 
               <div className="space-y-1.5">
                 <Label htmlFor="whatsapp" className="text-sm font-medium">
-                  WhatsApp <span className="text-destructive">*</span>
+                  {t.registration.labels.whatsapp} <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   id="whatsapp"
                   type="tel"
-                  placeholder="+51987654321"
+                  placeholder={t.registration.placeholders.whatsapp}
                   {...register("whatsapp")}
                   className="h-11 text-base"
                   inputMode="tel"
@@ -317,11 +317,11 @@ export function BrandRegistrationForm() {
 
               <div className="space-y-1.5">
                 <Label htmlFor="ciudad" className="text-sm font-medium">
-                  Ciudad
+                  {t.registration.labels.city}
                 </Label>
                 <Input
                   id="ciudad"
-                  placeholder="Tu ciudad"
+                  placeholder={t.registration.placeholders.city}
                   {...register("ciudad")}
                   className="h-11 text-base"
                 />
@@ -332,7 +332,7 @@ export function BrandRegistrationForm() {
 
               <div className="space-y-1.5">
                 <Label htmlFor="pais" className="text-sm font-medium">
-                  País
+                  {t.registration.labels.country}
                 </Label>
                 <Select
                   value={isOtherCountry ? "Otro" : selectedCountry || ""}
@@ -345,7 +345,7 @@ export function BrandRegistrationForm() {
                   }}
                 >
                   <SelectTrigger id="pais" className="h-11 text-base">
-                    <SelectValue placeholder="Selecciona tu país" />
+                    <SelectValue placeholder={t.registration.placeholders.country} />
                   </SelectTrigger>
                   <SelectContent>
                     {COUNTRIES.map((country) => (
@@ -372,7 +372,7 @@ export function BrandRegistrationForm() {
                 <Input
                   id="instagram"
                   type="url"
-                  placeholder="https://www.instagram.com/tu_restaurante/"
+                  placeholder={t.registration.placeholders.instagram}
                   {...register("instagram")}
                   className="h-11 text-base"
                   inputMode="url"
@@ -388,7 +388,7 @@ export function BrandRegistrationForm() {
                 </Label>
                 <Textarea
                   id="descripcion"
-                  placeholder="Cuéntanos sobre tu restaurante, su historia, especialidades..."
+                  placeholder={t.registration.placeholders.story}
                   {...register("descripcion")}
                   rows={8}
                   className="text-base resize-none"
