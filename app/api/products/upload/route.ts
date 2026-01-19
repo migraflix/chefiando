@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { sanitizeString } from "@/lib/airtable/utils";
+import { sanitizeString, sanitizeFileName } from "@/lib/airtable/utils";
 
 const AIRTABLE_API_KEY = process.env.AIRTABLE_API_KEY;
 const AIRTABLE_BASE_ID = process.env.AIRTABLE_BASE_ID;
@@ -116,14 +116,14 @@ export async function POST(request: NextRequest) {
 
       webhookData.push({
         recordId: photoRecordId,
-        nombre: photoFile.name,
+        nombre: sanitizeFileName(photoFile.name),
         contentType: contentType,
         base64: base64Data,
         datosProducto: {
-          nombre: product.name,
-          descripcion: product.description,
+          nombre: sanitizeString(product.name),
+          descripcion: sanitizeString(product.description),
           precio: product.price || null,
-          tags: product.tags,
+          tags: product.tags.map(tag => sanitizeString(tag)),
         },
       });
     }
