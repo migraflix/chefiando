@@ -179,8 +179,8 @@ export const translations = {
         city: "Em que cidade fica o seu negócio?",
         country: "Em que país fica o seu negócio?",
         whatsapp: "Qual é o WhatsApp do seu negócio? Nos comunicaremos por aqui.",
-        instagram: "Qual é o Instagram do seu negócio? Faremos um estudo da sua marca. Copie o link do negócio. Exemplo: https://www.instagram.com/migraflix/",
-        story: "Conte-nos brevemente sobre o seu negócio! Aproveitaremos esta história para gerar posts persuasivos. Exemplo: Quando cheguei a São Paulo, comecei fazendo arepas em casa e hoje lidero Sabores da Venezuela, um projeto que compartilha o sabor e a alegria da gastronomia venezuelana com os paulistanos. Os pratos estrela são a arepa reina pepiada e o pavilhão crioulo. Todos os pedidos são feitos com 24 horas de antecedência e eu mesmo me certifico de entregá-los nas casas dos meus clientes para apresentar os pratos.",
+        instagram: "Qual é o Instagram do seu negócio? Faremos um estudo da sua marca.",
+        story: "Conte-nos brevemente sobre o seu negócio. Aproveitaremos esta história para gerar posts persuasivos.",
       },
       placeholders: {
         name: "Seu nome completo",
@@ -189,8 +189,12 @@ export const translations = {
         city: "Sua cidade",
         country: "Selecione um país",
         whatsapp: "+51987654321",
-        instagram: "https://www.instagram.com/seu_restaurante/",
-        story: "Conte-nos sobre seu restaurante, sua história, especialidades...",
+        instagram: "https://www.instagram.com/seu_restaurante",
+        story: "Conte sua história aqui...",
+      },
+      examples: {
+        instagram: "Ejemplo: https://www.instagram.com/migraflix/",
+        story: "Quando cheguei a São Paulo, comecei fazendo arepas em casa e hoje lidero Sabores da Venezuela, um projeto que compartilha o sabor e a alegria da gastronomia venezuelana com os paulistanos. Os pratos estrela são a arepa reina pepiada e o pavilhão crioulo. Todos os pedidos são feitos com 24 horas de antecedência e eu mesmo me certifico de entregá-los nas casas dos meus clientes para apresentar os pratos."
       },
       photosSection: {
         analyzing: "Estamos analisando suas últimas publicações...",
@@ -464,8 +468,8 @@ export const translations = {
         city: "¿En qué ciudad queda tu negocio?",
         country: "¿En qué país queda tu negocio?",
         whatsapp: "¿Cuál es el WhatsApp de tu negocio? Nos comunicaremos por aquí.",
-        instagram: "¿Cuál es el Instagram de tu negocio? Haremos un estudio de tu marca. Copiar el link del negocio. Ejemplo: https://www.instagram.com/migraflix/",
-        story: "Cuéntanos brevemente sobre tu negocio! Aprovecharemos esta historia para generar posts persuasivos. Ejemplo: Cuando llegué a Lima, empecé haciendo arepas en casa y hoy lidero Sabores de Venezuela, un proyecto que comparte el sabor y la alegría de la gastronomía venezolana con los limeños. Los platos estrella son la arepa reina pepiada y el pabellón criollo. Todos los pedidos se hacen con 24 horas de anticipación y me aseguro de entregarlos yo mismo en las casas de mis clientes para presentar los platos.",
+        instagram: "¿Cuál es el Instagram de tu negocio? Haremos un estudio de tu marca.",
+        story: "Cuéntanos brevemente sobre tu negocio. Aprovecharemos esta historia para generar posts persuasivos.",
       },
       placeholders: {
         name: "Tu nombre completo",
@@ -474,8 +478,12 @@ export const translations = {
         city: "Tu ciudad",
         country: "Selecciona un país",
         whatsapp: "+51987654321",
-        instagram: "https://www.instagram.com/tu_restaurante/",
-        story: "Cuéntanos sobre tu restaurante, su historia, especialidades...",
+        instagram: "https://www.instagram.com/tu_restaurante",
+        story: "Cuenta tu historia aquí...",
+      },
+      examples: {
+        instagram: "Ejemplo: https://www.instagram.com/migraflix/",
+        story: "Cuando llegué a Lima, empecé haciendo arepas en casa y hoy lidero Sabores de Venezuela, un proyecto que comparte el sabor y la alegría de la gastronomía venezolana con los limeños. Los platos estrella son la arepa reina pepiada y el pabellón criollo. Todos los pedidos se hacen con 24 horas de anticipación y me aseguro de entregarlos yo mismo en las casas de mis clientes para presentar los platos."
       },
       photosSection: {
         analyzing: "Estamos analizando tus últimas publicaciones...",

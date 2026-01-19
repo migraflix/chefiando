@@ -377,6 +377,9 @@ export function BrandRegistrationForm() {
                   className="h-11 text-base"
                   inputMode="url"
                 />
+                <p className="text-xs text-muted-foreground mt-1">
+                  {t.registration.examples.instagram}
+                </p>
                 {errors.instagram && (
                   <p className="text-xs text-destructive">{errors.instagram.message}</p>
                 )}
@@ -394,6 +397,9 @@ export function BrandRegistrationForm() {
                   className="text-base resize-none"
                   maxLength={1000}
                 />
+                <p className="text-xs text-muted-foreground mt-1 mb-2">
+                  {t.registration.examples.story}
+                </p>
                 <div className="flex justify-between text-xs text-muted-foreground">
                   <span>{errors.descripcion?.message}</span>
                   <span>{watch("descripcion")?.length || 0} / 1000</span>
