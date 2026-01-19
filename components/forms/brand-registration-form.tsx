@@ -368,11 +368,8 @@ export function BrandRegistrationForm() {
               <div className="space-y-1.5">
                 <div>
                   <Label htmlFor="instagram" className="text-sm font-medium block mb-1">
-                    Instagram
+                    {t.registration.questions.instagram.split('?')[0]}?
                   </Label>
-                  <p className="text-sm text-muted-foreground">
-                    {t.registration.questions.instagram}
-                  </p>
                 </div>
                 <Input
                   id="instagram"
@@ -390,11 +387,8 @@ export function BrandRegistrationForm() {
               <div className="space-y-1.5">
                 <div>
                   <Label htmlFor="descripcion" className="text-sm font-medium block mb-1">
-                    {t.registration.labels.story}
-                  </Label>
-                  <p className="text-sm text-muted-foreground">
                     {t.registration.questions.story}
-                  </p>
+                  </Label>
                 </div>
                 <Textarea
                   id="descripcion"
