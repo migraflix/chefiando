@@ -179,8 +179,8 @@ export const translations = {
         city: "Em que cidade fica o seu negócio?",
         country: "Em que país fica o seu negócio?",
         whatsapp: "Qual é o WhatsApp do seu negócio? Nos comunicaremos por aqui.",
-        instagram: "Qual é o Instagram do seu negócio? Faremos um estudo da sua marca. Copie o link do negócio.",
-        story: "Conte-nos brevemente sobre o seu negócio! Aproveitaremos esta história para gerar posts persuasivos.",
+        instagram: "Qual é o Instagram do seu negócio? Faremos um estudo da sua marca. Copie o link do negócio. Exemplo: https://www.instagram.com/migraflix/",
+        story: "Conte-nos brevemente sobre o seu negócio! Aproveitaremos esta história para gerar posts persuasivos. Exemplo: Quando cheguei a São Paulo, comecei fazendo arepas em casa e hoje lidero Sabores da Venezuela, um projeto que compartilha o sabor e a alegria da gastronomia venezuelana com os paulistanos. Os pratos estrela são a arepa reina pepiada e o pavilhão crioulo. Todos os pedidos são feitos com 24 horas de antecedência e eu mesmo me certifico de entregá-los nas casas dos meus clientes para apresentar os pratos.",
       },
       placeholders: {
         name: "Seu nome completo",
@@ -464,8 +464,8 @@ export const translations = {
         city: "¿En qué ciudad queda tu negocio?",
         country: "¿En qué país queda tu negocio?",
         whatsapp: "¿Cuál es el WhatsApp de tu negocio? Nos comunicaremos por aquí.",
-        instagram: "¿Cuál es el Instagram de tu negocio? Haremos un estudio de tu marca. Copiar el link del negocio.",
-        story: "Cuéntanos brevemente sobre tu negocio! Aprovecharemos esta historia para generar posts persuasivos.",
+        instagram: "¿Cuál es el Instagram de tu negocio? Haremos un estudio de tu marca. Copiar el link del negocio. Ejemplo: https://www.instagram.com/migraflix/",
+        story: "Cuéntanos brevemente sobre tu negocio! Aprovecharemos esta historia para generar posts persuasivos. Ejemplo: Cuando llegué a Lima, empecé haciendo arepas en casa y hoy lidero Sabores de Venezuela, un proyecto que comparte el sabor y la alegría de la gastronomía venezolana con los limeños. Los platos estrella son la arepa reina pepiada y el pabellón criollo. Todos los pedidos se hacen con 24 horas de anticipación y me aseguro de entregarlos yo mismo en las casas de mis clientes para presentar los platos.",
       },
       placeholders: {
         name: "Tu nombre completo",
