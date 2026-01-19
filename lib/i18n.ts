@@ -148,7 +148,7 @@ export const translations = {
         noName: "Sem nome",
         copy: "Copiar Link",
         copied: "Copiado!",
-        review: "Review Brand Content",
+        review: "Revisar Conteúdo da Marca",
         uploadPhotos: "Adicionar fotos",
       },
     },
@@ -304,7 +304,7 @@ export const translations = {
       },
       benefits: {
         title: "Por qué elegir ChefIAndo",
-        subtitle: "Creamos contenido que conecta con tu audiencia y genera resultados reais",
+        subtitle: "Creamos contenido que conecta con tu audiencia y genera resultados reales",
         professional: {
           title: "Contenido profesional",
           description: "Fotos, videos y textos creados por expertos que conocen la industria restaurantera",
@@ -333,7 +333,7 @@ export const translations = {
       cta: {
         title: "Comienza a crear contenido hoy",
         subtitle: "Únete a cientos de restaurantes en LATAM que ya están creciendo con ChefIAndo",
-        button: "Solicitar demo gratuita",
+        button: "Testear gratis",
       },
       footer: {
         description: "Sistema de creación de contenido para restaurantes en LATAM",
@@ -433,7 +433,7 @@ export const translations = {
         noName: "Sin nombre",
         copy: "Copiar Link",
         copied: "¡Copiado!",
-        review: "Review Brand Content",
+        review: "Revisar Contenido de Marca",
         uploadPhotos: "Agregar fotos",
       },
     },
