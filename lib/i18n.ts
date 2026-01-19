@@ -194,7 +194,7 @@ export const translations = {
       },
       photosSection: {
         analyzing: "Estamos analisando suas últimas publicações...",
-        title: "É hora de enviar suas fotos",
+        title: "É hora de subir suas fotos",
         description: "Compartilhe as melhores imagens dos seus pratos para criar conteúdo incrível",
       },
       buttons: {
