@@ -11,6 +11,7 @@ import { useLanguage } from "@/contexts/language-context";
 import { useToast } from "@/hooks/use-toast";
 import { Upload, X, Loader2 } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
+import { sanitizeString } from "@/lib/airtable/utils";
 
 interface Product {
   id: string;
@@ -25,6 +26,8 @@ interface Product {
 const MAX_PRODUCTS = 5;
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const ALLOWED_TYPES = ["image/jpeg", "image/jpg", "image/png"];
+const MAX_DESCRIPTION_LENGTH = 1000; // Máximo 1000 caracteres para descripción
+const MAX_NAME_LENGTH = 100; // Máximo 100 caracteres para nombre
 
 export function ProductUploadForm({ marca }: { marca: string }) {
   const { t } = useLanguage();
@@ -147,9 +150,36 @@ export function ProductUploadForm({ marca }: { marca: string }) {
         });
         return false;
       }
+      if (product.name.length > MAX_NAME_LENGTH) {
+        toast({
+          title: "Nombre demasiado largo",
+          description: `El nombre no puede exceder ${MAX_NAME_LENGTH} caracteres`,
+          variant: "destructive",
+        });
+        return false;
+      }
       if (!product.description.trim()) {
         toast({
           title: t.products.validation.descriptionRequired,
+          variant: "destructive",
+        });
+        return false;
+      }
+      if (product.description.length > MAX_DESCRIPTION_LENGTH) {
+        toast({
+          title: t.products.validation.maxLength.replace("{max}", MAX_DESCRIPTION_LENGTH.toString()),
+          variant: "destructive",
+        });
+        return false;
+      }
+
+      // Validar que la descripción sea JSON-safe (sin caracteres problemáticos)
+      try {
+        JSON.stringify({ description: product.description });
+      } catch (error) {
+        toast({
+          title: "Error en la descripción",
+          description: "La descripción contiene caracteres inválidos. Por favor, revisa y corrige.",
           variant: "destructive",
         });
         return false;
@@ -166,15 +196,17 @@ export function ProductUploadForm({ marca }: { marca: string }) {
     setIsSubmitting(true);
 
     try {
-      // Preparar datos para enviar
+      // Preparar y sanitizar datos para enviar
+      const sanitizedProducts = products.map(p => ({
+        name: sanitizeString(p.name) || '',
+        description: sanitizeString(p.description) || '',
+        price: p.price,
+        tags: p.tags.map(tag => sanitizeString(tag) || '').filter(tag => tag.length > 0),
+      }));
+
       const formData = new FormData();
       formData.append("marca", marca);
-      formData.append("products", JSON.stringify(products.map(p => ({
-        name: p.name,
-        description: p.description,
-        price: p.price,
-        tags: p.tags,
-      }))));
+      formData.append("products", JSON.stringify(sanitizedProducts));
 
       // Agregar fotos
       products.forEach((product, index) => {
@@ -299,7 +331,13 @@ Error del webhook: ${result.details.webhookError}` : '';
                 onChange={(e) => updateProduct(product.id, { name: e.target.value })}
                 placeholder={t.products.fields.namePlaceholder}
                 className="h-12 text-base"
+                maxLength={MAX_NAME_LENGTH}
               />
+              <div className="flex justify-end text-xs text-muted-foreground">
+                <span className={product.name.length > MAX_NAME_LENGTH ? "text-destructive" : ""}>
+                  {product.name.length} / {MAX_NAME_LENGTH}
+                </span>
+              </div>
             </div>
 
             {/* Descripción */}
@@ -314,7 +352,13 @@ Error del webhook: ${result.details.webhookError}` : '';
                 placeholder={t.products.fields.descriptionExample}
                 rows={6}
                 className="text-base resize-none"
+                maxLength={MAX_DESCRIPTION_LENGTH}
               />
+              <div className="flex justify-between text-xs text-muted-foreground">
+                <span className={product.description.length > MAX_DESCRIPTION_LENGTH ? "text-destructive" : ""}>
+                  {product.description.length} / {MAX_DESCRIPTION_LENGTH} caracteres
+                </span>
+              </div>
             </div>
 
             {/* Precio */}
