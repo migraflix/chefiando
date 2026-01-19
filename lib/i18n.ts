@@ -275,8 +275,8 @@ export const translations = {
         noRecordId: "ID do registro não encontrado",
       },
       uploading: {
-        title: "Preparando suas publicações",
-        description: "Por favor, aguarde enquanto processamos suas fotos e informações...",
+        title: "Processando informações",
+        description: "Estamos processando a informação para apresentar um post insuperável! Em poucos minutos estará disponível para sua revisão.",
       },
       thanks: {
         title: "Já está pronto para mudar a cara do seu negócio!",
@@ -560,8 +560,8 @@ export const translations = {
         noRecordId: "ID de registro no encontrado",
       },
       uploading: {
-        title: "Preparando tus publicaciones",
-        description: "Por favor, espera mientras procesamos tus fotos e información...",
+        title: "Procesando información",
+        description: "Estamos procesando la información para presentarte un post insuperable! En pocos minutos estará disponible para tu revisión.",
       },
       thanks: {
         title: "¡Ya estás listo para cambiarle la cara a tu negocio!",

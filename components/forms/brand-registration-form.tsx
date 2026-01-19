@@ -384,7 +384,7 @@ export function BrandRegistrationForm() {
 
               <div className="space-y-1.5">
                 <Label htmlFor="descripcion" className="text-sm font-medium">
-                  Historia del Emprendedor
+                  {t.registration.labels.story}
                 </Label>
                 <Textarea
                   id="descripcion"
@@ -412,14 +412,14 @@ export function BrandRegistrationForm() {
                 <div className="space-y-3">
                   <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
                     <Sparkles className="w-4 h-4 animate-pulse" />
-                    <span>Estamos analizando tus últimas publicaciones...</span>
+                    <span>{t.registration.photosSection.analyzing}</span>
                   </div>
                   <div>
                     <h3 className="text-2xl font-semibold mb-3">
-                      Es momento de subir tus fotos
+                      {t.registration.photosSection.title}
                     </h3>
                     <p className="text-muted-foreground text-base leading-relaxed">
-                      Comparte las mejores imágenes de tus platillos para crear contenido increíble
+                      {t.registration.photosSection.description}
                     </p>
                   </div>
                 </div>

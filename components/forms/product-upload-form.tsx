@@ -193,7 +193,11 @@ export function ProductUploadForm({ marca }: { marca: string }) {
 
       if (!response.ok) {
         const errorMessage = result.error || t.products.error.description;
-        const errorDetails = result.details ? `\n\nDetalles:\nStatus: ${result.details.status}\nError del webhook: ${result.details.webhookError}` : '';
+        const errorDetails = result.details ? `
+
+Detalles:
+Status: ${result.details.status}
+Error del webhook: ${result.details.webhookError}` : '';
         throw new Error(errorMessage + errorDetails);
       }
 
