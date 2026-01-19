@@ -366,9 +366,14 @@ export function BrandRegistrationForm() {
           {currentSection === 2 && (
             <div className="space-y-4 max-w-md mx-auto">
               <div className="space-y-1.5">
-                <Label htmlFor="instagram" className="text-sm font-medium">
-                  Instagram
-                </Label>
+                <div>
+                  <Label htmlFor="instagram" className="text-sm font-medium block mb-1">
+                    Instagram
+                  </Label>
+                  <p className="text-sm text-muted-foreground">
+                    {t.registration.questions.instagram}
+                  </p>
+                </div>
                 <Input
                   id="instagram"
                   type="url"
@@ -383,9 +388,14 @@ export function BrandRegistrationForm() {
               </div>
 
               <div className="space-y-1.5">
-                <Label htmlFor="descripcion" className="text-sm font-medium">
-                  {t.registration.labels.story}
-                </Label>
+                <div>
+                  <Label htmlFor="descripcion" className="text-sm font-medium block mb-1">
+                    {t.registration.labels.story}
+                  </Label>
+                  <p className="text-sm text-muted-foreground">
+                    {t.registration.questions.story}
+                  </p>
+                </div>
                 <Textarea
                   id="descripcion"
                   placeholder={t.registration.placeholders.story}
