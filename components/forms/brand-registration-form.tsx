@@ -111,7 +111,7 @@ export function BrandRegistrationForm() {
       const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(result.error || "Error al guardar la información básica");
+        throw new Error(result.error || t.registration.error.saveFailed);
       }
 
       setRecordId(result.recordId);
@@ -124,8 +124,8 @@ export function BrandRegistrationForm() {
     } catch (error: any) {
       console.error("Error saving section 1:", error);
       toast({
-        title: "Error",
-        description: error.message || "No se pudo guardar la información",
+        title: t.registration.error.title,
+        description: error.message || t.registration.error.saveFailed,
         variant: "destructive",
       });
     } finally {
@@ -145,7 +145,7 @@ export function BrandRegistrationForm() {
     if (!recordId) {
       toast({
         title: "Error",
-        description: "No se encontró el registro. Por favor, recarga la página.",
+        description: t.registration.errors.noRecord,
         variant: "destructive",
       });
       return;
@@ -169,7 +169,7 @@ export function BrandRegistrationForm() {
       });
 
       if (!updateFieldsResponse.ok) {
-        throw new Error("Error al actualizar los campos");
+        throw new Error(t.registration.error.saveFailed);
       }
 
       // Actualizar status a "New"
@@ -182,14 +182,14 @@ export function BrandRegistrationForm() {
       });
 
       if (!updateStatusResponse.ok) {
-        throw new Error("Error al actualizar el status");
+        throw new Error(t.registration.error.saveFailed);
       }
 
       setCurrentSection(3);
 
       toast({
         title: "¡Excelente!",
-        description: "Información adicional guardada",
+        description: t.registration.success.additionalSaved,
       });
     } catch (error: any) {
       console.error("Error saving section 2:", error);
@@ -207,8 +207,8 @@ export function BrandRegistrationForm() {
   const handleSection3 = () => {
     if (!recordId) {
       toast({
-        title: "Error",
-        description: "No se encontró el registro",
+        title: t.registration.error.title,
+        description: t.registration.errors.noRecord,
         variant: "destructive",
       });
       return;
