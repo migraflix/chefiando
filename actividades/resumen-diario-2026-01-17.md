@@ -138,4 +138,4 @@
 *Resumen generado automáticamente por Grok Assistant*  
 *Fecha: 17/01/2026 - Hora: 07:58:00*  
 *Archivo: `actividad/resumen-diario-2026-01-17.md`*</contents>
-</xai:function_call">Crear resumen diario completo para comunicación al cliente.......
+</xai:function_call">Crear resumen diario completo para comunicación al cliente

@@ -148,7 +148,7 @@ export const translations = {
         noName: "Sem nome",
         copy: "Copiar Link",
         copied: "Copiado!",
-        review: "Review Brand Content",
+        review: "Revisar Conteúdo da Marca",
         uploadPhotos: "Adicionar fotos",
       },
     },
@@ -180,7 +180,7 @@ export const translations = {
         country: "Em que país fica o seu negócio?",
         whatsapp: "Qual é o WhatsApp do seu negócio? Nos comunicaremos por aqui.",
         instagram: "Qual é o Instagram do seu negócio? Faremos um estudo da sua marca. Copie o link do negócio.",
-        story: "Conte-nos brevemente sobre o seu negócio! Aproveitaremos esta história para gerar posts persuasivos.",
+        story: "Conte-nos brevemente sobre o seu negócio. Aproveitaremos esta história para gerar posts persuasivos.",
       },
       placeholders: {
         name: "Seu nome completo",
@@ -189,12 +189,12 @@ export const translations = {
         city: "Sua cidade",
         country: "Selecione um país",
         whatsapp: "+51987654321",
-        instagram: "https://www.instagram.com/seu_restaurante/",
-        story: "Conte-nos sobre seu restaurante, sua história, especialidades...",
+        instagram: "https://www.instagram.com/migraflix/",
+        story: "Quando cheguei a São Paulo, comecei fazendo arepas em casa e hoje lidero Sabores da Venezuela, um projeto que compartilha o sabor e a alegria da gastronomia venezuelana com os paulistanos. Os pratos estrela são a arepa reina pepiada e o pavilhão crioulo. Todos os pedidos são feitos com 24 horas de antecedência e eu mesmo me certifico de entregá-los nas casas dos meus clientes para apresentar os pratos.",
       },
       photosSection: {
         analyzing: "Estamos analisando suas últimas publicações...",
-        title: "É hora de enviar suas fotos",
+        title: "É hora de subir suas fotos",
         description: "Compartilhe as melhores imagens dos seus pratos para criar conteúdo incrível",
       },
       buttons: {
@@ -275,8 +275,8 @@ export const translations = {
         noRecordId: "ID do registro não encontrado",
       },
       uploading: {
-        title: "Preparando suas publicações",
-        description: "Por favor, aguarde enquanto processamos suas fotos e informações...",
+        title: "Processando informações",
+        description: "Estamos processando a informação para apresentar um post insuperável! Em poucos minutos estará disponível para sua revisão.",
       },
       thanks: {
         title: "Já está pronto para mudar a cara do seu negócio!",
@@ -304,7 +304,7 @@ export const translations = {
       },
       benefits: {
         title: "Por qué elegir ChefIAndo",
-        subtitle: "Creamos contenido que conecta con tu audiencia y genera resultados reais",
+        subtitle: "Creamos contenido que conecta con tu audiencia y genera resultados reales",
         professional: {
           title: "Contenido profesional",
           description: "Fotos, videos y textos creados por expertos que conocen la industria restaurantera",
@@ -333,7 +333,7 @@ export const translations = {
       cta: {
         title: "Comienza a crear contenido hoy",
         subtitle: "Únete a cientos de restaurantes en LATAM que ya están creciendo con ChefIAndo",
-        button: "Solicitar demo gratuita",
+        button: "Testear gratis",
       },
       footer: {
         description: "Sistema de creación de contenido para restaurantes en LATAM",
@@ -433,7 +433,7 @@ export const translations = {
         noName: "Sin nombre",
         copy: "Copiar Link",
         copied: "¡Copiado!",
-        review: "Review Brand Content",
+        review: "Revisar Contenido de Marca",
         uploadPhotos: "Agregar fotos",
       },
     },
@@ -474,8 +474,8 @@ export const translations = {
         city: "Tu ciudad",
         country: "Selecciona un país",
         whatsapp: "+51987654321",
-        instagram: "https://www.instagram.com/tu_restaurante/",
-        story: "Cuéntanos sobre tu restaurante, su historia, especialidades...",
+        instagram: "https://www.instagram.com/migraflix/",
+        story: "Cuando llegué a Lima, empecé haciendo arepas en casa y hoy lidero Sabores de Venezuela, un proyecto que comparte el sabor y la alegría de la gastronomía venezolana con los limeños. Los platos estrella son la arepa reina pepiada y el pabellón criollo. Todos los pedidos se hacen con 24 horas de anticipación y me aseguro de entregarlos yo mismo en las casas de mis clientes para presentar los platos.",
       },
       photosSection: {
         analyzing: "Estamos analizando tus últimas publicaciones...",
@@ -560,8 +560,8 @@ export const translations = {
         noRecordId: "ID de registro no encontrado",
       },
       uploading: {
-        title: "Preparando tus publicaciones",
-        description: "Por favor, espera mientras procesamos tus fotos e información...",
+        title: "Procesando información",
+        description: "Estamos procesando la información para presentarte un post insuperable! En pocos minutos estará disponible para tu revisión.",
       },
       thanks: {
         title: "¡Ya estás listo para cambiarle la cara a tu negocio!",

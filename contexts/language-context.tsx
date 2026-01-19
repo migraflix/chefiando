@@ -68,71 +68,82 @@ async function detectLanguageFromIP(): Promise<{ language: Language; locationInf
 }
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
-  // Inicializar con detección automática (pero consistente en SSR)
+  // Inicializar con estado consistente para evitar hydration mismatch
   const [language, setLanguageState] = useState<Language>("es")
   const [t, setT] = useState(getTranslations("es"))
   const [mounted, setMounted] = useState(false)
   const [locationInfo, setLocationInfo] = useState<LocationInfo | null>(null)
 
   useEffect(() => {
-    // Solo después de montar en el cliente
+    // Marcar como montado para evitar hydration mismatch
     setMounted(true)
-    
-    // Verificar primero si hay un idioma guardado manualmente
-    const userManuallyChanged = localStorage.getItem("language_manually_changed") === "true"
-    const savedLang = localStorage.getItem("language") as Language
-    
-    if (userManuallyChanged && savedLang && (savedLang === "pt" || savedLang === "es")) {
-      // El usuario cambió manualmente el idioma, usar ese primero
-      console.log("🌐 [LANG] Usando idioma manual guardado:", savedLang)
-      setLanguageState(savedLang)
-      setT(getTranslations(savedLang))
-      // Aún así, detectar la ubicación en segundo plano (sin cambiar el idioma)
-      detectLanguageFromIP().then((result) => {
-        setLocationInfo(result.locationInfo)
-        console.log("🌐 [LANG] Ubicación detectada (idioma manual activo):", result.locationInfo.country)
-      }).catch(() => {
-        // Ignorar errores si ya tenemos idioma manual
-      })
-      return
-    }
-    
-    // Si no hay idioma manual, SIEMPRE detectar por IP y usar ese idioma
-    console.log("🌐 [LANG] Detectando idioma por IP...")
-    detectLanguageFromIP().then((result) => {
-      setLocationInfo(result.locationInfo)
-      
-      // Usar el idioma detectado por IP (sobrescribe cualquier idioma guardado anterior)
-      console.log("🌐 [LANG] Idioma detectado por IP:", result.language, "País:", result.locationInfo.country, "Code:", result.locationInfo.countryCode)
-      setLanguageState(result.language)
-      setT(getTranslations(result.language))
-      // Guardar el idioma detectado
-      localStorage.setItem("language", result.language)
-      // Asegurar que NO está marcado como cambio manual
-      localStorage.removeItem("language_manually_changed")
-    }).catch((error) => {
-      console.error("❌ [LANG] Error detecting language:", error)
-      // En caso de error, verificar si hay idioma guardado
+
+    // Pequeño delay para asegurar que la hidratación esté completa
+    const timer = setTimeout(() => {
+      // Verificar primero si hay un idioma guardado manualmente
+      const userManuallyChanged = localStorage.getItem("language_manually_changed") === "true"
       const savedLang = localStorage.getItem("language") as Language
-      if (savedLang && (savedLang === "pt" || savedLang === "es")) {
-        console.log("🌐 [LANG] Usando idioma guardado (fallback):", savedLang)
+
+      if (userManuallyChanged && savedLang && (savedLang === "pt" || savedLang === "es")) {
+        // El usuario cambió manualmente el idioma, usar ese primero
+        console.log("🌐 [LANG] Usando idioma manual guardado:", savedLang)
         setLanguageState(savedLang)
         setT(getTranslations(savedLang))
-      } else {
-        // Usar español por defecto
-        const defaultLang: Language = "es"
-        console.log("🌐 [LANG] Usando español por defecto (sin detección)")
-        setLanguageState(defaultLang)
-        setT(getTranslations(defaultLang))
-        localStorage.setItem("language", defaultLang)
+        // Aún así, detectar la ubicación en segundo plano (sin cambiar el idioma)
+        detectLanguageFromIP().then((result) => {
+          setLocationInfo(result.locationInfo)
+          console.log("🌐 [LANG] Ubicación detectada (idioma manual activo):", result.locationInfo.country)
+        }).catch(() => {
+          // Ignorar errores si ya tenemos idioma manual
+        })
+        return
       }
-      setLocationInfo({
-        country: "Unknown",
-        countryCode: "MX",
-        ip: "error",
-        flag: "🇲🇽",
+
+      // Si no hay idioma manual, detectar por IP
+      console.log("🌐 [LANG] Detectando idioma por IP...")
+      detectLanguageFromIP().then((result) => {
+        setLocationInfo(result.locationInfo)
+
+        // Solo cambiar el idioma si es diferente al actual para evitar hydration mismatch innecesario
+        if (result.language !== language) {
+          console.log("🌐 [LANG] Idioma detectado por IP:", result.language, "País:", result.locationInfo.country, "Code:", result.locationInfo.countryCode)
+          setLanguageState(result.language)
+          setT(getTranslations(result.language))
+        }
+        // Guardar el idioma detectado
+        localStorage.setItem("language", result.language)
+        // Asegurar que NO está marcado como cambio manual
+        localStorage.removeItem("language_manually_changed")
+      }).catch((error) => {
+        console.error("❌ [LANG] Error detecting language:", error)
+        // En caso de error, verificar si hay idioma guardado
+        const savedLang = localStorage.getItem("language") as Language
+        if (savedLang && (savedLang === "pt" || savedLang === "es")) {
+          console.log("🌐 [LANG] Usando idioma guardado (fallback):", savedLang)
+          if (savedLang !== language) {
+            setLanguageState(savedLang)
+            setT(getTranslations(savedLang))
+          }
+        } else {
+          // Usar español por defecto
+          const defaultLang: Language = "es"
+          console.log("🌐 [LANG] Usando español por defecto (sin detección)")
+          if (defaultLang !== language) {
+            setLanguageState(defaultLang)
+            setT(getTranslations(defaultLang))
+          }
+          localStorage.setItem("language", defaultLang)
+        }
+        setLocationInfo({
+          country: "Unknown",
+          countryCode: "MX",
+          ip: "error",
+          flag: "🇲🇽",
+        })
       })
-    })
+    }, 100) // Pequeño delay para asegurar hidratación completa
+
+    return () => clearTimeout(timer)
   }, [])
 
   const setLanguage = (lang: Language) => {

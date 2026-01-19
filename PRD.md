@@ -28,6 +28,7 @@
   - [✅] Sistema de archivo diario con métricas y hallazgos
   - [✅] Template reutilizable para futuras sesiones
   - [✅] Integración con PRD.md para seguimiento de progreso
+- [ ] Posibilidad de publicar en Instagram de cada marca
 
 ## Mejoras Futuras
 

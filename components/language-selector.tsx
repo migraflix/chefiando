@@ -19,7 +19,7 @@ export function LanguageSelector() {
   const displayLanguage = mounted ? language : "es";
 
   return (
-    <div className="flex items-center gap-1 bg-card border rounded-lg p-2 shadow-sm">
+    <div className="flex items-center gap-1 bg-card border rounded-lg p-2 shadow-sm" suppressHydrationWarning>
       <Languages className="h-4 w-4 text-muted-foreground" />
       <span className="text-xs font-medium mr-2">
         {displayLanguage === "pt" ? "Português" : "Español"}
