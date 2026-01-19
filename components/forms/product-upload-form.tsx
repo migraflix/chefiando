@@ -204,16 +204,28 @@ export function ProductUploadForm({ marca }: { marca: string }) {
         tags: p.tags.map(tag => sanitizeString(tag) || '').filter(tag => tag.length > 0),
       }));
 
+      // Validar que los productos sanitizados sean válidos para JSON
+      try {
+        JSON.stringify(sanitizedProducts);
+      } catch (jsonError) {
+        console.error("Error en validación JSON de productos:", jsonError, sanitizedProducts);
+        throw new Error("Los datos de los productos contienen caracteres inválidos. Por favor, revisa las descripciones.");
+      }
+
       const formData = new FormData();
       formData.append("marca", marca);
       formData.append("products", JSON.stringify(sanitizedProducts));
 
-      // Agregar fotos
+      // Agregar fotos con validación
+      let photosCount = 0;
       products.forEach((product, index) => {
         if (product.photo) {
           formData.append(`photo_${index}`, product.photo);
+          photosCount++;
         }
       });
+
+      console.log(`Enviando ${photosCount} productos con ${products.filter(p => p.photo).length} fotos`);
 
       // Enviar a API
       const response = await fetch("/api/products/upload", {
@@ -221,7 +233,13 @@ export function ProductUploadForm({ marca }: { marca: string }) {
         body: formData,
       });
 
-      const result = await response.json();
+      let result;
+      try {
+        result = await response.json();
+      } catch (parseError) {
+        console.error("Error parseando respuesta JSON:", parseError, response);
+        throw new Error("Error en la respuesta del servidor. Por favor, intenta de nuevo.");
+      }
 
       if (!response.ok) {
         const errorMessage = result.error || t.products.error.description;
@@ -229,14 +247,39 @@ export function ProductUploadForm({ marca }: { marca: string }) {
 
 Detalles:
 Status: ${result.details.status}
-Error del webhook: ${result.details.webhookError}` : '';
+Error del webhook: ${result.details.webhookError}
+Tipo de error: ${result.details.errorType || 'Desconocido'}` : '';
+
+        // Log detallado para debugging
+        console.error("Error en envío de productos:", {
+          status: response.status,
+          error: result.error,
+          details: result.details,
+          productsCount: sanitizedProducts.length,
+          photosCount,
+          marca,
+        });
+
         throw new Error(errorMessage + errorDetails);
       }
 
+      console.log("Productos enviados exitosamente:", result);
       // Redirigir a página de agradecimiento
       router.push(`/fotos/gracias?marca=${marca}`);
     } catch (error) {
       console.error("Error submitting products:", error);
+
+      // Capturar información adicional del error para Sentry
+      const errorContext = {
+        productsCount: products.length,
+        photosCount: products.filter(p => p.photo).length,
+        marca,
+        errorMessage: error instanceof Error ? error.message : 'Error desconocido',
+        errorType: error instanceof Error ? error.constructor.name : typeof error,
+      };
+
+      console.error("Contexto del error:", errorContext);
+
       toast({
         title: t.products.error.title,
         description: error instanceof Error ? error.message : t.products.error.description,

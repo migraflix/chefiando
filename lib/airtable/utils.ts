@@ -30,22 +30,33 @@ export function inferLanguage(pais?: string, ciudad?: string): string {
  * Elimina caracteres problemáticos, escapa caracteres especiales y trim
  */
 export function sanitizeString(value: string | undefined): string | undefined {
-  if (!value) return undefined;
+  if (!value || typeof value !== 'string') return undefined;
 
-  // Trim primero
-  let sanitized = value.trim();
+  try {
+    // Trim primero
+    let sanitized = value.trim();
 
-  // Reemplazar caracteres problemáticos comunes
-  sanitized = sanitized
-    .replace(/\r\n/g, '\n') // Normalizar line breaks
-    .replace(/\r/g, '\n') // Normalizar line breaks
-    .replace(/\t/g, ' ') // Reemplazar tabs con espacios
-    .replace(/[\u200B-\u200D\uFEFF]/g, '') // Eliminar zero-width characters
-    .replace(/[\u0000-\u001F]/g, '') // Eliminar caracteres de control excepto \n
-    .replace(/\u00A0/g, ' ') // Reemplazar non-breaking space con espacio normal
-    .trim();
+    // Reemplazar caracteres problemáticos comunes
+    sanitized = sanitized
+      .replace(/\r\n/g, '\n') // Normalizar line breaks
+      .replace(/\r/g, '\n') // Normalizar line breaks
+      .replace(/\t/g, ' ') // Reemplazar tabs con espacios
+      .replace(/[\u200B-\u200D\uFEFF]/g, '') // Eliminar zero-width characters
+      .replace(/[\u0000-\u001F\u007F-\u009F]/g, '') // Eliminar caracteres de control (más amplio)
+      .replace(/\u00A0/g, ' ') // Reemplazar non-breaking space con espacio normal
+      .replace(/[\uD800-\uDFFF]/g, '') // Eliminar surrogates incompletos
+      .replace(/[\uFFFD]/g, '') // Eliminar replacement character
+      .trim();
 
-  return sanitized;
+    // Verificar que el string resultante sea válido para JSON
+    JSON.stringify(sanitized);
+
+    return sanitized;
+  } catch (error) {
+    console.error('Error sanitizando string:', error, { originalValue: value.substring(0, 100) });
+    // Si hay un error, devolver una versión muy básica y segura
+    return value.replace(/[^\w\sáéíóúüñÁÉÍÓÚÜÑ.,;:!?()-]/g, '').trim();
+  }
 }
 
 /**

@@ -88,7 +88,17 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const products = JSON.parse(productsJson);
+    let products;
+    try {
+      products = JSON.parse(productsJson);
+    } catch (parseError) {
+      console.error("Error parsing products JSON:", parseError, productsJson);
+      return NextResponse.json(
+        { error: "Error al parsear datos de productos", details: parseError instanceof Error ? parseError.message : "Error desconocido" },
+        { status: 400 }
+      );
+    }
+
     const webhookData = [];
 
     for (let i = 0; i < products.length; i++) {
@@ -96,6 +106,7 @@ export async function POST(request: NextRequest) {
       const photoFile = formData.get(`photo_${i}`) as File | null;
 
       if (!photoFile) {
+        console.warn(`Producto ${i}: No se encontró archivo de foto`);
         continue;
       }
 
@@ -103,29 +114,62 @@ export async function POST(request: NextRequest) {
       try {
         photoRecordId = await createPhotoRecordInAirtable(product, marca);
       } catch (error) {
+        console.error(`Error creando registro en Airtable para producto ${i}:`, error);
         continue;
       }
 
       if (!photoRecordId) {
+        console.warn(`Producto ${i}: No se pudo crear registro en Airtable`);
         continue;
       }
 
-      const buffer = await photoFile.arrayBuffer();
-      const base64Data = Buffer.from(buffer).toString("base64");
-      const contentType = photoFile.type || "image/jpeg";
+      try {
+        // Validar que los datos del producto sean seguros para JSON
+        const sanitizedNombre = sanitizeString(product.name);
+        const sanitizedDescripcion = sanitizeString(product.description);
+        const sanitizedTags = product.tags.map(tag => sanitizeString(tag)).filter(tag => tag && tag.length > 0);
 
-      webhookData.push({
-        recordId: photoRecordId,
-        nombre: sanitizeFileName(photoFile.name),
-        contentType: contentType,
-        base64: base64Data,
-        datosProducto: {
-          nombre: sanitizeString(product.name),
-          descripcion: sanitizeString(product.description),
+        // Verificar que los datos sanitizados sean válidos para JSON
+        JSON.stringify({
+          nombre: sanitizedNombre,
+          descripcion: sanitizedDescripcion,
           precio: product.price || null,
-          tags: product.tags.map(tag => sanitizeString(tag)),
-        },
-      });
+          tags: sanitizedTags,
+        });
+
+        const buffer = await photoFile.arrayBuffer();
+        const base64Data = Buffer.from(buffer).toString("base64");
+        const contentType = photoFile.type || "image/jpeg";
+
+        // Verificar que el base64 sea válido
+        if (!base64Data || base64Data.length === 0) {
+          console.error(`Producto ${i}: Error convirtiendo imagen a base64`);
+          continue;
+        }
+
+        webhookData.push({
+          recordId: photoRecordId,
+          nombre: sanitizeFileName(photoFile.name),
+          contentType: contentType,
+          base64: base64Data,
+          datosProducto: {
+            nombre: sanitizedNombre,
+            descripcion: sanitizedDescripcion,
+            precio: product.price || null,
+            tags: sanitizedTags,
+          },
+        });
+
+        console.log(`Producto ${i} procesado correctamente: ${sanitizedNombre}`);
+      } catch (processingError) {
+        console.error(`Error procesando producto ${i}:`, processingError, {
+          nombre: product.name,
+          descripcionLength: product.description?.length,
+          tagsCount: product.tags?.length,
+          precio: product.price,
+        });
+        continue;
+      }
     }
 
     if (webhookData.length === 0) {
@@ -135,23 +179,91 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const webhookPayload = {
-      marca,
-      products: webhookData,
-    };
+    let webhookPayload;
+    try {
+      webhookPayload = {
+        marca,
+        products: webhookData,
+      };
 
-    const webhookResponse = await fetch(WEBHOOK_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(webhookPayload),
-    });
+      // Validar que el payload completo sea serializable a JSON
+      const payloadString = JSON.stringify(webhookPayload);
+      console.log(`Payload validado correctamente. Tamaño: ${payloadString.length} caracteres, Productos: ${webhookData.length}`);
+
+    } catch (jsonError) {
+      console.error("Error al crear payload JSON:", jsonError, {
+        marca,
+        productsCount: webhookData.length,
+        productSample: webhookData[0] ? {
+          recordId: webhookData[0].recordId,
+          nombre: webhookData[0].nombre,
+          contentType: webhookData[0].contentType,
+          base64Length: webhookData[0].base64?.length,
+          datosProducto: {
+            nombre: webhookData[0].datosProducto?.nombre,
+            descripcionLength: webhookData[0].datosProducto?.descripcion?.length,
+            precio: webhookData[0].datosProducto?.precio,
+            tagsCount: webhookData[0].datosProducto?.tags?.length,
+          }
+        } : null
+      });
+
+      return NextResponse.json(
+        {
+          error: "Error al preparar datos para envío",
+          details: {
+            errorType: "JSON_SERIALIZATION_ERROR",
+            message: jsonError instanceof Error ? jsonError.message : "Error desconocido",
+            productsCount: webhookData.length,
+          }
+        },
+        { status: 500 }
+      );
+    }
+
+    let webhookResponse;
+    try {
+      webhookResponse = await fetch(WEBHOOK_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(webhookPayload),
+      });
+    } catch (fetchError) {
+      console.error("Error en fetch al webhook:", fetchError);
+      return NextResponse.json(
+        {
+          error: "Error de conexión con el webhook",
+          details: {
+            errorType: "FETCH_ERROR",
+            message: fetchError instanceof Error ? fetchError.message : "Error desconocido",
+            webhookUrl: WEBHOOK_URL,
+          }
+        },
+        { status: 500 }
+      );
+    }
 
     if (!webhookResponse.ok) {
-      const errorText = await webhookResponse.text().catch(() => "No se pudo leer el error");
+      let errorText;
+      try {
+        errorText = await webhookResponse.text();
+      } catch (textError) {
+        errorText = "No se pudo leer la respuesta del error";
+      }
+
+      console.error("Error en respuesta del webhook:", {
+        status: webhookResponse.status,
+        statusText: webhookResponse.statusText,
+        errorText,
+        webhookUrl: WEBHOOK_URL,
+        payloadSize: JSON.stringify(webhookPayload).length,
+        productsCount: webhookData.length,
+      });
+
       return NextResponse.json(
-        { 
+        {
           error: "Error al enviar datos al webhook",
           details: {
             status: webhookResponse.status,
