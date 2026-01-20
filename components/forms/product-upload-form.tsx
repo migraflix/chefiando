@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -49,6 +49,16 @@ export function ProductUploadForm({ marca }: { marca: string }) {
   ]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isProcessingProduct, setIsProcessingProduct] = useState(false);
+
+  // Debug: Ver cambios en el estado de productos
+  React.useEffect(() => {
+    console.log('📊 Estado de productos cambió:', products.map(p => ({
+      id: p.id,
+      processed: p.processed,
+      hasPhoto: !!p.photo,
+      name: p.name?.substring(0, 20) || 'sin nombre'
+    })));
+  }, [products]);
 
   const addProduct = async () => {
     console.log('🎯 Click en Adicionar Produto, isProcessingProduct:', isProcessingProduct);
@@ -100,36 +110,31 @@ export function ProductUploadForm({ marca }: { marca: string }) {
         await processAndSendProduct(lastProduct, products.length - 1);
 
         // Marcar como procesado para evitar duplicados
+        console.log(`🏷️ Marcando producto ${lastProduct.id} como procesado`);
         updateProduct(lastProduct.id, { processed: true });
+
+        // Verificar que se actualizó correctamente
+        const updatedProduct = products.find(p => p.id === lastProduct.id);
+        console.log(`✅ Estado del producto después de marcar como procesado:`, {
+          id: updatedProduct?.id,
+          processed: updatedProduct?.processed,
+          hasPhoto: !!updatedProduct?.photo,
+          name: updatedProduct?.name?.substring(0, 20)
+        });
       }
     } finally {
       console.log('✅ Terminó procesamiento, cambiando estado a false');
       setIsProcessingProduct(false);
     }
 
-    // Validar límite de productos no procesados
-    if (products.filter(p => !p.processed).length >= MAX_PRODUCTS) {
-      // Si ya no puede agregar más productos, verificar si todos están procesados
-      const allProcessed = products.every(p => p.processed);
-
-      if (allProcessed) {
-        // Todos procesados, redirigir automáticamente a la página de gracias
-        console.log('✅ Todos los productos procesados, redirigiendo...');
-        toast({
-          title: `🎉 ${t.products.uploading.completed}`,
-          description: t.products.uploading.completedDescription,
-        });
-        router.push(`/fotos/gracias?marca=${marca}`);
-        return;
-      } else {
-        // Aún hay productos sin procesar
-        toast({
-          title: "Aún hay productos pendientes",
-          description: "Completa todos los productos antes de finalizar.",
-          variant: "destructive",
-        });
-        return;
-      }
+    // Validar límite total de productos (procesados + no procesados)
+    if (products.length >= MAX_PRODUCTS) {
+      toast({
+        title: t.products.validation.maxProducts,
+        description: `Has alcanzado el límite máximo de ${MAX_PRODUCTS} productos.`,
+        variant: "destructive",
+      });
+      return;
     }
 
     // Agregar producto vacío al formulario local
@@ -803,7 +808,10 @@ Tipo de error: ${result.details.errorType || 'Desconocido'}` : '';
         </div>
       )}
       {products
-        .filter(product => !product.processed) // Solo mostrar productos no procesados
+        .filter(product => {
+          console.log(`🔍 Filtrando producto ${product.id}: processed=${product.processed}`);
+          return !product.processed;
+        }) // Solo mostrar productos no procesados
         .map((product, index) => (
         <Card key={product.id} className="relative">
           <CardHeader>
@@ -955,43 +963,65 @@ Tipo de error: ${result.details.errorType || 'Desconocido'}` : '';
         </Card>
       ))}
 
-      {/* Botón agregar producto / terminar */}
-      {products.length < MAX_PRODUCTS && (
-        <Button
-          type="button"
-          onClick={addProduct}
-          disabled={isProcessingProduct}
-          size="lg"
-          className="w-full text-lg"
-        >
-          {isProcessingProduct ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              {t.products.buttons.processing}
-            </>
-          ) : (
-            <>
-              {products.filter(p => !p.processed).length >= 2 ? t.products.buttons.finish : `${t.products.buttons.addProduct} (${products.filter(p => !p.processed).length}/${MAX_PRODUCTS})`}
-            </>
-          )}
-        </Button>
-      )}
+      {/* Botones de acción */}
+      <div className="flex gap-3">
+        {/* Botón agregar producto (siempre disponible hasta el límite) */}
+        {products.filter(p => !p.processed).length < MAX_PRODUCTS && (
+          <Button
+            type="button"
+            onClick={addProduct}
+            disabled={isProcessingProduct}
+            size="lg"
+            className="flex-1 text-lg"
+            variant="default"
+          >
+            {isProcessingProduct ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                {t.products.buttons.processing}
+              </>
+            ) : (
+              <>
+                {t.products.buttons.addProduct}
+              </>
+            )}
+          </Button>
+        )}
 
-      {/* Información final cuando llegue al límite */}
-      {products.filter(p => !p.processed).length >= MAX_PRODUCTS && (
+        {/* Botón terminar (aparece cuando hay al menos 1 producto procesado) */}
+        {products.some(p => p.processed) && (
+          <Button
+            type="button"
+            onClick={() => {
+              toast({
+                title: `🎉 ${t.products.uploading.completed}`,
+                description: t.products.uploading.completedDescription,
+              });
+              router.push(`/fotos/gracias?marca=${marca}`);
+            }}
+            size="lg"
+            className="flex-1 text-lg"
+            variant="outline"
+          >
+            {t.products.buttons.finish}
+          </Button>
+        )}
+      </div>
+
+      {/* Información cuando llegue al límite total */}
+      {products.length >= MAX_PRODUCTS && (
         <div className="pt-6 text-center">
           <p className="text-sm text-muted-foreground">
-            {t.products.validation.maxProducts}
-            {products.every(p => p.processed) ? (
-              <span className="block mt-2 text-green-600 font-medium">
-                ¡{t.products.uploading.completed}! {t.products.uploading.completedDescription}
-              </span>
-            ) : (
-              <span className="block mt-2 text-amber-600">
-                Completa todos los productos para finalizar.
-              </span>
-            )}
+            {t.products.validation.maxProducts.replace("5", MAX_PRODUCTS.toString())}
           </p>
+          <p className="text-xs text-muted-foreground mt-2">
+            {products.filter(p => p.processed).length} productos procesados • {products.filter(p => !p.processed).length} pendientes
+          </p>
+          {products.every(p => p.processed) && (
+            <p className="text-green-600 font-medium mt-2">
+              ¡{t.products.uploading.completed}! {t.products.uploading.completedDescription}
+            </p>
+          )}
         </div>
       )}
     </div>
