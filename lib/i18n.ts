@@ -229,7 +229,7 @@ export const translations = {
     // Products Upload Form
     products: {
       title: "Impulsione as vendas dos seus produtos com Inteligência Artificial!",
-      subtitle: "Adicione até 5 produtos à plataforma.",
+      subtitle: "Adicione até 5 produtos à plataforma. DEV19",
       addProduct: "Adicionar Produto",
       productNumber: "PRODUTO {number}",
       fields: {
@@ -514,7 +514,7 @@ export const translations = {
     // Products Upload Form
     products: {
       title: "¡Impulsa las ventas de tus productos con Inteligencia Artificial!",
-      subtitle: "Agrega hasta 5 productos a la plataforma.",
+      subtitle: "Agrega hasta 5 productos a la plataforma.DEV19",
       addProduct: "Agregar Producto",
       productNumber: "PRODUCTO {number}",
       fields: {
