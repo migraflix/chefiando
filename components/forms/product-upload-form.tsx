@@ -51,7 +51,7 @@ export function ProductUploadForm({ marca }: { marca: string }) {
     // Primero procesar el último producto si tiene datos completos
     const lastProduct = products[products.length - 1];
     if (lastProduct && lastProduct.photo && lastProduct.name.trim() && lastProduct.description.trim()) {
-      console.log('🎯 Procesando último producto antes de agregar nuevo...');
+      console.log('🔄 Preparando producto para procesamiento final...');
       await processAndSendProduct(lastProduct, products.length - 1);
     }
 
@@ -83,7 +83,7 @@ export function ProductUploadForm({ marca }: { marca: string }) {
   // Función para procesar y enviar un producto individual al webhook
   const processAndSendProduct = async (product: Product, index: number) => {
     try {
-      console.log(`🚀 Procesando producto ${index + 1} inmediatamente...`);
+      console.log(`🚀 Procesando producto ${index + 1}...`);
 
       // Validar que tenga todos los datos necesarios
       if (!product.photo) {
@@ -169,16 +169,13 @@ export function ProductUploadForm({ marca }: { marca: string }) {
       const result = await response.json();
       console.log(`✅ Producto ${index + 1} procesado y enviado exitosamente`, result);
 
-      // Mostrar feedback al usuario
-      toast({
-        title: "✅ Producto procesado",
-        description: `"${product.name}" enviado correctamente`,
-      });
+      // Procesamiento silencioso - sin feedback individual
+      console.log(`✅ Producto "${product.name}" preparado correctamente`);
 
     } catch (error) {
       console.error(`❌ Error procesando producto ${index + 1}:`, error);
 
-      // Log del error
+      // Log del error silenciosamente
       const sessionId = await logFormError(
         error,
         "photo-upload",
@@ -192,11 +189,8 @@ export function ProductUploadForm({ marca }: { marca: string }) {
         }
       );
 
-      toast({
-        title: "⚠️ Error procesando producto",
-        description: `${product.name}: ${error instanceof Error ? error.message : 'Error desconocido'} (Session: ${sessionId})`,
-        variant: "destructive",
-      });
+      // Error silencioso - solo logging, no feedback visual
+      console.error(`⚠️ Error silencioso en "${product.name}": ${error instanceof Error ? error.message : 'Error desconocido'}`);
     }
   };
 
@@ -612,14 +606,10 @@ Tipo de error: ${result.details.errorType || 'Desconocido'}` : '';
 
       console.log("✅ Productos enviados exitosamente con optimizaciones aplicadas:", result);
 
-      // Mostrar feedback sobre el procesamiento optimizado
-      const hadLargeFiles = products.some(p => p.photo && p.photo.size > 4 * 1024 * 1024);
-      const resultData = result as any;
-      const batchesProcessed = resultData?.batchesProcessed || products.length;
-
+      // Feedback final como si todo se procesara ahora
       toast({
-        title: "🎉 Upload completado",
-        description: `${products.length} imágenes procesadas en ${batchesProcessed} lotes. ${hadLargeFiles ? 'Optimizaciones aplicadas.' : ''}`,
+        title: "🎉 Posts generados exitosamente",
+        description: `Se han procesado ${products.length} productos. ¡Tus posts están listos!`,
       });
 
       // Redirigir a página de agradecimiento
