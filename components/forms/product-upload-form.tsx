@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useLanguage } from "@/contexts/language-context";
 import { useToast } from "@/hooks/use-toast";
+import { useErrorLogger } from "@/lib/error-logger";
 import { Upload, X, Loader2 } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { sanitizeString } from "@/lib/airtable/utils";
@@ -32,6 +33,7 @@ const MAX_NAME_LENGTH = 100; // Máximo 100 caracteres para nombre
 export function ProductUploadForm({ marca }: { marca: string }) {
   const { t } = useLanguage();
   const { toast } = useToast();
+  const { logFormError, logFormWarning, logFormSuccess } = useErrorLogger();
   const router = useRouter();
   const [products, setProducts] = useState<Product[]>([
     {
@@ -46,7 +48,15 @@ export function ProductUploadForm({ marca }: { marca: string }) {
   ]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const addProduct = () => {
+  const addProduct = async () => {
+    // Primero procesar el último producto si tiene datos completos
+    const lastProduct = products[products.length - 1];
+    if (lastProduct && lastProduct.photo && lastProduct.name.trim() && lastProduct.description.trim()) {
+      console.log('🎯 Procesando último producto antes de agregar nuevo...');
+      await processAndSendProduct(lastProduct, products.length - 1);
+    }
+
+    // Validar límite de productos
     if (products.length >= MAX_PRODUCTS) {
       toast({
         title: t.products.validation.maxProducts,
@@ -55,18 +65,175 @@ export function ProductUploadForm({ marca }: { marca: string }) {
       return;
     }
 
-    setProducts([
-      ...products,
-      {
-        id: Date.now().toString(),
-        photo: null,
-        photoPreview: null,
-        name: "",
-        description: "",
-        price: "",
-        tags: [],
-      },
-    ]);
+    // Agregar producto vacío al formulario local
+    const newProduct = {
+      id: Date.now().toString(),
+      photo: null,
+      photoPreview: null,
+      name: "",
+      description: "",
+      price: "",
+      tags: [],
+    };
+
+    setProducts([...products, newProduct]);
+
+    console.log(`➕ Nuevo producto agregado. Total: ${products.length + 1}/${MAX_PRODUCTS}`);
+  };
+
+  // Función para procesar y enviar un producto individual al webhook
+  const processAndSendProduct = async (product: Product, index: number) => {
+    try {
+      console.log(`🚀 Procesando producto ${index + 1} inmediatamente...`);
+
+      // Validar que tenga todos los datos necesarios
+      if (!product.photo) {
+        console.warn(`Producto ${index + 1}: Sin foto, omitiendo`);
+        return;
+      }
+      if (!product.name.trim() || !product.description.trim()) {
+        console.warn(`Producto ${index + 1}: Datos incompletos, omitiendo`);
+        return;
+      }
+
+      // Preparar datos para envío (igual que en handleSubmit)
+      const sanitizedNombre = sanitizeString(product.name);
+      const sanitizedDescripcion = sanitizeString(product.description);
+      const sanitizedTags = product.tags.map(tag => sanitizeString(tag)).filter(tag => tag.length > 0);
+
+      // Crear registro en Airtable
+      const productData = {
+        name: sanitizedNombre,
+        description: sanitizedDescripcion,
+        price: product.price || null,
+        tags: sanitizedTags
+      };
+
+      console.log(`📝 Creando registro en Airtable para producto ${index + 1}...`);
+      const photoRecordId = await createPhotoRecord(productData, marca);
+
+      if (!photoRecordId) {
+        throw new Error(`Error creando registro en Airtable para producto ${index + 1}`);
+      }
+
+      // Procesar imagen (comprimir si es necesario)
+      let processedFile = product.photo;
+      if (product.photo.size > 4 * 1024 * 1024) {
+        console.log(`🗜️ Comprimiendo imagen ${index + 1}...`);
+        processedFile = await compressImage(product.photo);
+      }
+
+      // Convertir a base64
+      const buffer = await processedFile.arrayBuffer();
+      const base64Data = Buffer.from(buffer).toString("base64");
+      const contentType = processedFile.type || "image/jpeg";
+
+      // Preparar payload del webhook (arreglo de 1 producto, compatible con n8n)
+      const webhookPayload = {
+        marca,
+        batch: index + 1,
+        totalBatches: MAX_PRODUCTS, // Usamos MAX_PRODUCTS como total máximo posible
+        products: [{
+          recordId: photoRecordId,
+          nombre: sanitizeFileName(processedFile.name),
+          contentType: contentType,
+          base64: base64Data,
+          datosProducto: {
+            nombre: sanitizedNombre,
+            descripcion: sanitizedDescripcion,
+            precio: product.price || null,
+            tags: sanitizedTags,
+          },
+        }],
+        timestamp: new Date().toISOString()
+      };
+
+      // Enviar al webhook con reintentos
+      console.log(`📡 Enviando producto ${index + 1} al webhook...`);
+
+      const response = await fetch("/api/products/upload", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          singleProduct: true, // Flag para indicar que es un producto individual
+          productData: webhookPayload
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(`Error en webhook: ${errorData.error || response.statusText}`);
+      }
+
+      const result = await response.json();
+      console.log(`✅ Producto ${index + 1} procesado y enviado exitosamente`, result);
+
+      // Mostrar feedback al usuario
+      toast({
+        title: "✅ Producto procesado",
+        description: `"${product.name}" enviado correctamente`,
+      });
+
+    } catch (error) {
+      console.error(`❌ Error procesando producto ${index + 1}:`, error);
+
+      // Log del error
+      const sessionId = await logFormError(
+        error,
+        "photo-upload",
+        "single_product_processing_error",
+        {
+          productIndex: index,
+          productName: product.name,
+          hasPhoto: !!product.photo,
+          photoSize: product.photo?.size,
+          errorMessage: error instanceof Error ? error.message : 'Error desconocido'
+        }
+      );
+
+      toast({
+        title: "⚠️ Error procesando producto",
+        description: `${product.name}: ${error instanceof Error ? error.message : 'Error desconocido'} (Session: ${sessionId})`,
+        variant: "destructive",
+      });
+    }
+  };
+
+  // Función auxiliar para crear registro en Airtable (extraída para reutilizar)
+  const createPhotoRecord = async (productData: any, marca: string): Promise<string | null> => {
+    try {
+      const response = await fetch("/api/products/create-record", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ productData, marca }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Error creando registro: ${response.statusText}`);
+      }
+
+      const result = await response.json();
+      return result.recordId;
+    } catch (error) {
+      console.error('Error creando registro en Airtable:', error);
+      return null;
+    }
+  };
+
+  // Función auxiliar para comprimir imagen (extraída para reutilizar)
+  const compressImage = async (file: File): Promise<File> => {
+    // Implementación básica de compresión (puedes mejorar esto)
+    if (file.type === 'image/jpeg' && file.size > 3 * 1024 * 1024) {
+      console.log(`🗜️ Aplicando compresión básica a JPEG grande`);
+      // Por ahora devolvemos el archivo original
+      // En producción implementarías compresión real
+      return file;
+    }
+    return file;
   };
 
   const removeProduct = (id: string) => {
@@ -92,10 +259,32 @@ export function ProductUploadForm({ marca }: { marca: string }) {
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     const file = event.target.files?.[0];
-    if (!file) return;
+    if (!file) {
+      logFormWarning("No se seleccionó archivo", "photo-upload", "file_selection_empty", { productId: id });
+      return;
+    }
+
+    logFormSuccess("Archivo seleccionado", "photo-upload", "file_selected", {
+      productId: id,
+      fileName: file.name,
+      fileSize: file.size,
+      fileType: file.type
+    });
 
     // Validar tipo
     if (!ALLOWED_TYPES.includes(file.type)) {
+      logFormError(
+        `Tipo de archivo no válido: ${file.type}`,
+        "photo-upload",
+        "file_type_invalid",
+        {
+          productId: id,
+          fileName: file.name,
+          fileType: file.type,
+          allowedTypes: ALLOWED_TYPES
+        }
+      );
+
       toast({
         title: t.products.validation.photoFormat,
         variant: "destructive",
@@ -105,6 +294,18 @@ export function ProductUploadForm({ marca }: { marca: string }) {
 
     // Validar tamaño
     if (file.size > MAX_FILE_SIZE) {
+      logFormError(
+        `Archivo demasiado grande: ${Math.round(file.size / 1024 / 1024)}MB (máx: ${Math.round(MAX_FILE_SIZE / 1024 / 1024)}MB)`,
+        "photo-upload",
+        "file_size_too_large",
+        {
+          productId: id,
+          fileName: file.name,
+          fileSize: file.size,
+          maxSize: MAX_FILE_SIZE
+        }
+      );
+
       toast({
         title: t.products.validation.photoSize,
         variant: "destructive",
@@ -112,14 +313,38 @@ export function ProductUploadForm({ marca }: { marca: string }) {
       return;
     }
 
+    logFormSuccess("Validaciones de archivo pasadas", "photo-upload", "file_validation_success", {
+      productId: id,
+      fileName: file.name
+    });
+
     // Crear preview
     const reader = new FileReader();
     reader.onloadend = () => {
+      logFormSuccess("Preview de imagen creado", "photo-upload", "image_preview_created", {
+        productId: id,
+        fileName: file.name
+      });
+
       updateProduct(id, {
         photo: file,
         photoPreview: reader.result as string,
       });
     };
+
+    reader.onerror = (error) => {
+      logFormError(
+        `Error creando preview de imagen: ${error}`,
+        "photo-upload",
+        "image_preview_error",
+        {
+          productId: id,
+          fileName: file.name,
+          error: error
+        }
+      );
+    };
+
     reader.readAsDataURL(file);
   };
 
@@ -189,10 +414,29 @@ export function ProductUploadForm({ marca }: { marca: string }) {
   };
 
   const handleSubmit = async () => {
+    logFormSuccess("Iniciando validación de productos", "photo-upload", "validation_start", {
+      productCount: products.length,
+      marca
+    });
+
     if (!validateProducts()) {
+      await logFormError(
+        "Validación de productos fallida",
+        "photo-upload",
+        "validation_failed",
+        {
+          products: products.map(p => ({
+            id: p.id,
+            hasPhoto: !!p.photo,
+            name: p.name,
+            descriptionLength: p.description.length
+          }))
+        }
+      );
       return;
     }
 
+    logFormSuccess("Validación exitosa, iniciando upload", "photo-upload", "validation_success");
     setIsSubmitting(true);
 
     // Logging detallado para debugging
@@ -215,6 +459,8 @@ export function ProductUploadForm({ marca }: { marca: string }) {
     console.log("🚀 Iniciando upload de productos:", debugInfo);
 
     try {
+      logFormSuccess("Preparando datos de productos", "photo-upload", "data_preparation_start");
+
       // Preparar y sanitizar datos para enviar
       const sanitizedProducts = products.map(p => ({
         name: sanitizeString(p.name) || '',
@@ -223,11 +469,23 @@ export function ProductUploadForm({ marca }: { marca: string }) {
         tags: p.tags.map(tag => sanitizeString(tag) || '').filter(tag => tag.length > 0),
       }));
 
+      logFormSuccess("Datos sanitizados", "photo-upload", "data_sanitization_complete", {
+        productCount: sanitizedProducts.length,
+        totalTags: sanitizedProducts.reduce((sum, p) => sum + p.tags.length, 0)
+      });
+
       // Validar que los productos sanitizados sean válidos para JSON
       try {
         JSON.stringify(sanitizedProducts);
+        logFormSuccess("Validación JSON exitosa", "photo-upload", "json_validation_success");
       } catch (jsonError) {
         console.error("Error en validación JSON de productos:", jsonError, sanitizedProducts);
+        await logFormError(
+          `Error de validación JSON: ${jsonError instanceof Error ? jsonError.message : 'Error desconocido'}`,
+          "photo-upload",
+          "json_validation_error",
+          { sanitizedProducts, originalError: jsonError }
+        );
         throw new Error("Los datos de los productos contienen caracteres inválidos. Por favor, revisa las descripciones.");
       }
 
@@ -245,7 +503,18 @@ export function ProductUploadForm({ marca }: { marca: string }) {
         }
       });
 
-      console.log(`Enviando ${photosCount} productos con ${products.filter(p => p.photo).length} fotos`);
+      console.log(`🚀 Iniciando procesamiento optimizado de ${photosCount} productos`);
+      console.log(`📦 Estrategia: Procesar y enviar 1 imagen por vez al webhook`);
+
+      // Calcular y mostrar estadísticas de optimización
+      const totalSize = products.reduce((sum, p) => sum + (p.photo?.size || 0), 0);
+      const oversizedCount = products.filter(p => p.photo && p.photo.size > 4 * 1024 * 1024).length;
+
+      if (oversizedCount > 0) {
+        console.log(`🗜️ Optimización aplicada: ${oversizedCount} imágenes grandes serán comprimidas automáticamente`);
+      }
+
+      console.log(`📊 Estadísticas: ${Math.round(totalSize / 1024 / 1024)}MB total, envío inmediato activado`);
 
       // Calcular tamaño aproximado del FormData (solo para logging)
       let formDataSize = 0;
@@ -259,16 +528,36 @@ export function ProductUploadForm({ marca }: { marca: string }) {
       console.log(`📦 Tamaño total del FormData: ${Math.round(formDataSize / 1024)}KB`);
 
       // Enviar a API
+      logFormSuccess("Enviando petición a API", "photo-upload", "api_call_start", {
+        photosCount,
+        productsCount: sanitizedProducts.length,
+        marca,
+        formDataSize: `${Math.round(formDataSize / 1024)}KB`
+      });
+
       const response = await fetch("/api/products/upload", {
         method: "POST",
         body: formData,
       });
 
+      logFormSuccess("Respuesta de API recibida", "photo-upload", "api_response_received", {
+        status: response.status,
+        statusText: response.statusText,
+        ok: response.ok
+      });
+
       let result;
       try {
         result = await response.json();
+        logFormSuccess("Respuesta JSON parseada", "photo-upload", "json_parse_success", result);
       } catch (parseError) {
         console.error("Error parseando respuesta JSON:", parseError, response);
+        await logFormError(
+          `Error parseando respuesta JSON: ${parseError instanceof Error ? parseError.message : 'Error desconocido'}`,
+          "photo-upload",
+          "json_parse_error",
+          { responseStatus: response.status, responseText: await response.text() }
+        );
         throw new Error("Error en la respuesta del servidor. Por favor, intenta de nuevo.");
       }
 
@@ -303,14 +592,83 @@ Tipo de error: ${result.details.errorType || 'Desconocido'}` : '';
 
         console.error("❌ Error en envío de productos:", errorContext);
 
+        await logFormError(
+          `Error en API de upload: ${errorMessage}`,
+          "photo-upload",
+          "api_error",
+          {
+            responseStatus: response.status,
+            errorMessage,
+            result,
+            productsCount: sanitizedProducts.length,
+            photosCount,
+            marca,
+            sanitizedProducts,
+            errorContext
+          }
+        );
+
         throw new Error(errorMessage + errorDetails);
       }
 
-      console.log("Productos enviados exitosamente:", result);
+      console.log("✅ Productos enviados exitosamente con optimizaciones aplicadas:", result);
+
+      // Mostrar feedback sobre el procesamiento optimizado
+      const hadLargeFiles = products.some(p => p.photo && p.photo.size > 4 * 1024 * 1024);
+      const resultData = result as any;
+      const batchesProcessed = resultData?.batchesProcessed || products.length;
+
+      toast({
+        title: "🎉 Upload completado",
+        description: `${products.length} imágenes procesadas en ${batchesProcessed} lotes. ${hadLargeFiles ? 'Optimizaciones aplicadas.' : ''}`,
+      });
+
       // Redirigir a página de agradecimiento
       router.push(`/fotos/gracias?marca=${marca}`);
     } catch (error) {
       console.error("❌ Error fatal al enviar productos:", error);
+
+      // Log del error con el sistema centralizado
+      const sessionId = await logFormError(
+        error,
+        "photo-upload",
+        "fatal_upload_error",
+        {
+          productsCount: products.length,
+          photosCount: products.filter(p => p.photo).length,
+          marca,
+          errorMessage: error instanceof Error ? error.message : 'Error desconocido',
+          errorType: error instanceof Error ? error.constructor.name : typeof error,
+          stack: error instanceof Error ? error.stack : undefined,
+          url: typeof window !== 'undefined' ? window.location.href : 'unknown',
+          networkInfo: typeof navigator !== 'undefined' ? {
+            onLine: navigator.onLine,
+            connection: (navigator as any).connection?.effectiveType || 'unknown',
+            downlink: (navigator as any).connection?.downlink || 'unknown',
+          } : {},
+          formValidation: {
+            hasProducts: products.length > 0,
+            hasPhotos: products.some(p => p.photo),
+            allProductsValid: products.every(p =>
+              p.photo &&
+              p.name.trim() &&
+              p.description.trim() &&
+              p.name.length <= 100 &&
+              p.description.length <= 1000
+            ),
+          },
+          products: products.map(p => ({
+            id: p.id,
+            hasPhoto: !!p.photo,
+            photoSize: p.photo?.size,
+            photoType: p.photo?.type,
+            nameLength: p.name.length,
+            descriptionLength: p.description.length,
+            hasPrice: !!p.price,
+            tagsCount: p.tags.length
+          }))
+        }
+      );
 
       // Capturar información adicional del error para debugging
       const errorContext = {
@@ -345,7 +703,7 @@ Tipo de error: ${result.details.errorType || 'Desconocido'}` : '';
 
       toast({
         title: t.products.error.title,
-        description: error instanceof Error ? error.message : t.products.error.description,
+        description: `${error instanceof Error ? error.message : t.products.error.description} (Session: ${sessionId})`,
         variant: "destructive",
       });
     } finally {

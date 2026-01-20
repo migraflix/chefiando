@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/language-context";
+import { useErrorLogger } from "@/lib/error-logger";
 import { Loader2, ArrowRight, Camera, Sparkles } from "lucide-react";
 
 const COUNTRIES = [
@@ -41,6 +42,7 @@ export function BrandRegistrationForm() {
   const router = useRouter();
   const { toast } = useToast();
   const { t } = useLanguage();
+  const { logFormError, logFormWarning, logFormSuccess } = useErrorLogger();
 
   const {
     register,
@@ -66,26 +68,39 @@ export function BrandRegistrationForm() {
 
   // Validar y guardar Sección 1 (Basic Register)
   const handleSection1 = async () => {
-    const fieldsToValidate: (keyof BrandFormData)[] = [
-      "emprendedor",
-      "negocio",
-      "correo",
-      "ciudad",
-      "pais",
-      "whatsapp",
-    ];
+    try {
+      logFormSuccess("Iniciando validación de sección 1", "registration", "section1_validation_start");
 
-    const isValid = await trigger(fieldsToValidate);
-    if (!isValid) {
-      toast({
-        title: t.registration.error.title,
-        description: t.registration.errors.validation,
-        variant: "destructive",
-      });
-      return;
-    }
+      const fieldsToValidate: (keyof BrandFormData)[] = [
+        "emprendedor",
+        "negocio",
+        "correo",
+        "ciudad",
+        "pais",
+        "whatsapp",
+      ];
 
-    setIsSubmitting(true);
+      const isValid = await trigger(fieldsToValidate);
+      if (!isValid) {
+        const validationErrors = errors;
+        await logFormError(
+          "Validación de sección 1 fallida",
+          "registration",
+          "section1_validation_failed",
+          { validationErrors, fieldsToValidate }
+        );
+
+        toast({
+          title: t.registration.error.title,
+          description: t.registration.errors.validation,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      logFormSuccess("Validación de sección 1 exitosa", "registration", "section1_validation_success");
+
+      setIsSubmitting(true);
     try {
       const formData = watch();
       const section1Data = {
@@ -96,6 +111,8 @@ export function BrandRegistrationForm() {
         pais: formData.pais,
         whatsapp: formData.whatsapp,
       };
+
+      logFormSuccess("Enviando datos de sección 1 a API", "registration", "section1_api_call", section1Data);
 
       const response = await fetch("/api/brands", {
         method: "POST",
@@ -111,8 +128,19 @@ export function BrandRegistrationForm() {
       const result = await response.json();
 
       if (!response.ok) {
+        await logFormError(
+          `Error en API sección 1: ${result.error || 'Error desconocido'}`,
+          "registration",
+          "section1_api_error",
+          { section1Data, responseStatus: response.status, result }
+        );
         throw new Error(result.error || t.registration.error.saveFailed);
       }
+
+      logFormSuccess("Sección 1 guardada exitosamente", "registration", "section1_api_success", {
+        recordId: result.recordId,
+        section1Data
+      });
 
       setRecordId(result.recordId);
       setCurrentSection(2);
@@ -123,9 +151,46 @@ export function BrandRegistrationForm() {
       });
     } catch (error: any) {
       console.error("Error saving section 1:", error);
+
+      // Log del error con contexto completo
+      const sessionId = await logFormError(
+        error,
+        "registration",
+        "section1_save_error",
+        {
+          formData: watch(),
+          currentSection: 1,
+          recordId,
+          errorMessage: error.message,
+          errorStack: error.stack
+        }
+      );
+
       toast({
         title: t.registration.error.title,
-        description: error.message || t.registration.error.saveFailed,
+        description: `${error.message} (Session: ${sessionId})`,
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+    } catch (error: any) {
+      console.error("Error general en sección 1:", error);
+      // Este catch maneja errores de validación que no sean del API call
+      const sessionId = await logFormError(
+        error,
+        "registration",
+        "section1_general_error",
+        {
+          formData: watch(),
+          currentSection: 1,
+          errorMessage: error.message
+        }
+      );
+
+      toast({
+        title: t.registration.error.title,
+        description: `${error.message} (Session: ${sessionId})`,
         variant: "destructive",
       });
     } finally {
@@ -135,21 +200,34 @@ export function BrandRegistrationForm() {
 
   // Validar y actualizar Sección 2 (Status: New)
   const handleSection2 = async () => {
-    const fieldsToValidate: (keyof BrandFormData)[] = ["instagram", "descripcion"];
+    try {
+      logFormSuccess("Iniciando validación de sección 2", "registration", "section2_validation_start");
 
-    const isValid = await trigger(fieldsToValidate);
-    if (!isValid) {
-      return;
-    }
+      const fieldsToValidate: (keyof BrandFormData)[] = ["instagram", "descripcion"];
 
-    if (!recordId) {
-      toast({
-        title: "Error",
-        description: t.registration.errors.noRecord,
-        variant: "destructive",
-      });
-      return;
-    }
+      const isValid = await trigger(fieldsToValidate);
+      if (!isValid) {
+        const validationErrors = errors;
+        await logFormError(
+          "Validación de sección 2 fallida",
+          "registration",
+          "section2_validation_failed",
+          { validationErrors, fieldsToValidate }
+        );
+        return;
+      }
+
+      if (!recordId) {
+        await logFormWarning("No hay recordId para sección 2", "registration", "section2_no_record_id");
+        toast({
+          title: "Error",
+          description: t.registration.errors.noRecord,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      logFormSuccess("Validación de sección 2 exitosa", "registration", "section2_validation_success");
 
     setIsSubmitting(true);
     try {
@@ -158,6 +236,8 @@ export function BrandRegistrationForm() {
         instagram: formData.instagram,
         descripcion: formData.descripcion,
       };
+
+      logFormSuccess("Actualizando campos de sección 2", "registration", "section2_fields_update", section2Data);
 
       // Actualizar campos
       const updateFieldsResponse = await fetch(`/api/brands/${recordId}/fields`, {
@@ -169,10 +249,19 @@ export function BrandRegistrationForm() {
       });
 
       if (!updateFieldsResponse.ok) {
+        await logFormError(
+          "Error actualizando campos de sección 2",
+          "registration",
+          "section2_fields_api_error",
+          { recordId, section2Data, responseStatus: updateFieldsResponse.status }
+        );
         throw new Error(t.registration.error.saveFailed);
       }
 
+      logFormSuccess("Campos de sección 2 actualizados", "registration", "section2_fields_success");
+
       // Actualizar status a "New"
+      logFormSuccess("Actualizando status a 'New'", "registration", "section2_status_update");
       const updateStatusResponse = await fetch(`/api/brands/${recordId}/status`, {
         method: "PATCH",
         headers: {
@@ -182,8 +271,17 @@ export function BrandRegistrationForm() {
       });
 
       if (!updateStatusResponse.ok) {
+        await logFormError(
+          "Error actualizando status de sección 2",
+          "registration",
+          "section2_status_api_error",
+          { recordId, responseStatus: updateStatusResponse.status }
+        );
         throw new Error(t.registration.error.saveFailed);
       }
+
+      logFormSuccess("Status actualizado a 'New'", "registration", "section2_status_success");
+      logFormSuccess("Sección 2 completada exitosamente", "registration", "section2_complete", { recordId });
 
       setCurrentSection(3);
 
@@ -193,9 +291,51 @@ export function BrandRegistrationForm() {
       });
     } catch (error: any) {
       console.error("Error saving section 2:", error);
+
+      // Log del error con contexto completo
+      const sessionId = await logFormError(
+        error,
+        "registration",
+        "section2_save_error",
+        {
+          formData: watch(),
+          currentSection: 2,
+          recordId,
+          section2Data: {
+            instagram: watch("instagram"),
+            descripcion: watch("descripcion")
+          },
+          errorMessage: error.message,
+          errorStack: error.stack
+        }
+      );
+
       toast({
         title: "Error",
-        description: error.message || "No se pudo guardar la información",
+        description: `${error.message} (Session: ${sessionId})`,
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+    } catch (error: any) {
+      console.error("Error general en sección 2:", error);
+      // Este catch maneja errores de validación que no sean del API call
+      const sessionId = await logFormError(
+        error,
+        "registration",
+        "section2_general_error",
+        {
+          formData: watch(),
+          currentSection: 2,
+          recordId,
+          errorMessage: error.message
+        }
+      );
+
+      toast({
+        title: t.registration.error.title,
+        description: `${error.message} (Session: ${sessionId})`,
         variant: "destructive",
       });
     } finally {
