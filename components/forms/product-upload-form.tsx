@@ -52,12 +52,13 @@ export function ProductUploadForm({ marca }: { marca: string }) {
 
   // Debug: Ver cambios en el estado de productos
   React.useEffect(() => {
-    console.log('📊 Estado de productos cambió:', products.map(p => ({
-      id: p.id,
-      processed: p.processed,
-      hasPhoto: !!p.photo,
-      name: p.name?.substring(0, 20) || 'sin nombre'
-    })));
+    const processedCount = products.filter(p => p.processed === true).length;
+    const unprocessedCount = products.filter(p => !p.processed).length;
+    console.log(`📊 Estado actual: ${products.length} productos totales (${processedCount} procesados, ${unprocessedCount} pendientes)`);
+
+    products.forEach((p, index) => {
+      console.log(`   Producto ${index + 1} (ID: ${p.id}): processed=${p.processed}, visible=${!p.processed}`);
+    });
   }, [products]);
 
   const addProduct = async () => {
@@ -110,17 +111,15 @@ export function ProductUploadForm({ marca }: { marca: string }) {
         await processAndSendProduct(lastProduct, products.length - 1);
 
         // Marcar como procesado para evitar duplicados
-        console.log(`🏷️ Marcando producto ${lastProduct.id} como procesado`);
+        console.log(`🏷️ Marcando producto ${lastProduct.id} como procesado (antes: ${lastProduct.processed})`);
         updateProduct(lastProduct.id, { processed: true });
+        console.log(`✅ updateProduct() ejecutado para producto ${lastProduct.id}`);
 
-        // Verificar que se actualizó correctamente
-        const updatedProduct = products.find(p => p.id === lastProduct.id);
-        console.log(`✅ Estado del producto después de marcar como procesado:`, {
-          id: updatedProduct?.id,
-          processed: updatedProduct?.processed,
-          hasPhoto: !!updatedProduct?.photo,
-          name: updatedProduct?.name?.substring(0, 20)
-        });
+        // Verificar que se actualizó correctamente (esperar al próximo render)
+        setTimeout(() => {
+          console.log(`⏳ Verificando actualización después de timeout...`);
+          // El useEffect se encargará de loggear el nuevo estado
+        }, 100);
       }
     } finally {
       console.log('✅ Terminó procesamiento, cambiando estado a false');
@@ -316,8 +315,8 @@ export function ProductUploadForm({ marca }: { marca: string }) {
   };
 
   const updateProduct = (id: string, updates: Partial<Product>) => {
-    setProducts(
-      products.map((p) => (p.id === id ? { ...p, ...updates } : p))
+    setProducts(prevProducts =>
+      prevProducts.map((p) => (p.id === id ? { ...p, ...updates } : p))
     );
   };
 
@@ -965,8 +964,8 @@ Tipo de error: ${result.details.errorType || 'Desconocido'}` : '';
 
       {/* Botones de acción */}
       <div className="flex gap-3">
-        {/* Botón agregar producto (siempre disponible hasta el límite) */}
-        {products.filter(p => !p.processed).length < MAX_PRODUCTS && (
+        {/* Botón agregar producto (siempre disponible hasta el límite total) */}
+        {products.length < MAX_PRODUCTS && (
           <Button
             type="button"
             onClick={addProduct}
@@ -982,14 +981,14 @@ Tipo de error: ${result.details.errorType || 'Desconocido'}` : '';
               </>
             ) : (
               <>
-                {t.products.buttons.addProduct}
+                {t.products.buttons.addProduct} (${products.length + 1}/${MAX_PRODUCTS})
               </>
             )}
           </Button>
         )}
 
-        {/* Botón terminar (aparece cuando hay al menos 1 producto procesado) */}
-        {products.some(p => p.processed) && (
+        {/* Botón terminar (aparece cuando hay productos procesados disponibles) */}
+        {products.some(p => p.processed) && products.length >= 1 && (
           <Button
             type="button"
             onClick={() => {
