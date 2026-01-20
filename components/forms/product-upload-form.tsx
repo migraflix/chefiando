@@ -12,7 +12,6 @@ import { useToast } from "@/hooks/use-toast";
 import { useErrorLogger } from "@/lib/error-logger";
 import { Upload, X, Loader2 } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
-import { sanitizeString } from "@/lib/airtable/utils";
 
 interface Product {
   id: string;
@@ -96,10 +95,10 @@ export function ProductUploadForm({ marca }: { marca: string }) {
         return;
       }
 
-      // Preparar datos para envío (igual que en handleSubmit)
-      const sanitizedNombre = sanitizeString(product.name);
-      const sanitizedDescripcion = sanitizeString(product.description);
-      const sanitizedTags = product.tags.map(tag => sanitizeString(tag)).filter(tag => tag.length > 0);
+      // Preparar datos para envío (sanitización básica para frontend)
+      const sanitizedNombre = product.name.trim();
+      const sanitizedDescripcion = product.description.trim();
+      const sanitizedTags = product.tags.map(tag => tag.trim()).filter(tag => tag.length > 0);
 
       // Crear registro en Airtable
       const productData = {
@@ -135,7 +134,7 @@ export function ProductUploadForm({ marca }: { marca: string }) {
         totalBatches: MAX_PRODUCTS, // Usamos MAX_PRODUCTS como total máximo posible
         products: [{
           recordId: photoRecordId,
-          nombre: sanitizeFileName(processedFile.name),
+          nombre: processedFile.name.replace(/[^a-zA-Z0-9._-]/g, '_'), // Sanitizar nombre básico
           contentType: contentType,
           base64: base64Data,
           datosProducto: {
@@ -463,10 +462,10 @@ export function ProductUploadForm({ marca }: { marca: string }) {
 
       // Preparar y sanitizar datos para enviar
       const sanitizedProducts = products.map(p => ({
-        name: sanitizeString(p.name) || '',
-        description: sanitizeString(p.description) || '',
+        name: p.name.trim() || '',
+        description: p.description.trim() || '',
         price: p.price,
-        tags: p.tags.map(tag => sanitizeString(tag) || '').filter(tag => tag.length > 0),
+        tags: p.tags.map(tag => tag.trim()).filter(tag => tag.length > 0),
       }));
 
       logFormSuccess("Datos sanitizados", "photo-upload", "data_sanitization_complete", {

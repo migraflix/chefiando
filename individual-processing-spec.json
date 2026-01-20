@@ -1,0 +1,29 @@
+{
+  "feature": "Procesamiento Individual de Productos",
+  "trigger": "Click en 'Agregar Producto'",
+  "flow": [
+    "Validar datos completos",
+    "Crear registro Airtable",
+    "Procesar imagen a base64",
+    "Enviar webhook individual",
+    "Mostrar feedback inmediato",
+    "Agregar slot para siguiente producto"
+  ],
+  "apis": [
+    "/api/products/create-record",
+    "/api/products/upload (singleProduct=true)",
+    "https://n8n.migraflix.com/webhook/subirFotos"
+  ],
+  "errorHandling": {
+    "incompleteData": "Omitir y continuar",
+    "airtableError": "Log + toast + session ID",
+    "webhookError": "Reintento automático",
+    "fatalError": "Feedback específico al usuario"
+  },
+  "expectedMetrics": {
+    "timePerProduct": "< 5 segundos",
+    "webhooksPerProduct": 1,
+    "memoryPerProduct": "< 100MB",
+    "successRate": "> 95%"
+  }
+}
