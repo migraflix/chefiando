@@ -21,6 +21,7 @@ interface Product {
   description: string;
   price: string;
   tags: string[];
+  processed?: boolean; // Flag para evitar procesamiento duplicado
 }
 
 const MAX_PRODUCTS = 5;
@@ -48,11 +49,14 @@ export function ProductUploadForm({ marca }: { marca: string }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const addProduct = async () => {
-    // Primero procesar el último producto si tiene datos completos
+    // Primero procesar el último producto si tiene datos completos y no ha sido procesado
     const lastProduct = products[products.length - 1];
-    if (lastProduct && lastProduct.photo && lastProduct.name.trim() && lastProduct.description.trim()) {
-      console.log('🔄 Preparando producto para procesamiento final...');
+    if (lastProduct && !lastProduct.processed && lastProduct.photo && lastProduct.name.trim() && lastProduct.description.trim()) {
+      console.log('🔄 Procesando producto completado antes de agregar nuevo...');
       await processAndSendProduct(lastProduct, products.length - 1);
+
+      // Marcar como procesado para evitar duplicados
+      updateProduct(lastProduct.id, { processed: true });
     }
 
     // Validar límite de productos
@@ -73,6 +77,7 @@ export function ProductUploadForm({ marca }: { marca: string }) {
       description: "",
       price: "",
       tags: [],
+      processed: false,
     };
 
     setProducts([...products, newProduct]);
@@ -441,11 +446,12 @@ export function ProductUploadForm({ marca }: { marca: string }) {
       cookieEnabled: navigator.cookieEnabled,
       onLine: navigator.onLine,
       marca,
-      productsCount: products.length,
-      productsWithPhotos: products.filter(p => p.photo).length,
-      totalPhotosSize: products.reduce((sum, p) => sum + (p.photo?.size || 0), 0),
-      photoTypes: products.map(p => p.photo?.type).filter(Boolean),
-      photoNames: products.map(p => p.photo?.name).filter(Boolean),
+      productsCount: unprocessedProducts.length,
+      totalProducts: products.length,
+      productsWithPhotos: unprocessedProducts.filter(p => p.photo).length,
+      totalPhotosSize: unprocessedProducts.reduce((sum, p) => sum + (p.photo?.size || 0), 0),
+      photoTypes: unprocessedProducts.map(p => p.photo?.type).filter(Boolean),
+      photoNames: unprocessedProducts.map(p => p.photo?.name).filter(Boolean),
       formDataSize: 0, // Se calculará después
     };
 
@@ -454,8 +460,24 @@ export function ProductUploadForm({ marca }: { marca: string }) {
     try {
       logFormSuccess("Preparando datos de productos", "photo-upload", "data_preparation_start");
 
+      // Filtrar solo productos que no han sido procesados individualmente
+      const unprocessedProducts = products.filter(p => !p.processed);
+
+      if (unprocessedProducts.length === 0) {
+        // Todos los productos ya fueron procesados individualmente
+        console.log('✅ Todos los productos ya fueron procesados previamente');
+        toast({
+          title: "🎉 Posts generados exitosamente",
+          description: `Se han procesado ${products.length} productos. ¡Tus posts están listos!`,
+        });
+        router.push(`/fotos/gracias?marca=${marca}`);
+        return;
+      }
+
+      console.log(`📦 Procesando ${unprocessedProducts.length} productos no procesados de ${products.length} total`);
+
       // Preparar y sanitizar datos para enviar
-      const sanitizedProducts = products.map(p => ({
+      const sanitizedProducts = unprocessedProducts.map(p => ({
         name: p.name.trim() || '',
         description: p.description.trim() || '',
         price: p.price,
@@ -488,7 +510,7 @@ export function ProductUploadForm({ marca }: { marca: string }) {
 
       // Agregar fotos con validación
       let photosCount = 0;
-      products.forEach((product, index) => {
+      unprocessedProducts.forEach((product, index) => {
         if (product.photo) {
           formData.append(`photo_${index}`, product.photo);
           photosCount++;
@@ -496,12 +518,12 @@ export function ProductUploadForm({ marca }: { marca: string }) {
         }
       });
 
-      console.log(`🚀 Iniciando procesamiento optimizado de ${photosCount} productos`);
-      console.log(`📦 Estrategia: Procesar y enviar 1 imagen por vez al webhook`);
+      console.log(`🚀 Procesando ${photosCount} productos no procesados`);
+      console.log(`📦 Estrategia: Procesamiento múltiple al final`);
 
       // Calcular y mostrar estadísticas de optimización
-      const totalSize = products.reduce((sum, p) => sum + (p.photo?.size || 0), 0);
-      const oversizedCount = products.filter(p => p.photo && p.photo.size > 4 * 1024 * 1024).length;
+      const totalSize = unprocessedProducts.reduce((sum, p) => sum + (p.photo?.size || 0), 0);
+      const oversizedCount = unprocessedProducts.filter(p => p.photo && p.photo.size > 4 * 1024 * 1024).length;
 
       if (oversizedCount > 0) {
         console.log(`🗜️ Optimización aplicada: ${oversizedCount} imágenes grandes serán comprimidas automáticamente`);
@@ -623,8 +645,9 @@ Tipo de error: ${result.details.errorType || 'Desconocido'}` : '';
         "photo-upload",
         "fatal_upload_error",
         {
-          productsCount: products.length,
-          photosCount: products.filter(p => p.photo).length,
+          productsCount: unprocessedProducts.length,
+          totalProducts: products.length,
+          photosCount: unprocessedProducts.filter(p => p.photo).length,
           marca,
           errorMessage: error instanceof Error ? error.message : 'Error desconocido',
           errorType: error instanceof Error ? error.constructor.name : typeof error,
@@ -636,9 +659,11 @@ Tipo de error: ${result.details.errorType || 'Desconocido'}` : '';
             downlink: (navigator as any).connection?.downlink || 'unknown',
           } : {},
           formValidation: {
-            hasProducts: products.length > 0,
-            hasPhotos: products.some(p => p.photo),
-            allProductsValid: products.every(p =>
+            hasProducts: unprocessedProducts.length > 0,
+            hasPhotos: unprocessedProducts.some(p => p.photo),
+            processedProducts: products.filter(p => p.processed).length,
+            unprocessedProducts: unprocessedProducts.length,
+            allProductsValid: unprocessedProducts.every(p =>
               p.photo &&
               p.name.trim() &&
               p.description.trim() &&
