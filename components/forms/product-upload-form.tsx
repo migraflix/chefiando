@@ -24,6 +24,7 @@ interface Product {
   processed?: boolean; // Flag para evitar procesamiento duplicado
 }
 
+// ⚙️ CONFIGURACIÓN FÁCIL: Cambia este número para modificar el límite máximo de productos
 const MAX_PRODUCTS = 5;
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const ALLOWED_TYPES = ["image/jpeg", "image/jpg", "image/png"];
@@ -106,8 +107,8 @@ export function ProductUploadForm({ marca }: { marca: string }) {
       setIsProcessingProduct(false);
     }
 
-    // Validar límite de productos
-    if (products.length >= MAX_PRODUCTS) {
+    // Validar límite de productos no procesados
+    if (products.filter(p => !p.processed).length >= MAX_PRODUCTS) {
       // Si ya no puede agregar más productos, verificar si todos están procesados
       const allProcessed = products.every(p => p.processed);
 
@@ -801,13 +802,15 @@ Tipo de error: ${result.details.errorType || 'Desconocido'}` : '';
           </Card>
         </div>
       )}
-      {products.map((product, index) => (
+      {products
+        .filter(product => !product.processed) // Solo mostrar productos no procesados
+        .map((product, index) => (
         <Card key={product.id} className="relative">
           <CardHeader>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <CardTitle className="text-2xl">
-                  {t.products.productNumber.replace("{number}", (index + 1).toString())}
+                  {t.products.productNumber.replace("{number}", (products.filter(p => !p.processed).indexOf(product) + 1).toString())}
                 </CardTitle>
                 {product.processed && (
                   <span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">
@@ -968,17 +971,17 @@ Tipo de error: ${result.details.errorType || 'Desconocido'}` : '';
             </>
           ) : (
             <>
-              {products.length >= 2 ? t.products.buttons.finish : `${t.products.buttons.addProduct} (${products.length}/${MAX_PRODUCTS})`}
+              {products.filter(p => !p.processed).length >= 2 ? t.products.buttons.finish : `${t.products.buttons.addProduct} (${products.filter(p => !p.processed).length}/${MAX_PRODUCTS})`}
             </>
           )}
         </Button>
       )}
 
       {/* Información final cuando llegue al límite */}
-      {products.length >= MAX_PRODUCTS && (
+      {products.filter(p => !p.processed).length >= MAX_PRODUCTS && (
         <div className="pt-6 text-center">
           <p className="text-sm text-muted-foreground">
-            {t.products.validation.maxProducts.replace("5", MAX_PRODUCTS.toString())}
+            {t.products.validation.maxProducts}
             {products.every(p => p.processed) ? (
               <span className="block mt-2 text-green-600 font-medium">
                 ¡{t.products.uploading.completed}! {t.products.uploading.completedDescription}
