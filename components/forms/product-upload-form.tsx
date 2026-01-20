@@ -10,7 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useLanguage } from "@/contexts/language-context";
 import { useToast } from "@/hooks/use-toast";
 import { useErrorLogger } from "@/lib/error-logger";
-import { Upload, X, Loader2 } from "lucide-react";
+import { Upload, X, Loader2, CheckCircle } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 
 interface Product {
@@ -47,16 +47,33 @@ export function ProductUploadForm({ marca }: { marca: string }) {
     },
   ]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isProcessingProduct, setIsProcessingProduct] = useState(false);
 
   const addProduct = async () => {
-    // Primero procesar el último producto si tiene datos completos y no ha sido procesado
-    const lastProduct = products[products.length - 1];
-    if (lastProduct && !lastProduct.processed && lastProduct.photo && lastProduct.name.trim() && lastProduct.description.trim()) {
-      console.log('🔄 Procesando producto completado antes de agregar nuevo...');
-      await processAndSendProduct(lastProduct, products.length - 1);
+    // Evitar múltiples clicks simultáneos
+    if (isProcessingProduct) return;
 
-      // Marcar como procesado para evitar duplicados
-      updateProduct(lastProduct.id, { processed: true });
+    setIsProcessingProduct(true);
+
+    try {
+      // Primero procesar el último producto si tiene datos completos y no ha sido procesado
+      const lastProduct = products[products.length - 1];
+      if (lastProduct && !lastProduct.processed && lastProduct.photo && lastProduct.name.trim() && lastProduct.description.trim()) {
+        console.log('🔄 Procesando producto completado antes de agregar nuevo...');
+
+        // Mostrar toast de procesamiento
+        toast({
+          title: "🖼️ Procesando imagen",
+          description: "Estamos procesando tu imagen, por favor espera...",
+        });
+
+        await processAndSendProduct(lastProduct, products.length - 1);
+
+        // Marcar como procesado para evitar duplicados
+        updateProduct(lastProduct.id, { processed: true });
+      }
+    } finally {
+      setIsProcessingProduct(false);
     }
 
     // Validar límite de productos
@@ -742,9 +759,17 @@ Tipo de error: ${result.details.errorType || 'Desconocido'}` : '';
         <Card key={product.id} className="relative">
           <CardHeader>
             <div className="flex items-center justify-between">
-              <CardTitle className="text-2xl">
-                {t.products.productNumber.replace("{number}", (index + 1).toString())}
-              </CardTitle>
+              <div className="flex items-center gap-2">
+                <CardTitle className="text-2xl">
+                  {t.products.productNumber.replace("{number}", (index + 1).toString())}
+                </CardTitle>
+                {product.processed && (
+                  <span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">
+                    <CheckCircle className="h-3 w-3" />
+                    Procesado
+                  </span>
+                )}
+              </div>
               {products.length > 1 && (
                 <Button
                   type="button"
@@ -887,9 +912,19 @@ Tipo de error: ${result.details.errorType || 'Desconocido'}` : '';
           type="button"
           variant="outline"
           onClick={addProduct}
+          disabled={isProcessingProduct}
           className="w-full"
         >
-          {t.products.buttons.addProduct} ({products.length}/{MAX_PRODUCTS})
+          {isProcessingProduct ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Procesando...
+            </>
+          ) : (
+            <>
+              {t.products.buttons.addProduct} ({products.length}/{MAX_PRODUCTS})
+            </>
+          )}
         </Button>
       )}
 
