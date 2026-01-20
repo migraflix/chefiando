@@ -195,6 +195,25 @@ export function ProductUploadForm({ marca }: { marca: string }) {
 
     setIsSubmitting(true);
 
+    // Logging detallado para debugging
+    const debugInfo = {
+      timestamp: new Date().toISOString(),
+      userAgent: navigator.userAgent,
+      language: navigator.language,
+      platform: navigator.platform,
+      cookieEnabled: navigator.cookieEnabled,
+      onLine: navigator.onLine,
+      marca,
+      productsCount: products.length,
+      productsWithPhotos: products.filter(p => p.photo).length,
+      totalPhotosSize: products.reduce((sum, p) => sum + (p.photo?.size || 0), 0),
+      photoTypes: products.map(p => p.photo?.type).filter(Boolean),
+      photoNames: products.map(p => p.photo?.name).filter(Boolean),
+      formDataSize: 0, // Se calculará después
+    };
+
+    console.log("🚀 Iniciando upload de productos:", debugInfo);
+
     try {
       // Preparar y sanitizar datos para enviar
       const sanitizedProducts = products.map(p => ({
@@ -222,10 +241,22 @@ export function ProductUploadForm({ marca }: { marca: string }) {
         if (product.photo) {
           formData.append(`photo_${index}`, product.photo);
           photosCount++;
+          console.log(`📸 Foto ${index}: ${product.photo.name} (${Math.round(product.photo.size / 1024)}KB, ${product.photo.type})`);
         }
       });
 
       console.log(`Enviando ${photosCount} productos con ${products.filter(p => p.photo).length} fotos`);
+
+      // Calcular tamaño aproximado del FormData (solo para logging)
+      let formDataSize = 0;
+      for (const [key, value] of formData.entries()) {
+        if (value instanceof File) {
+          formDataSize += value.size;
+        } else if (typeof value === 'string') {
+          formDataSize += value.length;
+        }
+      }
+      console.log(`📦 Tamaño total del FormData: ${Math.round(formDataSize / 1024)}KB`);
 
       // Enviar a API
       const response = await fetch("/api/products/upload", {
@@ -250,15 +281,27 @@ Status: ${result.details.status}
 Error del webhook: ${result.details.webhookError}
 Tipo de error: ${result.details.errorType || 'Desconocido'}` : '';
 
-        // Log detallado para debugging
-        console.error("Error en envío de productos:", {
+        // Log detallado para debugging con información completa
+        const errorContext = {
           status: response.status,
+          statusText: response.statusText,
           error: result.error,
           details: result.details,
           productsCount: sanitizedProducts.length,
           photosCount,
           marca,
-        });
+          userAgent: navigator.userAgent,
+          timestamp: new Date().toISOString(),
+          url: window.location.href,
+          referrer: document.referrer,
+          networkInfo: {
+            onLine: navigator.onLine,
+            connection: (navigator as any).connection?.effectiveType || 'unknown',
+            downlink: (navigator as any).connection?.downlink || 'unknown',
+          }
+        };
+
+        console.error("❌ Error en envío de productos:", errorContext);
 
         throw new Error(errorMessage + errorDetails);
       }
@@ -267,18 +310,38 @@ Tipo de error: ${result.details.errorType || 'Desconocido'}` : '';
       // Redirigir a página de agradecimiento
       router.push(`/fotos/gracias?marca=${marca}`);
     } catch (error) {
-      console.error("Error submitting products:", error);
+      console.error("❌ Error fatal al enviar productos:", error);
 
-      // Capturar información adicional del error para Sentry
+      // Capturar información adicional del error para debugging
       const errorContext = {
         productsCount: products.length,
         photosCount: products.filter(p => p.photo).length,
         marca,
         errorMessage: error instanceof Error ? error.message : 'Error desconocido',
         errorType: error instanceof Error ? error.constructor.name : typeof error,
+        stack: error instanceof Error ? error.stack : undefined,
+        userAgent: navigator.userAgent,
+        timestamp: new Date().toISOString(),
+        url: typeof window !== 'undefined' ? window.location.href : 'unknown',
+        networkInfo: typeof navigator !== 'undefined' ? {
+          onLine: navigator.onLine,
+          connection: (navigator as any).connection?.effectiveType || 'unknown',
+          downlink: (navigator as any).connection?.downlink || 'unknown',
+        } : {},
+        formValidation: {
+          hasProducts: products.length > 0,
+          hasPhotos: products.some(p => p.photo),
+          allProductsValid: products.every(p =>
+            p.photo &&
+            p.name.trim() &&
+            p.description.trim() &&
+            p.name.length <= 100 &&
+            p.description.length <= 1000
+          ),
+        }
       };
 
-      console.error("Contexto del error:", errorContext);
+      console.error("🔍 Contexto completo del error:", errorContext);
 
       toast({
         title: t.products.error.title,
