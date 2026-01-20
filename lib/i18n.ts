@@ -229,7 +229,7 @@ export const translations = {
     // Products Upload Form
     products: {
       title: "Impulsione as vendas dos seus produtos com Inteligência Artificial!",
-      subtitle: "Adicione até 5 produtos à plataforma.",
+      subtitle: "Adicione até 5 produtos à plataforma.  GNB",
       addProduct: "Adicionar Produto",
       productNumber: "PRODUTO {number}",
       fields: {
