@@ -34,6 +34,6 @@ export const MAX_NAME_LENGTH = CONFIG.MAX_NAME_LENGTH;
  *
  * 3. Reinicia el servidor de desarrollo después de cambiar
  *
- * ✅ NEXT_PUBLIC_ variables están disponibles en servidor y cliente
+ * .✅ NEXT_PUBLIC_ variables están disponibles en servidor y cliente
  * ✅ Evita errores de hidratación (hydration mismatch)
  */
