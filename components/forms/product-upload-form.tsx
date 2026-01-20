@@ -58,19 +58,42 @@ export function ProductUploadForm({ marca }: { marca: string }) {
       return;
     }
 
+    // VALIDACIÓN: Verificar que el último producto tenga todos los campos requeridos
+    const lastProduct = products[products.length - 1];
+    if (!lastProduct.photo) {
+      toast({
+        title: t.products.validation.photoRequired,
+        variant: "destructive",
+      });
+      return;
+    }
+    if (!lastProduct.name.trim()) {
+      toast({
+        title: t.products.validation.nameRequired,
+        variant: "destructive",
+      });
+      return;
+    }
+    if (!lastProduct.description.trim()) {
+      toast({
+        title: t.products.validation.descriptionRequired,
+        variant: "destructive",
+      });
+      return;
+    }
+
     console.log('🔄 Iniciando procesamiento, cambiando estado a true');
     setIsProcessingProduct(true);
 
     try {
-      // Primero procesar el último producto si tiene datos completos y no ha sido procesado
-      const lastProduct = products[products.length - 1];
-      if (lastProduct && !lastProduct.processed && lastProduct.photo && lastProduct.name.trim() && lastProduct.description.trim()) {
-        console.log('🔄 Procesando producto completado antes de agregar nuevo...');
+      // El producto ya está validado, proceder con el procesamiento
+      if (!lastProduct.processed) {
+        console.log('🔄 Procesando producto validado...');
 
         // Mostrar toast de procesamiento
         toast({
-          title: "🖼️ Procesando imagen",
-          description: "Estamos procesando tu imagen, por favor espera...",
+          title: `🖼️ ${t.products.uploading.processingImage}`,
+          description: t.products.uploading.processingDescription,
         });
 
         await processAndSendProduct(lastProduct, products.length - 1);
@@ -92,8 +115,8 @@ export function ProductUploadForm({ marca }: { marca: string }) {
         // Todos procesados, redirigir automáticamente a la página de gracias
         console.log('✅ Todos los productos procesados, redirigiendo...');
         toast({
-          title: "🎉 ¡Completado!",
-          description: "Todos tus productos han sido procesados exitosamente.",
+          title: `🎉 ${t.products.uploading.completed}`,
+          description: t.products.uploading.completedDescription,
         });
         router.push(`/fotos/gracias?marca=${marca}`);
         return;
@@ -929,23 +952,23 @@ Tipo de error: ${result.details.errorType || 'Desconocido'}` : '';
         </Card>
       ))}
 
-      {/* Botón agregar producto */}
+      {/* Botón agregar producto / terminar */}
       {products.length < MAX_PRODUCTS && (
         <Button
           type="button"
-          variant="outline"
           onClick={addProduct}
           disabled={isProcessingProduct}
-          className="w-full"
+          size="lg"
+          className="w-full text-lg"
         >
           {isProcessingProduct ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Procesando...
+              {t.products.buttons.processing}
             </>
           ) : (
             <>
-              {t.products.buttons.addProduct} ({products.length}/{MAX_PRODUCTS})
+              {products.length >= 2 ? t.products.buttons.finish : `${t.products.buttons.addProduct} (${products.length}/${MAX_PRODUCTS})`}
             </>
           )}
         </Button>
@@ -955,10 +978,10 @@ Tipo de error: ${result.details.errorType || 'Desconocido'}` : '';
       {products.length >= MAX_PRODUCTS && (
         <div className="pt-6 text-center">
           <p className="text-sm text-muted-foreground">
-            Has alcanzado el límite máximo de productos ({MAX_PRODUCTS}).
+            {t.products.validation.maxProducts.replace("5", MAX_PRODUCTS.toString())}
             {products.every(p => p.processed) ? (
               <span className="block mt-2 text-green-600 font-medium">
-                ¡Todos tus productos han sido procesados! Redirigiendo...
+                ¡{t.products.uploading.completed}! {t.products.uploading.completedDescription}
               </span>
             ) : (
               <span className="block mt-2 text-amber-600">

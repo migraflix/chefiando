@@ -229,7 +229,7 @@ export const translations = {
     // Products Upload Form
     products: {
       title: "Impulsione as vendas dos seus produtos com Inteligência Artificial!",
-      subtitle: "Adicione até 5 produtos à plataforma. DEV19",
+      subtitle: "Adicione até 5 produtos à plataforma.",
       addProduct: "Adicionar Produto",
       productNumber: "PRODUTO {number}",
       fields: {
@@ -253,6 +253,8 @@ export const translations = {
         removeProduct: "Remover",
         generatePosts: "Gerar posts insuperáveis",
         generating: "Gerando...",
+        processing: "Processando...",
+        finish: "Terminar",
       },
       validation: {
         maxProducts: "Você pode adicionar no máximo 5 produtos",
@@ -277,6 +279,10 @@ export const translations = {
       uploading: {
         title: "Processando informações",
         description: "Estamos processando a informação para apresentar um post insuperável! Em poucos minutos estará disponível para sua revisão.",
+        processingImage: "Processando imagem",
+        processingDescription: "Estamos processando sua imagem, por favor aguarde...",
+        completed: "Completado",
+        completedDescription: "Todos os seus produtos foram processados com sucesso.",
       },
       thanks: {
         title: "Já está pronto para mudar a cara do seu negócio!",
@@ -514,7 +520,7 @@ export const translations = {
     // Products Upload Form
     products: {
       title: "¡Impulsa las ventas de tus productos con Inteligencia Artificial!",
-      subtitle: "Agrega hasta 5 productos a la plataforma.DEV19",
+      subtitle: "Agrega hasta 5 productos a la plataforma.",
       addProduct: "Agregar Producto",
       productNumber: "PRODUCTO {number}",
       fields: {
@@ -538,6 +544,8 @@ export const translations = {
         removeProduct: "Eliminar",
         generatePosts: "Generar posts insuperables",
         generating: "Generando...",
+        processing: "Procesando...",
+        finish: "Terminar",
       },
       validation: {
         maxProducts: "Puedes agregar máximo 5 productos",
@@ -562,6 +570,10 @@ export const translations = {
       uploading: {
         title: "Procesando información",
         description: "Estamos procesando la información para presentarte un post insuperable! En pocos minutos estará disponible para tu revisión.",
+        processingImage: "Procesando imagen",
+        processingDescription: "Estamos procesando tu imagen, por favor espera...",
+        completed: "¡Completado!",
+        completedDescription: "Todos tus productos han sido procesados exitosamente.",
       },
       thanks: {
         title: "¡Ya estás listo para cambiarle la cara a tu negocio!",
