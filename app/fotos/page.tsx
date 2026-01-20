@@ -8,6 +8,8 @@ import { LanguageSelector } from "@/components/language-selector";
 export default function FotosPage() {
   const searchParams = useSearchParams();
   const marca = searchParams.get("marca");
+  const currentStep = parseInt(searchParams.get('step') || '1');
+  const processedCount = parseInt(searchParams.get('processed') || '0');
   const { t } = useLanguage();
 
   if (!marca) {
@@ -28,9 +30,12 @@ export default function FotosPage() {
       </div>
       <div className="max-w-4xl mx-auto">
         <div className="mb-8 text-center">
-          <h1 className="text-4xl font-bold mb-2">{t.products.title}</h1>
+          <h1 className="text-4xl font-bold mb-2">
+            {t.products.productNumber.replace("{number}", currentStep.toString())} de 5
+          </h1>
           <p className="text-muted-foreground text-lg">
-            {t.products.subtitle}
+            Complete os dados do seu {currentStep}º produto
+            {processedCount > 0 && ` (${processedCount} já processados)`}
           </p>
         </div>
         <ProductUploadForm marca={marca} />

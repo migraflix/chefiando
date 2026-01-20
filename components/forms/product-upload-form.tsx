@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -25,7 +25,7 @@ interface Product {
 }
 
 // ⚙️ CONFIGURACIÓN FÁCIL: Cambia este número para modificar el límite máximo de productos
-const MAX_PRODUCTS = 5;
+const MAX_PRODUCTS = 2;
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const ALLOWED_TYPES = ["image/jpeg", "image/jpg", "image/png"];
 const MAX_DESCRIPTION_LENGTH = 1000; // Máximo 1000 caracteres para descripción
@@ -36,34 +36,33 @@ export function ProductUploadForm({ marca }: { marca: string }) {
   const { toast } = useToast();
   const { logFormError, logFormWarning, logFormSuccess } = useErrorLogger();
   const router = useRouter();
-  const [products, setProducts] = useState<Product[]>([
-    {
-      id: "1",
-      photo: null,
-      photoPreview: null,
-      name: "",
-      description: "",
-      price: "",
-      tags: [],
-      processed: false,
-    },
-  ]);
+  const searchParams = useSearchParams();
+
+  // Leer parámetros de URL
+  const currentStep = parseInt(searchParams.get('step') || '1');
+  const processedCount = parseInt(searchParams.get('processed') || '0');
+  // Solo un producto por página - mucho más simple
+  const [product, setProduct] = useState<Product>({
+    id: currentStep.toString(),
+    photo: null,
+    photoPreview: null,
+    name: "",
+    description: "",
+    price: "",
+    tags: [],
+    processed: false,
+  });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isProcessingProduct, setIsProcessingProduct] = useState(false);
 
-  // Debug: Ver cambios en el estado de productos
+  // Debug: Ver estado del producto actual
   React.useEffect(() => {
-    const processedCount = products.filter(p => p.processed === true).length;
-    const unprocessedCount = products.filter(p => !p.processed).length;
-    console.log(`📊 Estado actual: ${products.length} productos totales (${processedCount} procesados, ${unprocessedCount} pendientes)`);
-
-    products.forEach((p, index) => {
-      console.log(`   Producto ${index + 1} (ID: ${p.id}): processed=${p.processed}, visible=${!p.processed}`);
-    });
-  }, [products]);
+    console.log(`📊 Estado actual: Step ${currentStep}/${MAX_PRODUCTS}, Procesados: ${processedCount}`);
+    console.log(`   Producto actual (ID: ${product.id}): processed=${product.processed}`);
+  }, [product, currentStep, processedCount]);
 
   const addProduct = async () => {
-    console.log('🎯 Click en Adicionar Produto, isProcessingProduct:', isProcessingProduct);
+    console.log(`🎯 Click en Adicionar Produto - Step ${currentStep}/${MAX_PRODUCTS}`);
 
     // Evitar múltiples clicks simultáneos
     if (isProcessingProduct) {
@@ -71,23 +70,22 @@ export function ProductUploadForm({ marca }: { marca: string }) {
       return;
     }
 
-    // VALIDACIÓN: Verificar que el último producto tenga todos los campos requeridos
-    const lastProduct = products[products.length - 1];
-    if (!lastProduct.photo) {
+    // VALIDACIÓN: Verificar que el producto tenga todos los campos requeridos
+    if (!product.photo) {
       toast({
         title: t.products.validation.photoRequired,
         variant: "destructive",
       });
       return;
     }
-    if (!lastProduct.name.trim()) {
+    if (!product.name.trim()) {
       toast({
         title: t.products.validation.nameRequired,
         variant: "destructive",
       });
       return;
     }
-    if (!lastProduct.description.trim()) {
+    if (!product.description.trim()) {
       toast({
         title: t.products.validation.descriptionRequired,
         variant: "destructive",
@@ -95,63 +93,45 @@ export function ProductUploadForm({ marca }: { marca: string }) {
       return;
     }
 
-    console.log('🔄 Iniciando procesamiento, cambiando estado a true');
+    console.log('🔄 Iniciando procesamiento del producto...');
     setIsProcessingProduct(true);
 
     try {
-      // El producto ya está validado, proceder con el procesamiento
-      if (!lastProduct.processed) {
-        console.log('🔄 Procesando producto validado...');
-
-        // Mostrar toast de procesamiento
-        toast({
-          title: `🖼️ ${t.products.uploading.processingImage}`,
-          description: t.products.uploading.processingDescription,
-        });
-
-        await processAndSendProduct(lastProduct, products.length - 1);
-
-        // Marcar como procesado para evitar duplicados
-        console.log(`🏷️ Marcando producto ${lastProduct.id} como procesado (antes: ${lastProduct.processed})`);
-        updateProduct(lastProduct.id, { processed: true });
-        console.log(`✅ updateProduct() ejecutado para producto ${lastProduct.id}`);
-
-        // Verificar que se actualizó correctamente (esperar al próximo render)
-        setTimeout(() => {
-          console.log(`⏳ Verificando actualización después de timeout...`);
-          // El useEffect se encargará de loggear el nuevo estado
-        }, 100);
-      }
-    } finally {
-      console.log('✅ Terminó procesamiento, cambiando estado a false');
-      setIsProcessingProduct(false);
-    }
-
-    // Validar límite total de productos (procesados + no procesados)
-    if (products.length >= MAX_PRODUCTS) {
+      // Mostrar toast de procesamiento
       toast({
-        title: t.products.validation.maxProducts,
-        description: `Has alcanzado el límite máximo de ${MAX_PRODUCTS} productos.`,
+        title: `🖼️ ${t.products.uploading.processingImage}`,
+        description: t.products.uploading.processingDescription,
+      });
+
+      // Procesar el producto actual
+      await processAndSendProduct(product, currentStep - 1);
+
+      // Determinar el siguiente paso
+      const nextStep = currentStep + 1;
+      const newProcessedCount = processedCount + 1;
+
+      console.log(`✅ Producto ${currentStep} procesado. Siguiente: step=${nextStep}, processed=${newProcessedCount}`);
+
+      // Si llegó al límite, ir a página de gracias
+      if (nextStep > MAX_PRODUCTS) {
+        console.log('🎉 Todos los productos procesados, redirigiendo a gracias...');
+        router.push(`/fotos/gracias?marca=${marca}&processed=${newProcessedCount}`);
+      } else {
+        // Ir al siguiente step
+        console.log(`➡️ Redirigiendo a step ${nextStep}...`);
+        router.push(`/fotos?marca=${marca}&step=${nextStep}&processed=${newProcessedCount}`);
+      }
+
+    } catch (error) {
+      console.error('❌ Error procesando producto:', error);
+      toast({
+        title: "Error procesando producto",
+        description: "Inténtalo de nuevo",
         variant: "destructive",
       });
-      return;
+    } finally {
+      setIsProcessingProduct(false);
     }
-
-    // Agregar producto vacío al formulario local
-    const newProduct: Product = {
-      id: Date.now().toString(),
-      photo: null,
-      photoPreview: null,
-      name: "",
-      description: "",
-      price: "",
-      tags: [],
-      processed: false,
-    };
-
-    setProducts([...products, newProduct]);
-
-    console.log(`➕ Nuevo producto agregado. Total: ${products.length + 1}/${MAX_PRODUCTS}`);
   };
 
   // Función para procesar y enviar un producto individual al webhook
@@ -303,29 +283,13 @@ export function ProductUploadForm({ marca }: { marca: string }) {
     return file;
   };
 
+  // En el sistema de páginas, no necesitamos eliminar productos
   const removeProduct = (id: string) => {
-    if (products.length === 1) {
-      toast({
-        title: t.products.error.title,
-        description: t.products.validation.minOneProduct,
-        variant: "destructive",
-      });
-      return;
-    }
-    setProducts(products.filter((p) => p.id !== id));
+    // No hacer nada - en el sistema de páginas cada producto está en su propia página
   };
 
-  const updateProduct = (id: string | number, updates: Partial<Product>) => {
-    console.log(`🔄 updateProduct llamado con id=${id}, updates=`, updates);
-    setProducts(prevProducts => {
-      const updated = prevProducts.map((p) => {
-        const match = p.id == id; // Usar == para comparación flexible (string vs number)
-        console.log(`   Comparando p.id=${p.id} (${typeof p.id}) con id=${id} (${typeof id}) = ${match}`);
-        return match ? { ...p, ...updates } : p;
-      });
-      console.log('   Productos actualizados:', updated.map(p => ({ id: p.id, processed: p.processed })));
-      return updated;
-    });
+  const updateProduct = (updates: Partial<Product>) => {
+    setProduct(prevProduct => ({ ...prevProduct, ...updates }));
   };
 
   const handlePhotoChange = (
@@ -400,7 +364,7 @@ export function ProductUploadForm({ marca }: { marca: string }) {
         fileName: file.name
       });
 
-      updateProduct(id, {
+      updateProduct({
         photo: file,
         photoPreview: reader.result as string,
       });
@@ -430,7 +394,7 @@ export function ProductUploadForm({ marca }: { marca: string }) {
       ? product.tags.filter((t) => t !== tag)
       : [...product.tags, tag];
 
-    updateProduct(productId, { tags: newTags });
+    updateProduct({ tags: newTags });
   };
 
   const validateProducts = (): boolean => {
@@ -814,56 +778,36 @@ Tipo de error: ${result.details.errorType || 'Desconocido'}` : '';
           </Card>
         </div>
       )}
-      {products
-        .filter(product => {
-          console.log(`🔍 Filtrando producto ${product.id}: processed=${product.processed}`);
-          return !product.processed;
-        }) // Solo mostrar productos no procesados
-        .map((product, index) => (
-        <Card key={product.id} className="relative">
+      {[product].map((product, index) => (
+        <Card key={currentStep} className="relative">
           <CardHeader>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <CardTitle className="text-2xl">
-                  {t.products.productNumber.replace("{number}", (products.filter(p => !p.processed).indexOf(product) + 1).toString())}
+                  {t.products.productNumber.replace("{number}", currentStep.toString())}
                 </CardTitle>
-                {product.processed && (
-                  <span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">
-                    <CheckCircle className="h-3 w-3" />
-                    Procesado
-                  </span>
-                )}
+                {/* En sistema de páginas no necesitamos badge de procesado */}
               </div>
-              {products.length > 1 && (
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => removeProduct(product.id)}
-                  className="text-destructive"
-                >
-                  <X className="h-4 w-4" />
-                </Button>
-              )}
+              {/* Sin botón de eliminar en sistema de páginas */}
             </div>
           </CardHeader>
           <CardContent className="space-y-6">
             {/* Foto del plato */}
             <div className="space-y-2">
-              <Label htmlFor={`photo-${product.id}`} className="text-lg font-semibold">
+              <Label htmlFor={`photo-${currentStep}`} className="text-lg font-semibold">
                 {t.products.fields.photo} <span className="text-destructive">*</span>
               </Label>
               <div className="flex items-center gap-4">
                 <div className="relative">
                   <input
                     type="file"
-                    id={`photo-${product.id}`}
+                    id={`photo-${currentStep}`}
                     accept="image/jpeg,image/jpg,image/png"
-                    onChange={(e) => handlePhotoChange(product.id, e)}
+                    onChange={(e) => handlePhotoChange(currentStep.toString(), e)}
                     className="hidden"
                   />
                   <Label
-                    htmlFor={`photo-${product.id}`}
+                    htmlFor={`photo-${currentStep}`}
                     className="cursor-pointer"
                   >
                     <div className="flex items-center gap-2 px-4 py-2 border rounded-md hover:bg-accent">
@@ -889,13 +833,13 @@ Tipo de error: ${result.details.errorType || 'Desconocido'}` : '';
 
             {/* Nombre del plato */}
             <div className="space-y-2">
-              <Label htmlFor={`name-${product.id}`} className="text-lg font-semibold">
+              <Label htmlFor={`name-${currentStep}`} className="text-lg font-semibold">
                 {t.products.fields.name} <span className="text-destructive">*</span>
               </Label>
               <Input
-                id={`name-${product.id}`}
+                id={`name-${currentStep}`}
                 value={product.name}
-                onChange={(e) => updateProduct(product.id, { name: e.target.value })}
+                onChange={(e) => updateProduct({ name: e.target.value })}
                 placeholder={t.products.fields.namePlaceholder}
                 className="h-12 text-base"
                 maxLength={MAX_NAME_LENGTH}
@@ -909,13 +853,13 @@ Tipo de error: ${result.details.errorType || 'Desconocido'}` : '';
 
             {/* Descripción */}
             <div className="space-y-2">
-              <Label htmlFor={`description-${product.id}`} className="text-lg font-semibold">
+              <Label htmlFor={`description-${currentStep}`} className="text-lg font-semibold">
                 {t.products.fields.description} <span className="text-destructive">*</span>
               </Label>
               <Textarea
-                id={`description-${product.id}`}
+                id={`description-${currentStep}`}
                 value={product.description}
-                onChange={(e) => updateProduct(product.id, { description: e.target.value })}
+                onChange={(e) => updateProduct({ description: e.target.value })}
                 placeholder={t.products.fields.descriptionExample}
                 rows={6}
                 className="text-base resize-none"
@@ -930,16 +874,16 @@ Tipo de error: ${result.details.errorType || 'Desconocido'}` : '';
 
             {/* Precio */}
             <div className="space-y-2">
-              <Label htmlFor={`price-${product.id}`} className="text-lg font-semibold">
+              <Label htmlFor={`price-${currentStep}`} className="text-lg font-semibold">
                 {t.products.fields.price}
               </Label>
               <Input
-                id={`price-${product.id}`}
+                id={`price-${currentStep}`}
                 type="number"
                 step="0.01"
                 min="0"
                 value={product.price}
-                onChange={(e) => updateProduct(product.id, { price: e.target.value })}
+                onChange={(e) => updateProduct({ price: e.target.value })}
                 placeholder={t.products.fields.pricePlaceholder}
                 className="h-12 text-base"
               />
@@ -952,12 +896,12 @@ Tipo de error: ${result.details.errorType || 'Desconocido'}` : '';
                 {Object.entries(t.products.tags).map(([key, label]) => (
                   <div key={key} className="flex items-center space-x-2">
                     <Checkbox
-                      id={`tag-${product.id}-${key}`}
+                      id={`tag-${currentStep}-${key}`}
                       checked={product.tags.includes(key)}
-                      onCheckedChange={() => toggleTag(product.id, key)}
+                      onCheckedChange={() => toggleTag(currentStep.toString(), key)}
                     />
                     <Label
-                      htmlFor={`tag-${product.id}-${key}`}
+                      htmlFor={`tag-${currentStep}-${key}`}
                       className="text-sm font-normal cursor-pointer"
                     >
                       {label}
@@ -973,7 +917,7 @@ Tipo de error: ${result.details.errorType || 'Desconocido'}` : '';
       {/* Botones de acción */}
       <div className="flex gap-3">
         {/* Botón agregar producto (siempre disponible hasta el límite total) */}
-        {products.length < MAX_PRODUCTS && (
+        {currentStep <= MAX_PRODUCTS && (
           <Button
             type="button"
             onClick={addProduct}
@@ -995,8 +939,8 @@ Tipo de error: ${result.details.errorType || 'Desconocido'}` : '';
           </Button>
         )}
 
-        {/* Botón terminar (aparece cuando hay productos procesados disponibles) */}
-        {products.some(p => p.processed) && products.length >= 1 && (
+        {/* Botón terminar (aparece cuando hay productos procesados) */}
+        {processedCount > 0 && (
           <Button
             type="button"
             onClick={() => {
@@ -1016,19 +960,17 @@ Tipo de error: ${result.details.errorType || 'Desconocido'}` : '';
       </div>
 
       {/* Información cuando llegue al límite total */}
-      {products.length >= MAX_PRODUCTS && (
+      {currentStep > MAX_PRODUCTS && (
         <div className="pt-6 text-center">
           <p className="text-sm text-muted-foreground">
-            {t.products.validation.maxProducts.replace("5", MAX_PRODUCTS.toString())}
+            Has completado todos los productos disponibles ({MAX_PRODUCTS}).
           </p>
           <p className="text-xs text-muted-foreground mt-2">
-            {products.filter(p => p.processed).length} productos procesados • {products.filter(p => !p.processed).length} pendientes
+            Productos procesados: {processedCount}
           </p>
-          {products.every(p => p.processed) && (
-            <p className="text-green-600 font-medium mt-2">
-              ¡{t.products.uploading.completed}! {t.products.uploading.completedDescription}
-            </p>
-          )}
+          <p className="text-green-600 font-medium mt-2">
+            ¡{t.products.uploading.completed}! {t.products.uploading.completedDescription}
+          </p>
         </div>
       )}
     </div>
