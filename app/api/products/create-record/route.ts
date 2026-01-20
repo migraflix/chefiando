@@ -8,6 +8,7 @@ const PHOTOS_TABLE_NAME = "Fotos AI";
 /**
  * Endpoint auxiliar para crear registros individuales en Airtable
  * Usado cuando se procesa un producto por vez
+ * Se usa para crear registros en la tabla de fotos de Airtable
  */
 export async function POST(request: NextRequest) {
   try {
