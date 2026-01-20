@@ -50,9 +50,15 @@ export function ProductUploadForm({ marca }: { marca: string }) {
   const [isProcessingProduct, setIsProcessingProduct] = useState(false);
 
   const addProduct = async () => {
-    // Evitar múltiples clicks simultáneos
-    if (isProcessingProduct) return;
+    console.log('🎯 Click en Adicionar Produto, isProcessingProduct:', isProcessingProduct);
 
+    // Evitar múltiples clicks simultáneos
+    if (isProcessingProduct) {
+      console.log('⚠️ Ya está procesando, ignorando click');
+      return;
+    }
+
+    console.log('🔄 Iniciando procesamiento, cambiando estado a true');
     setIsProcessingProduct(true);
 
     try {
@@ -73,16 +79,33 @@ export function ProductUploadForm({ marca }: { marca: string }) {
         updateProduct(lastProduct.id, { processed: true });
       }
     } finally {
+      console.log('✅ Terminó procesamiento, cambiando estado a false');
       setIsProcessingProduct(false);
     }
 
     // Validar límite de productos
     if (products.length >= MAX_PRODUCTS) {
-      toast({
-        title: t.products.validation.maxProducts,
-        variant: "destructive",
-      });
-      return;
+      // Si ya no puede agregar más productos, verificar si todos están procesados
+      const allProcessed = products.every(p => p.processed);
+
+      if (allProcessed) {
+        // Todos procesados, redirigir automáticamente a la página de gracias
+        console.log('✅ Todos los productos procesados, redirigiendo...');
+        toast({
+          title: "🎉 ¡Completado!",
+          description: "Todos tus productos han sido procesados exitosamente.",
+        });
+        router.push(`/fotos/gracias?marca=${marca}`);
+        return;
+      } else {
+        // Aún hay productos sin procesar
+        toast({
+          title: "Aún hay productos pendientes",
+          description: "Completa todos los productos antes de finalizar.",
+          variant: "destructive",
+        });
+        return;
+      }
     }
 
     // Agregar producto vacío al formulario local
@@ -928,25 +951,23 @@ Tipo de error: ${result.details.errorType || 'Desconocido'}` : '';
         </Button>
       )}
 
-      {/* Botón generar posts */}
-      <div className="pt-6">
-        <Button
-          type="button"
-          onClick={handleSubmit}
-          disabled={isSubmitting}
-          size="lg"
-          className="w-full text-lg"
-        >
-          {isSubmitting ? (
-            <>
-              <Loader2 className="h-5 w-5 mr-2 animate-spin" />
-              {t.products.buttons.generating}
-            </>
-          ) : (
-            t.products.buttons.generatePosts
-          )}
-        </Button>
-      </div>
+      {/* Información final cuando llegue al límite */}
+      {products.length >= MAX_PRODUCTS && (
+        <div className="pt-6 text-center">
+          <p className="text-sm text-muted-foreground">
+            Has alcanzado el límite máximo de productos ({MAX_PRODUCTS}).
+            {products.every(p => p.processed) ? (
+              <span className="block mt-2 text-green-600 font-medium">
+                ¡Todos tus productos han sido procesados! Redirigiendo...
+              </span>
+            ) : (
+              <span className="block mt-2 text-amber-600">
+                Completa todos los productos para finalizar.
+              </span>
+            )}
+          </p>
+        </div>
+      )}
     </div>
   );
 }
