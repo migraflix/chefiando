@@ -47,7 +47,7 @@ npm run dev
 2. Verifica que diga:
    - ✅ **Sentry está inicializado**
    - ✅ **DSN encontrado en variables de entorno**
-   - ✅ **Formato del DSN: Válido**
+   - ✅ **Formato del DSN: Válido** . 
 
 ### Paso 4: Prueba Enviar un Error
 
