@@ -45,6 +45,7 @@ export function ProductUploadForm({ marca }: { marca: string }) {
       description: "",
       price: "",
       tags: [],
+      processed: false,
     },
   ]);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -137,7 +138,7 @@ export function ProductUploadForm({ marca }: { marca: string }) {
     }
 
     // Agregar producto vacío al formulario local
-    const newProduct = {
+    const newProduct: Product = {
       id: Date.now().toString(),
       photo: null,
       photoPreview: null,
@@ -314,10 +315,17 @@ export function ProductUploadForm({ marca }: { marca: string }) {
     setProducts(products.filter((p) => p.id !== id));
   };
 
-  const updateProduct = (id: string, updates: Partial<Product>) => {
-    setProducts(prevProducts =>
-      prevProducts.map((p) => (p.id === id ? { ...p, ...updates } : p))
-    );
+  const updateProduct = (id: string | number, updates: Partial<Product>) => {
+    console.log(`🔄 updateProduct llamado con id=${id}, updates=`, updates);
+    setProducts(prevProducts => {
+      const updated = prevProducts.map((p) => {
+        const match = p.id == id; // Usar == para comparación flexible (string vs number)
+        console.log(`   Comparando p.id=${p.id} (${typeof p.id}) con id=${id} (${typeof id}) = ${match}`);
+        return match ? { ...p, ...updates } : p;
+      });
+      console.log('   Productos actualizados:', updated.map(p => ({ id: p.id, processed: p.processed })));
+      return updated;
+    });
   };
 
   const handlePhotoChange = (
@@ -981,7 +989,7 @@ Tipo de error: ${result.details.errorType || 'Desconocido'}` : '';
               </>
             ) : (
               <>
-                {t.products.buttons.addProduct} (${products.length + 1}/${MAX_PRODUCTS})
+                {t.products.buttons.addProduct}
               </>
             )}
           </Button>
