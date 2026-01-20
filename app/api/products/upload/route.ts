@@ -170,9 +170,12 @@ export async function POST(request: NextRequest) {
 
   try {
     console.log(`🚀 Inicio del request de upload. Timestamp: ${new Date().toISOString()}`);
+    console.log(`🔗 Webhook URL configurada: ${WEBHOOK_URL ? '✅ Sí' : '❌ No'}`);
+    console.log(`📊 Content-Type: ${request.headers.get('content-type')}`);
 
     // Verificar si es un producto individual o procesamiento múltiple
     const isSingleProduct = request.headers.get('content-type')?.includes('application/json');
+    console.log(`🔍 Tipo de procesamiento: ${isSingleProduct ? 'Producto Individual' : 'Múltiples Productos'}`);
 
     if (isSingleProduct) {
       // Procesar producto individual
@@ -205,14 +208,40 @@ export async function POST(request: NextRequest) {
 // Función para manejar productos individuales (procesamiento inmediato)
 async function handleSingleProduct(request: NextRequest) {
   try {
+    console.log(`📦 Iniciando procesamiento de producto individual...`);
+
     const body = await request.json();
     const { singleProduct, productData } = body;
+
+    console.log(`📋 Datos recibidos:`, {
+      hasSingleProduct: !!singleProduct,
+      hasProductData: !!productData,
+      productDataKeys: productData ? Object.keys(productData) : [],
+      batchInfo: productData?.batch ? `${productData.batch}/${productData.totalBatches}` : 'N/A'
+    });
 
     if (!singleProduct || !productData) {
       throw new Error('Datos de producto individual inválidos');
     }
 
     console.log(`📦 Procesando producto individual. Batch: ${productData.batch}/${productData.totalBatches}`);
+    console.log(`🔗 Webhook URL: ${WEBHOOK_URL ? WEBHOOK_URL.substring(0, 50) + '...' : 'No configurada'}`);
+
+    // Validar datos del producto
+    if (!productData.recordId) {
+      throw new Error(`Producto ${productData.batch} no tiene recordId de Airtable`);
+    }
+    if (!productData.nombre) {
+      throw new Error(`Producto ${productData.batch} no tiene nombre`);
+    }
+    if (!productData.contentType) {
+      throw new Error(`Producto ${productData.batch} no tiene contentType`);
+    }
+    if (!productData.base64 || productData.base64.length === 0) {
+      throw new Error(`Producto ${productData.batch} no tiene datos base64 válidos`);
+    }
+
+    console.log(`✅ Validación de datos completada para producto ${productData.batch}`);
 
     if (!WEBHOOK_URL) {
       throw new Error('Webhook URL no configurada');
@@ -248,15 +277,31 @@ async function handleSingleProduct(request: NextRequest) {
       }
     };
 
-    // Enviar al webhook
+    // Enviar al webhook con mejor manejo de errores
+    // productData ya contiene la estructura completa del webhook (marca, batch, products, etc.)
     const webhookResponse = await sendToWebhook(productData);
 
     if (!webhookResponse.ok) {
       const errorText = await webhookResponse.text();
-      throw new Error(`Webhook error: ${webhookResponse.status} ${errorText}`);
-    }
+      console.error(`❌ Webhook error para producto ${productData.batch}: ${webhookResponse.status} - ${errorText}`);
 
-    console.log(`✅ Producto individual ${productData.batch} enviado exitosamente al webhook`);
+      // No lanzar error para productos individuales, solo loggear y continuar
+      // Esto permite que el procesamiento continue aunque el webhook falle
+      Sentry.captureException(new Error(`Webhook failed for product ${productData.batch}`), {
+        tags: {
+          component: 'webhook',
+          endpoint: '/api/products/upload',
+          productBatch: productData.batch?.toString() || 'unknown'
+        },
+        extra: {
+          webhookStatus: webhookResponse.status,
+          webhookResponse: errorText,
+          productData: JSON.stringify(productData).substring(0, 500)
+        }
+      });
+    } else {
+      console.log(`✅ Producto individual ${productData.batch} enviado exitosamente al webhook`);
+    }
 
     return NextResponse.json({
       success: true,
@@ -446,11 +491,44 @@ async function handleMultipleProducts(request: NextRequest) {
             if (webhookResponse.ok) {
               console.log(`✅ Lote ${batchIndex + 1} enviado exitosamente al webhook`);
             } else {
-              console.error(`❌ Error en webhook para lote ${batchIndex + 1}: ${webhookResponse.status}`);
+              const errorText = await webhookResponse.text();
+              console.error(`❌ Error en webhook para lote ${batchIndex + 1}: ${webhookResponse.status} - ${errorText}`);
+
+              // Enviar alerta a Sentry pero continuar el procesamiento
+              Sentry.captureException(new Error(`Webhook failed for batch ${batchIndex + 1}`), {
+                tags: {
+                  component: 'webhook',
+                  endpoint: '/api/products/upload',
+                  batchIndex: batchIndex.toString(),
+                  errorType: 'batch_webhook_error'
+                },
+                extra: {
+                  webhookStatus: webhookResponse.status,
+                  webhookResponse: errorText.substring(0, 500),
+                  batchInfo: `Batch ${batchIndex + 1}/${batches.length} (${batchResults.length} products)`,
+                  marca: marca
+                }
+              });
+
               // Continuar con el siguiente lote, no fallar todo por un lote
             }
           } catch (webhookError) {
             console.error(`❌ Error de conexión webhook para lote ${batchIndex + 1}:`, webhookError);
+
+            // Enviar alerta a Sentry pero continuar
+            Sentry.captureException(webhookError, {
+              tags: {
+                component: 'webhook',
+                endpoint: '/api/products/upload',
+                batchIndex: batchIndex.toString(),
+                errorType: 'webhook_connection_error'
+              },
+              extra: {
+                batchInfo: `Batch ${batchIndex + 1}/${batches.length}`,
+                marca: marca
+              }
+            });
+
             // Continuar con el siguiente lote
           }
         }
