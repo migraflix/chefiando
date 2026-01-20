@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
+import * as Sentry from "@sentry/nextjs"
 
 /**
  * Detecta el país del usuario basado en su IP
@@ -142,10 +143,20 @@ export async function GET(request: NextRequest) {
     })
   } catch (error) {
     console.error("Error detecting language:", error)
+    Sentry.captureException(error, {
+      tags: {
+        route: '/api/detect-language',
+        method: 'GET',
+        component: 'api'
+      },
+      extra: {
+        message: "Error detecting user language based on IP"
+      }
+    })
     // En caso de error, retornar español por defecto
-    return NextResponse.json({ 
-      language: "es", 
-      country: "Unknown", 
+    return NextResponse.json({
+      language: "es",
+      country: "Unknown",
       countryCode: "MX",
       ip: "error",
       method: "error",

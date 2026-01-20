@@ -366,11 +366,12 @@ export function BrandRegistrationForm() {
           {currentSection === 2 && (
             <div className="space-y-4 max-w-md mx-auto">
               <div className="space-y-1.5">
-                <div>
-                  <Label htmlFor="instagram" className="text-sm font-medium block mb-1">
-                    {t.registration.questions.instagram.split('?')[0]}?
-                  </Label>
-                </div>
+                <Label htmlFor="instagram" className="text-sm font-medium">
+                  Instagram
+                </Label>
+                <p className="text-sm text-muted-foreground mb-2">
+                  {t.registration.questions.instagram}
+                </p>
                 <Input
                   id="instagram"
                   type="url"

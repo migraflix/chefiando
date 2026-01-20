@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
+import * as Sentry from "@sentry/nextjs"
 import { updateBrandFields } from "@/lib/airtable/brands"
 import { brandRegistrationSchema } from "@/lib/validation/brand-schema"
 
@@ -31,6 +32,17 @@ export async function PATCH(
     })
   } catch (error) {
     console.error("Error updating brand fields:", error)
+    Sentry.captureException(error, {
+      tags: {
+        route: '/api/brands/[recordId]/fields',
+        method: 'PATCH',
+        component: 'api'
+      },
+      extra: {
+        recordId: await params.then(p => p.recordId),
+        message: "Error updating brand fields in Airtable"
+      }
+    })
     return NextResponse.json(
       {
         error: error instanceof Error ? error.message : "Error al actualizar los campos",

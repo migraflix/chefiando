@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import * as Sentry from "@sentry/nextjs";
 import { sanitizeString, sanitizeFileName } from "@/lib/airtable/utils";
 
 const AIRTABLE_API_KEY = process.env.AIRTABLE_API_KEY;
@@ -208,6 +209,21 @@ export async function POST(request: NextRequest) {
         } : null
       });
 
+      Sentry.captureException(jsonError, {
+        tags: {
+          route: '/api/products/upload',
+          method: 'POST',
+          component: 'api',
+          errorType: 'JSON_SERIALIZATION_ERROR'
+        },
+        extra: {
+          message: "Error al serializar payload JSON para webhook",
+          marca,
+          productsCount: webhookData.length,
+          originalError: jsonError instanceof Error ? jsonError.message : "Error desconocido"
+        }
+      });
+
       return NextResponse.json(
         {
           error: "Error al preparar datos para envío",
@@ -232,6 +248,20 @@ export async function POST(request: NextRequest) {
       });
     } catch (fetchError) {
       console.error("Error en fetch al webhook:", fetchError);
+      Sentry.captureException(fetchError, {
+        tags: {
+          route: '/api/products/upload',
+          method: 'POST',
+          component: 'api',
+          errorType: 'FETCH_ERROR'
+        },
+        extra: {
+          message: "Error de conexión con webhook externo",
+          webhookUrl: WEBHOOK_URL,
+          productsCount: webhookData.length,
+          marca
+        }
+      });
       return NextResponse.json(
         {
           error: "Error de conexión con el webhook",
@@ -262,6 +292,25 @@ export async function POST(request: NextRequest) {
         productsCount: webhookData.length,
       });
 
+      Sentry.captureException(new Error(`Webhook error: ${webhookResponse.status} ${webhookResponse.statusText}`), {
+        tags: {
+          route: '/api/products/upload',
+          method: 'POST',
+          component: 'api',
+          errorType: 'WEBHOOK_ERROR'
+        },
+        extra: {
+          message: "Error en respuesta del webhook externo",
+          status: webhookResponse.status,
+          statusText: webhookResponse.statusText,
+          webhookError: errorText,
+          webhookUrl: WEBHOOK_URL,
+          payloadSize: JSON.stringify(webhookPayload).length,
+          productsCount: webhookData.length,
+          marca
+        }
+      });
+
       return NextResponse.json(
         {
           error: "Error al enviar datos al webhook",
@@ -284,6 +333,17 @@ export async function POST(request: NextRequest) {
       productsCount: webhookData.length,
     });
   } catch (error) {
+    console.error("Error general procesando productos:", error);
+    Sentry.captureException(error, {
+      tags: {
+        route: '/api/products/upload',
+        method: 'POST',
+        component: 'api'
+      },
+      extra: {
+        message: "Error general en procesamiento de productos con imágenes"
+      }
+    });
     return NextResponse.json(
       {
         error: error instanceof Error ? error.message : "Error al procesar los productos",

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
+import * as Sentry from "@sentry/nextjs"
 import { createBrand } from "@/lib/airtable/brands"
 import { brandRegistrationSchema } from "@/lib/validation/brand-schema"
 
@@ -81,6 +82,16 @@ export async function GET() {
     )
   } catch (error) {
     console.error("❌ Error fetching brands:", error)
+    Sentry.captureException(error, {
+      tags: {
+        route: '/api/brands',
+        method: 'GET',
+        component: 'api'
+      },
+      extra: {
+        message: "Error fetching brands from Airtable"
+      }
+    })
     return NextResponse.json(
       {
         error: "Failed to fetch brands",
@@ -133,6 +144,16 @@ export async function POST(request: NextRequest) {
     })
   } catch (error) {
     console.error("Error creating brand:", error)
+    Sentry.captureException(error, {
+      tags: {
+        route: '/api/brands',
+        method: 'POST',
+        component: 'api'
+      },
+      extra: {
+        message: "Error creating brand in Airtable"
+      }
+    })
     return NextResponse.json(
       {
         error: error instanceof Error ? error.message : "Error al crear el registro",
