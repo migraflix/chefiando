@@ -66,26 +66,8 @@ export function ProductUploadForm({ marca }: { marca: string }) {
       return;
     }
 
-    // VALIDACIÓN: Verificar que el producto tenga todos los campos requeridos
-    if (!product.photo) {
-      toast({
-        title: t.products.validation.photoRequired,
-        variant: "destructive",
-      });
-      return;
-    }
-    if (!product.name.trim()) {
-      toast({
-        title: t.products.validation.nameRequired,
-        variant: "destructive",
-      });
-      return;
-    }
-    if (!product.description.trim()) {
-      toast({
-        title: t.products.validation.descriptionRequired,
-        variant: "destructive",
-      });
+    // Validar el producto actual
+    if (!validateCurrentProduct()) {
       return;
     }
 
@@ -111,6 +93,10 @@ export function ProductUploadForm({ marca }: { marca: string }) {
       // Si llegó al límite, ir a página de gracias
       if (nextStep > MAX_PRODUCTS) {
         console.log('🎉 Todos los productos procesados, redirigiendo a gracias...');
+        toast({
+          title: `🎉 ${t.products.uploading.completed}`,
+          description: t.products.uploading.completedDescription,
+        });
         router.push(`/fotos/gracias?marca=${marca}&processed=${newProcessedCount}`);
       } else {
         // Ir al siguiente step
@@ -120,9 +106,20 @@ export function ProductUploadForm({ marca }: { marca: string }) {
 
     } catch (error) {
       console.error('❌ Error procesando producto:', error);
+      const sessionId = await logFormError(
+        error instanceof Error ? error : new Error('Error desconocido'),
+        "photo-upload",
+        "add_product_error",
+        {
+          productData: product,
+          currentStep,
+          processedCount,
+          errorMessage: error instanceof Error ? error.message : 'Error desconocido',
+        }
+      );
       toast({
-        title: "Error procesando producto",
-        description: "Inténtalo de nuevo",
+        title: t.products.uploading.processingError,
+        description: `${t.products.uploading.processingErrorDesc} (Session: ${sessionId})`,
         variant: "destructive",
       });
     } finally {
@@ -227,7 +224,7 @@ export function ProductUploadForm({ marca }: { marca: string }) {
 
       // Log del error silenciosamente
       const sessionId = await logFormError(
-        error,
+        error instanceof Error ? error : new Error('Error desconocido'),
         "photo-upload",
         "single_product_processing_error",
         {
@@ -306,7 +303,7 @@ export function ProductUploadForm({ marca }: { marca: string }) {
     });
 
     // Validar tipo
-    if (!ALLOWED_TYPES.includes(file.type)) {
+    if (!ALLOWED_TYPES.includes(file.type as any)) {
       logFormError(
         `Tipo de archivo no válido: ${file.type}`,
         "photo-upload",
@@ -390,373 +387,59 @@ export function ProductUploadForm({ marca }: { marca: string }) {
     updateProduct({ tags: newTags });
   };
 
-  const validateProducts = (): boolean => {
-    for (const product of products) {
-      if (!product.photo) {
-        toast({
-          title: t.products.validation.photoRequired,
-          variant: "destructive",
-        });
-        return false;
-      }
-      if (!product.name.trim()) {
-        toast({
-          title: t.products.validation.nameRequired,
-          variant: "destructive",
-        });
-        return false;
-      }
-      if (product.name.length > MAX_NAME_LENGTH) {
-        toast({
-          title: "Nombre demasiado largo",
-          description: `El nombre no puede exceder ${MAX_NAME_LENGTH} caracteres`,
-          variant: "destructive",
-        });
-        return false;
-      }
-      if (!product.description.trim()) {
-        toast({
-          title: t.products.validation.descriptionRequired,
-          variant: "destructive",
-        });
-        return false;
-      }
-      if (product.description.length > MAX_DESCRIPTION_LENGTH) {
-        toast({
-          title: t.products.validation.maxLength.replace("{max}", MAX_DESCRIPTION_LENGTH.toString()),
-          variant: "destructive",
-        });
-        return false;
-      }
+  const validateCurrentProduct = (): boolean => {
+    if (!product.photo) {
+      toast({
+        title: t.products.validation.photoRequired,
+        variant: "destructive",
+      });
+      return false;
+    }
+    if (!product.name.trim()) {
+      toast({
+        title: t.products.validation.nameRequired,
+        variant: "destructive",
+      });
+      return false;
+    }
+    if (product.name.length > MAX_NAME_LENGTH) {
+      toast({
+        title: t.products.validation.nameTooLong,
+        description: t.products.validation.nameTooLongDesc.replace("{max}", MAX_NAME_LENGTH.toString()),
+        variant: "destructive",
+      });
+      return false;
+    }
+    if (!product.description.trim()) {
+      toast({
+        title: t.products.validation.descriptionRequired,
+        variant: "destructive",
+      });
+      return false;
+    }
+    if (product.description.length > MAX_DESCRIPTION_LENGTH) {
+      toast({
+        title: t.products.validation.maxLength,
+        description: `La descripción no puede exceder ${MAX_DESCRIPTION_LENGTH} ${t.products.validation.characters}`,
+        variant: "destructive",
+      });
+      return false;
+    }
 
-      // Validar que la descripción sea JSON-safe (sin caracteres problemáticos)
-      try {
-        JSON.stringify({ description: product.description });
-      } catch (error) {
-        toast({
-          title: "Error en la descripción",
-          description: "La descripción contiene caracteres inválidos. Por favor, revisa y corrige.",
-          variant: "destructive",
-        });
-        return false;
-      }
+    // Validar que la descripción sea JSON-safe (sin caracteres problemáticos)
+    try {
+      JSON.stringify({ description: product.description });
+    } catch (error) {
+      toast({
+        title: t.products.validation.descriptionInvalid,
+        description: t.products.validation.descriptionInvalidChars,
+        variant: "destructive",
+      });
+      return false;
     }
     return true;
   };
 
-  const handleSubmit = async () => {
-    logFormSuccess("Iniciando validación de productos", "photo-upload", "validation_start", {
-      productCount: products.length,
-      marca
-    });
-
-    if (!validateProducts()) {
-      await logFormError(
-        "Validación de productos fallida",
-        "photo-upload",
-        "validation_failed",
-        {
-          products: products.map(p => ({
-            id: p.id,
-            hasPhoto: !!p.photo,
-            name: p.name,
-            descriptionLength: p.description.length
-          }))
-        }
-      );
-      return;
-    }
-
-    logFormSuccess("Validación exitosa, iniciando upload", "photo-upload", "validation_success");
-    setIsSubmitting(true);
-
-    // Logging detallado para debugging
-    const debugInfo = {
-      timestamp: new Date().toISOString(),
-      userAgent: navigator.userAgent,
-      language: navigator.language,
-      platform: navigator.platform,
-      cookieEnabled: navigator.cookieEnabled,
-      onLine: navigator.onLine,
-      marca,
-      productsCount: unprocessedProducts.length,
-      totalProducts: products.length,
-      productsWithPhotos: unprocessedProducts.filter(p => p.photo).length,
-      totalPhotosSize: unprocessedProducts.reduce((sum, p) => sum + (p.photo?.size || 0), 0),
-      photoTypes: unprocessedProducts.map(p => p.photo?.type).filter(Boolean),
-      photoNames: unprocessedProducts.map(p => p.photo?.name).filter(Boolean),
-      formDataSize: 0, // Se calculará después
-    };
-
-    console.log("🚀 Iniciando upload de productos:", debugInfo);
-
-    try {
-      logFormSuccess("Preparando datos de productos", "photo-upload", "data_preparation_start");
-
-      // Filtrar solo productos que no han sido procesados individualmente
-      const unprocessedProducts = products.filter(p => !p.processed);
-
-      if (unprocessedProducts.length === 0) {
-        // Todos los productos ya fueron procesados individualmente
-        console.log('✅ Todos los productos ya fueron procesados previamente');
-        toast({
-          title: "🎉 Posts generados exitosamente",
-          description: `Se han procesado ${products.length} productos. ¡Tus posts están listos!`,
-        });
-        router.push(`/fotos/gracias?marca=${marca}`);
-        return;
-      }
-
-      console.log(`📦 Procesando ${unprocessedProducts.length} productos no procesados de ${products.length} total`);
-
-      // Preparar y sanitizar datos para enviar
-      const sanitizedProducts = unprocessedProducts.map(p => ({
-        name: p.name.trim() || '',
-        description: p.description.trim() || '',
-        price: p.price,
-        tags: p.tags.map(tag => tag.trim()).filter(tag => tag.length > 0),
-      }));
-
-      logFormSuccess("Datos sanitizados", "photo-upload", "data_sanitization_complete", {
-        productCount: sanitizedProducts.length,
-        totalTags: sanitizedProducts.reduce((sum, p) => sum + p.tags.length, 0)
-      });
-
-      // Validar que los productos sanitizados sean válidos para JSON
-      try {
-        JSON.stringify(sanitizedProducts);
-        logFormSuccess("Validación JSON exitosa", "photo-upload", "json_validation_success");
-      } catch (jsonError) {
-        console.error("Error en validación JSON de productos:", jsonError, sanitizedProducts);
-        await logFormError(
-          `Error de validación JSON: ${jsonError instanceof Error ? jsonError.message : 'Error desconocido'}`,
-          "photo-upload",
-          "json_validation_error",
-          { sanitizedProducts, originalError: jsonError }
-        );
-        throw new Error("Los datos de los productos contienen caracteres inválidos. Por favor, revisa las descripciones.");
-      }
-
-      const formData = new FormData();
-      formData.append("marca", marca);
-      formData.append("products", JSON.stringify(sanitizedProducts));
-
-      // Agregar fotos con validación
-      let photosCount = 0;
-      unprocessedProducts.forEach((product, index) => {
-        if (product.photo) {
-          formData.append(`photo_${index}`, product.photo);
-          photosCount++;
-          console.log(`📸 Foto ${index}: ${product.photo.name} (${Math.round(product.photo.size / 1024)}KB, ${product.photo.type})`);
-        }
-      });
-
-      console.log(`🚀 Procesando ${photosCount} productos no procesados`);
-      console.log(`📦 Estrategia: Procesamiento múltiple al final`);
-
-      // Calcular y mostrar estadísticas de optimización
-      const totalSize = unprocessedProducts.reduce((sum, p) => sum + (p.photo?.size || 0), 0);
-      const oversizedCount = unprocessedProducts.filter(p => p.photo && p.photo.size > 4 * 1024 * 1024).length;
-
-      if (oversizedCount > 0) {
-        console.log(`🗜️ Optimización aplicada: ${oversizedCount} imágenes grandes serán comprimidas automáticamente`);
-      }
-
-      console.log(`📊 Estadísticas: ${Math.round(totalSize / 1024 / 1024)}MB total, envío inmediato activado`);
-
-      // Calcular tamaño aproximado del FormData (solo para logging)
-      let formDataSize = 0;
-      for (const [key, value] of formData.entries()) {
-        if (value instanceof File) {
-          formDataSize += value.size;
-        } else if (typeof value === 'string') {
-          formDataSize += value.length;
-        }
-      }
-      console.log(`📦 Tamaño total del FormData: ${Math.round(formDataSize / 1024)}KB`);
-
-      // Enviar a API
-      logFormSuccess("Enviando petición a API", "photo-upload", "api_call_start", {
-        photosCount,
-        productsCount: sanitizedProducts.length,
-        marca,
-        formDataSize: `${Math.round(formDataSize / 1024)}KB`
-      });
-
-      const response = await fetch("/api/products/upload", {
-        method: "POST",
-        body: formData,
-      });
-
-      logFormSuccess("Respuesta de API recibida", "photo-upload", "api_response_received", {
-        status: response.status,
-        statusText: response.statusText,
-        ok: response.ok
-      });
-
-      let result;
-      try {
-        result = await response.json();
-        logFormSuccess("Respuesta JSON parseada", "photo-upload", "json_parse_success", result);
-      } catch (parseError) {
-        console.error("Error parseando respuesta JSON:", parseError, response);
-        await logFormError(
-          `Error parseando respuesta JSON: ${parseError instanceof Error ? parseError.message : 'Error desconocido'}`,
-          "photo-upload",
-          "json_parse_error",
-          { responseStatus: response.status, responseText: await response.text() }
-        );
-        throw new Error("Error en la respuesta del servidor. Por favor, intenta de nuevo.");
-      }
-
-      if (!response.ok) {
-        const errorMessage = result.error || t.products.error.description;
-        const errorDetails = result.details ? `
-
-Detalles:
-Status: ${result.details.status}
-Error del webhook: ${result.details.webhookError}
-Tipo de error: ${result.details.errorType || 'Desconocido'}` : '';
-
-        // Log detallado para debugging con información completa
-        const errorContext = {
-          status: response.status,
-          statusText: response.statusText,
-          error: result.error,
-          details: result.details,
-          productsCount: sanitizedProducts.length,
-          photosCount,
-          marca,
-          userAgent: navigator.userAgent,
-          timestamp: new Date().toISOString(),
-          url: window.location.href,
-          referrer: document.referrer,
-          networkInfo: {
-            onLine: navigator.onLine,
-            connection: (navigator as any).connection?.effectiveType || 'unknown',
-            downlink: (navigator as any).connection?.downlink || 'unknown',
-          }
-        };
-
-        console.error("❌ Error en envío de productos:", errorContext);
-
-        await logFormError(
-          `Error en API de upload: ${errorMessage}`,
-          "photo-upload",
-          "api_error",
-          {
-            responseStatus: response.status,
-            errorMessage,
-            result,
-            productsCount: sanitizedProducts.length,
-            photosCount,
-            marca,
-            sanitizedProducts,
-            errorContext
-          }
-        );
-
-        throw new Error(errorMessage + errorDetails);
-      }
-
-      console.log("✅ Productos enviados exitosamente con optimizaciones aplicadas:", result);
-
-      // Feedback final como si todo se procesara ahora
-      toast({
-        title: "🎉 Posts generados exitosamente",
-        description: `Se han procesado ${products.length} productos. ¡Tus posts están listos!`,
-      });
-
-      // Redirigir a página de agradecimiento
-      router.push(`/fotos/gracias?marca=${marca}`);
-    } catch (error) {
-      console.error("❌ Error fatal al enviar productos:", error);
-
-      // Log del error con el sistema centralizado
-      const sessionId = await logFormError(
-        error,
-        "photo-upload",
-        "fatal_upload_error",
-        {
-          productsCount: unprocessedProducts.length,
-          totalProducts: products.length,
-          photosCount: unprocessedProducts.filter(p => p.photo).length,
-          marca,
-          errorMessage: error instanceof Error ? error.message : 'Error desconocido',
-          errorType: error instanceof Error ? error.constructor.name : typeof error,
-          stack: error instanceof Error ? error.stack : undefined,
-          url: typeof window !== 'undefined' ? window.location.href : 'unknown',
-          networkInfo: typeof navigator !== 'undefined' ? {
-            onLine: navigator.onLine,
-            connection: (navigator as any).connection?.effectiveType || 'unknown',
-            downlink: (navigator as any).connection?.downlink || 'unknown',
-          } : {},
-          formValidation: {
-            hasProducts: unprocessedProducts.length > 0,
-            hasPhotos: unprocessedProducts.some(p => p.photo),
-            processedProducts: products.filter(p => p.processed).length,
-            unprocessedProducts: unprocessedProducts.length,
-            allProductsValid: unprocessedProducts.every(p =>
-              p.photo &&
-              p.name.trim() &&
-              p.description.trim() &&
-              p.name.length <= 100 &&
-              p.description.length <= 1000
-            ),
-          },
-          products: products.map(p => ({
-            id: p.id,
-            hasPhoto: !!p.photo,
-            photoSize: p.photo?.size,
-            photoType: p.photo?.type,
-            nameLength: p.name.length,
-            descriptionLength: p.description.length,
-            hasPrice: !!p.price,
-            tagsCount: p.tags.length
-          }))
-        }
-      );
-
-      // Capturar información adicional del error para debugging
-      const errorContext = {
-        productsCount: products.length,
-        photosCount: products.filter(p => p.photo).length,
-        marca,
-        errorMessage: error instanceof Error ? error.message : 'Error desconocido',
-        errorType: error instanceof Error ? error.constructor.name : typeof error,
-        stack: error instanceof Error ? error.stack : undefined,
-        userAgent: navigator.userAgent,
-        timestamp: new Date().toISOString(),
-        url: typeof window !== 'undefined' ? window.location.href : 'unknown',
-        networkInfo: typeof navigator !== 'undefined' ? {
-          onLine: navigator.onLine,
-          connection: (navigator as any).connection?.effectiveType || 'unknown',
-          downlink: (navigator as any).connection?.downlink || 'unknown',
-        } : {},
-        formValidation: {
-          hasProducts: products.length > 0,
-          hasPhotos: products.some(p => p.photo),
-          allProductsValid: products.every(p =>
-            p.photo &&
-            p.name.trim() &&
-            p.description.trim() &&
-            p.name.length <= 100 &&
-            p.description.length <= 1000
-          ),
-        }
-      };
-
-      console.error("🔍 Contexto completo del error:", errorContext);
-
-      toast({
-        title: t.products.error.title,
-        description: `${error instanceof Error ? error.message : t.products.error.description} (Session: ${sessionId})`,
-        variant: "destructive",
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
 
   return (
     <div className="space-y-6 relative">
@@ -776,8 +459,9 @@ Tipo de error: ${result.details.errorType || 'Desconocido'}` : '';
           <CardHeader>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-              <CardTitle className="text-2xl">
-              </CardTitle>
+                <CardTitle className="text-2xl">
+                  {t.products.productNumber.replace("{number}", currentStep.toString())}
+                </CardTitle>
                 {/* En sistema de páginas no necesitamos badge de procesado */}
               </div>
               {/* Sin botón de eliminar en sistema de páginas */}
@@ -859,7 +543,7 @@ Tipo de error: ${result.details.errorType || 'Desconocido'}` : '';
               />
               <div className="flex justify-between text-xs text-muted-foreground">
                 <span className={product.description.length > MAX_DESCRIPTION_LENGTH ? "text-destructive" : ""}>
-                  {product.description.length} / {MAX_DESCRIPTION_LENGTH} caracteres
+                  {product.description.length} / {MAX_DESCRIPTION_LENGTH} {t.products.validation.characters}
                 </span>
               </div>
             </div>
@@ -955,10 +639,10 @@ Tipo de error: ${result.details.errorType || 'Desconocido'}` : '';
       {currentStep > MAX_PRODUCTS && (
         <div className="pt-6 text-center">
           <p className="text-sm text-muted-foreground">
-            Has completado todos los productos disponibles ({MAX_PRODUCTS}).
+            {t.products.validation.maxProducts.replace("{max}", MAX_PRODUCTS.toString())}
           </p>
           <p className="text-xs text-muted-foreground mt-2">
-            Productos procesados: {processedCount}
+            {t.products.uploading.completed}: {processedCount}
           </p>
           <p className="text-green-600 font-medium mt-2">
             ¡{t.products.uploading.completed}! {t.products.uploading.completedDescription}

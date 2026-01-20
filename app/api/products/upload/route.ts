@@ -127,7 +127,7 @@ async function createPhotoRecordInAirtable(
     const fields: Record<string, any> = {
       Nombre: sanitizeString(productData.name),
       Ingredientes: sanitizeString(productData.description),
-      Tags: productData.tags.map(tag => sanitizeString(tag)).filter(Boolean).join(", "),
+      Tags: productData.tags.map((tag: string) => sanitizeString(tag)).filter(Boolean).join(", "),
     };
 
     if (productData.price && productData.price.trim() !== "") {
@@ -214,12 +214,16 @@ async function handleSingleProduct(request: NextRequest) {
 
     console.log(`📦 Procesando producto individual. Batch: ${productData.batch}/${productData.totalBatches}`);
 
+    if (!WEBHOOK_URL) {
+      throw new Error('Webhook URL no configurada');
+    }
+
     // Función de reintento para webhook
     const sendToWebhook = async (payload: any, attempt: number = 1): Promise<Response> => {
       try {
         console.log(`📡 Enviando producto individual al webhook (intento ${attempt}/${RETRY_ATTEMPTS + 1})`);
 
-        const response = await fetch(WEBHOOK_URL, {
+        const response = await fetch(WEBHOOK_URL!, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -381,6 +385,34 @@ async function handleMultipleProducts(request: NextRequest) {
 
     console.log(`🚀 Iniciando procesamiento optimizado de ${products.length} productos en ${batches.length} lotes`);
 
+    // Función de reintento para webhook con mejor tolerancia a fallos temporales
+    const sendToWebhookBatch = async (payload: any, attempt: number = 1): Promise<Response> => {
+      try {
+        const response = await fetch(WEBHOOK_URL!, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        });
+
+        if (!response.ok && attempt <= RETRY_ATTEMPTS) {
+          console.warn(`⚠️ Webhook respondió ${response.status}, reintentando en ${attempt * 1000}ms...`);
+          await new Promise(resolve => setTimeout(resolve, attempt * 1000));
+          return sendToWebhookBatch(payload, attempt + 1);
+        }
+
+        return response;
+      } catch (error) {
+        if (attempt <= RETRY_ATTEMPTS) {
+          console.warn(`⚠️ Error de conexión, reintentando en ${attempt * 1000}ms...`, error);
+          await new Promise(resolve => setTimeout(resolve, attempt * 1000));
+          return sendToWebhookBatch(payload, attempt + 1);
+        }
+        throw error;
+      }
+    };
+
     // Procesar cada lote y enviar inmediatamente al webhook
     let totalProcessed = 0;
     let totalSuccessful = 0;
@@ -409,7 +441,7 @@ async function handleMultipleProducts(request: NextRequest) {
           console.log(`📡 Enviando lote ${batchIndex + 1}/${batches.length} al webhook (${batchResults.length} productos)`);
 
           try {
-            const webhookResponse = await sendToWebhook(batchPayload);
+            const webhookResponse = await sendToWebhookBatch(batchPayload);
 
             if (webhookResponse.ok) {
               console.log(`✅ Lote ${batchIndex + 1} enviado exitosamente al webhook`);
@@ -462,34 +494,6 @@ async function handleMultipleProducts(request: NextRequest) {
         { status: 400 }
       );
     }
-
-    // Función de reintento para webhook con mejor tolerancia a fallos temporales
-    const sendToWebhook = async (payload: any, attempt: number = 1): Promise<Response> => {
-      try {
-        const response = await fetch(WEBHOOK_URL, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(payload),
-        });
-
-        if (!response.ok && attempt <= RETRY_ATTEMPTS) {
-          console.warn(`⚠️ Webhook respondió ${response.status}, reintentando en ${attempt * 1000}ms...`);
-          await new Promise(resolve => setTimeout(resolve, attempt * 1000));
-          return sendToWebhook(payload, attempt + 1);
-        }
-
-        return response;
-      } catch (error) {
-        if (attempt <= RETRY_ATTEMPTS) {
-          console.warn(`⚠️ Error de conexión, reintentando en ${attempt * 1000}ms...`, error);
-          await new Promise(resolve => setTimeout(resolve, attempt * 1000));
-          return sendToWebhook(payload, attempt + 1);
-        }
-        throw error;
-      }
-    };
 
     // Resumen final del procesamiento
     console.log(`🎉 Upload completado. ${totalSuccessful}/${totalProcessed} productos procesados exitosamente`);
