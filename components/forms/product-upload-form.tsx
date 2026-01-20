@@ -25,7 +25,7 @@ interface Product {
 }
 
 // ⚙️ CONFIGURACIÓN FÁCIL: Cambia este número para modificar el límite máximo de productos
-const MAX_PRODUCTS = 2;
+const MAX_PRODUCTS = 3;
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const ALLOWED_TYPES = ["image/jpeg", "image/jpg", "image/png"];
 const MAX_DESCRIPTION_LENGTH = 1000; // Máximo 1000 caracteres para descripción
@@ -784,8 +784,7 @@ Tipo de error: ${result.details.errorType || 'Desconocido'}` : '';
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <CardTitle className="text-2xl">
-                  {t.products.productNumber.replace("{number}", currentStep.toString())}
-                </CardTitle>
+                      </CardTitle>
                 {/* En sistema de páginas no necesitamos badge de procesado */}
               </div>
               {/* Sin botón de eliminar en sistema de páginas */}
