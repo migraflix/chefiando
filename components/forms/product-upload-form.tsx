@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { MAX_PRODUCTS, MAX_FILE_SIZE, ALLOWED_TYPES, MAX_DESCRIPTION_LENGTH, MAX_NAME_LENGTH } from "@/lib/config";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -24,12 +25,7 @@ interface Product {
   processed?: boolean; // Flag para evitar procesamiento duplicado
 }
 
-// ⚙️ CONFIGURACIÓN FÁCIL: Cambia este número para modificar el límite máximo de productos
-const MAX_PRODUCTS = 3;
-const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
-const ALLOWED_TYPES = ["image/jpeg", "image/jpg", "image/png"];
-const MAX_DESCRIPTION_LENGTH = 1000; // Máximo 1000 caracteres para descripción
-const MAX_NAME_LENGTH = 100; // Máximo 100 caracteres para nombre
+// ✅ Todas las constantes ahora están centralizadas en lib/config.ts
 
 export function ProductUploadForm({ marca }: { marca: string }) {
   const { t } = useLanguage();
@@ -44,12 +40,12 @@ export function ProductUploadForm({ marca }: { marca: string }) {
   // Solo un producto por página - mucho más simple
   const [product, setProduct] = useState<Product>({
     id: currentStep.toString(),
-    photo: null,
-    photoPreview: null,
-    name: "",
-    description: "",
-    price: "",
-    tags: [],
+      photo: null,
+      photoPreview: null,
+      name: "",
+      description: "",
+      price: "",
+      tags: [],
     processed: false,
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -386,10 +382,7 @@ export function ProductUploadForm({ marca }: { marca: string }) {
     reader.readAsDataURL(file);
   };
 
-  const toggleTag = (productId: string, tag: string) => {
-    const product = products.find((p) => p.id === productId);
-    if (!product) return;
-
+  const toggleTag = (tag: string) => {
     const newTags = product.tags.includes(tag)
       ? product.tags.filter((t) => t !== tag)
       : [...product.tags, tag];
@@ -783,8 +776,8 @@ Tipo de error: ${result.details.errorType || 'Desconocido'}` : '';
           <CardHeader>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <CardTitle className="text-2xl">
-                      </CardTitle>
+              <CardTitle className="text-2xl">
+              </CardTitle>
                 {/* En sistema de páginas no necesitamos badge de procesado */}
               </div>
               {/* Sin botón de eliminar en sistema de páginas */}
@@ -897,7 +890,7 @@ Tipo de error: ${result.details.errorType || 'Desconocido'}` : '';
                     <Checkbox
                       id={`tag-${currentStep}-${key}`}
                       checked={product.tags.includes(key)}
-                      onCheckedChange={() => toggleTag(currentStep.toString(), key)}
+                      onCheckedChange={() => toggleTag(key)}
                     />
                     <Label
                       htmlFor={`tag-${currentStep}-${key}`}
@@ -917,9 +910,9 @@ Tipo de error: ${result.details.errorType || 'Desconocido'}` : '';
       <div className="flex gap-3">
         {/* Botón agregar producto (siempre disponible hasta el límite total) */}
         {currentStep <= MAX_PRODUCTS && (
-          <Button
-            type="button"
-            onClick={addProduct}
+        <Button
+          type="button"
+          onClick={addProduct}
             disabled={isProcessingProduct}
             size="lg"
             className="flex-1 text-lg"
@@ -935,13 +928,13 @@ Tipo de error: ${result.details.errorType || 'Desconocido'}` : '';
                 {t.products.buttons.addProduct}
               </>
             )}
-          </Button>
-        )}
+        </Button>
+      )}
 
         {/* Botón terminar (aparece cuando hay productos procesados) */}
         {processedCount > 0 && (
-          <Button
-            type="button"
+        <Button
+          type="button"
             onClick={() => {
               toast({
                 title: `🎉 ${t.products.uploading.completed}`,
@@ -949,7 +942,7 @@ Tipo de error: ${result.details.errorType || 'Desconocido'}` : '';
               });
               router.push(`/fotos/gracias?marca=${marca}`);
             }}
-            size="lg"
+          size="lg"
             className="flex-1 text-lg"
             variant="outline"
           >

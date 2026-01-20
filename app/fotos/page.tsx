@@ -4,8 +4,7 @@ import { useSearchParams } from "next/navigation";
 import { ProductUploadForm } from "@/components/forms/product-upload-form";
 import { useLanguage } from "@/contexts/language-context";
 import { LanguageSelector } from "@/components/language-selector";
-
-const MAX_PRODUCTS = 5; // ⚙️ Configuración fácil de cambiar
+import { MAX_PRODUCTS } from "@/lib/config";
 
 export default function FotosPage() {
   const searchParams = useSearchParams();
