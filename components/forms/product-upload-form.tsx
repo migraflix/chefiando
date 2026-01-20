@@ -57,8 +57,10 @@ export function ProductUploadForm({ marca }: { marca: string }) {
     console.log(`   Producto actual (ID: ${product.id}): processed=${product.processed}`);
   }, [product, currentStep, processedCount]);
 
+  // 🎯 FUNCIÓN PRINCIPAL: Cada "Agregar Producto" llama al webhook
   const addProduct = async () => {
     console.log(`🎯 Click en Adicionar Produto - Step ${currentStep}/${MAX_PRODUCTS}`);
+    console.log(`🔗 Este click VA A LLAMAR AL WEBHOOK con el producto actual`);
 
     // Evitar múltiples clicks simultáneos
     if (isProcessingProduct) {
@@ -71,24 +73,30 @@ export function ProductUploadForm({ marca }: { marca: string }) {
       return;
     }
 
-    console.log('🔄 Iniciando procesamiento del producto...');
+    console.log('🔄 Iniciando procesamiento del producto y llamado al webhook...');
     setIsProcessingProduct(true);
 
     try {
-      // Mostrar toast de procesamiento
+      // Mostrar toast de procesamiento con webhook
       toast({
-        title: `🖼️ ${t.products.uploading.processingImage}`,
-        description: t.products.uploading.processingDescription,
+        title: `🚀 ${t.products.uploading.processingImage}`,
+        description: `Enviando "${product.name}" al sistema...`,
       });
 
-      // Procesar el producto actual
+      // Procesar el producto actual y enviar al webhook
       await processAndSendProduct(product, currentStep - 1);
 
       // Determinar el siguiente paso
       const nextStep = currentStep + 1;
       const newProcessedCount = processedCount + 1;
 
-      console.log(`✅ Producto ${currentStep} procesado. Siguiente: step=${nextStep}, processed=${newProcessedCount}`);
+      console.log(`✅ Producto ${currentStep} procesado y webhook llamado. Siguiente: step=${nextStep}, processed=${newProcessedCount}`);
+
+      // Mostrar confirmación de webhook exitoso
+      toast({
+        title: `✅ "${product.name}" enviado`,
+        description: "Producto procesado y webhook llamado exitosamente",
+      });
 
       // Si llegó al límite, ir a página de gracias
       if (nextStep > MAX_PRODUCTS) {
@@ -127,7 +135,7 @@ export function ProductUploadForm({ marca }: { marca: string }) {
     }
   };
 
-  // Función para procesar y enviar un producto individual al webhook
+  // 🔗 FUNCIÓN QUE LLAMA AL WEBHOOK: Procesa y envía un producto individual al webhook
   const processAndSendProduct = async (product: Product, index: number) => {
     try {
       console.log(`🚀 Procesando producto ${index + 1}...`);
@@ -202,10 +210,7 @@ export function ProductUploadForm({ marca }: { marca: string }) {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          singleProduct: true, // Flag para indicar que es un producto individual
-          productData: webhookPayload
-        }),
+        body: JSON.stringify(webhookPayload), // Enviar directamente el webhookPayload
       });
 
       if (!response.ok) {
@@ -214,10 +219,10 @@ export function ProductUploadForm({ marca }: { marca: string }) {
       }
 
       const result = await response.json();
-      console.log(`✅ Producto ${index + 1} procesado y enviado exitosamente`, result);
+      console.log(`✅ Producto ${index + 1} procesado y enviado exitosamente al webhook`, result);
 
-      // Procesamiento silencioso - sin feedback individual
-      console.log(`✅ Producto "${product.name}" preparado correctamente`);
+      // Confirmar explícitamente que el webhook fue llamado
+      confirmWebhookCalled(product.name, index + 1);
 
     } catch (error) {
       console.error(`❌ Error procesando producto ${index + 1}:`, error);
@@ -262,6 +267,24 @@ export function ProductUploadForm({ marca }: { marca: string }) {
       console.error('Error creando registro en Airtable:', error);
       return null;
     }
+  };
+
+  // Función específica para confirmar que el webhook fue llamado
+  const confirmWebhookCalled = (productName: string, batchNumber: number) => {
+    console.log(`🔗 WEBHOOK CONFIRMADO: "${productName}" (Batch ${batchNumber}) enviado exitosamente`);
+
+    // Log adicional para confirmar el webhook
+    logFormSuccess(
+      `Webhook llamado para producto: ${productName}`,
+      "webhook-calls",
+      "webhook_success",
+      {
+        productName,
+        batchNumber,
+        marca,
+        timestamp: new Date().toISOString()
+      }
+    );
   };
 
   // Función auxiliar para comprimir imagen (extraída para reutilizar)

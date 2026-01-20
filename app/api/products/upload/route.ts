@@ -173,15 +173,33 @@ export async function POST(request: NextRequest) {
     console.log(`🔗 Webhook URL configurada: ${WEBHOOK_URL ? '✅ Sí' : '❌ No'}`);
     console.log(`📊 Content-Type: ${request.headers.get('content-type')}`);
 
-    // Verificar si es un producto individual o procesamiento múltiple
-    const isSingleProduct = request.headers.get('content-type')?.includes('application/json');
-    console.log(`🔍 Tipo de procesamiento: ${isSingleProduct ? 'Producto Individual' : 'Múltiples Productos'}`);
+    // Detectar el tipo de procesamiento basado en el content-type y estructura del body
+    const contentType = request.headers.get('content-type') || '';
+    const isJsonRequest = contentType.includes('application/json');
 
-    if (isSingleProduct) {
-      // Procesar producto individual
-      return await handleSingleProduct(request);
+    if (isJsonRequest) {
+      // Para JSON, verificar si es producto individual o múltiple
+      try {
+        const body = await request.json();
+        const isSingleProduct = body.marca && body.batch && body.totalBatches && body.products && Array.isArray(body.products) && body.products.length === 1;
+
+        if (isSingleProduct) {
+          console.log(`🔍 Detectado: Producto Individual (batch ${body.batch}/${body.totalBatches})`);
+          return await handleSingleProductFromPayload(body);
+        } else {
+          console.log(`🔍 Detectado: Payload JSON múltiple`);
+          return await handleMultipleProductsFromJson(body);
+        }
+      } catch (error) {
+        console.error('❌ Error parseando JSON:', error);
+        return NextResponse.json(
+          { error: "JSON inválido en el request" },
+          { status: 400 }
+        );
+      }
     } else {
-      // Procesar múltiples productos (comportamiento original)
+      // Procesar múltiples productos con FormData (comportamiento original)
+      console.log(`🔍 Detectado: FormData múltiple (comportamiento original)`);
       return await handleMultipleProducts(request);
     }
   } catch (error) {
@@ -205,50 +223,45 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// Función para manejar productos individuales (procesamiento inmediato)
-async function handleSingleProduct(request: NextRequest) {
+// Función para manejar productos individuales desde payload directo
+async function handleSingleProductFromPayload(payload: any) {
   try {
-    console.log(`📦 Iniciando procesamiento de producto individual...`);
-
-    const body = await request.json();
-    const { singleProduct, productData } = body;
-
-    console.log(`📋 Datos recibidos:`, {
-      hasSingleProduct: !!singleProduct,
-      hasProductData: !!productData,
-      productDataKeys: productData ? Object.keys(productData) : [],
-      batchInfo: productData?.batch ? `${productData.batch}/${productData.totalBatches}` : 'N/A'
-    });
-
-    if (!singleProduct || !productData) {
-      throw new Error('Datos de producto individual inválidos');
-    }
-
-    console.log(`📦 Procesando producto individual. Batch: ${productData.batch}/${productData.totalBatches}`);
+    console.log(`📦 Procesando producto individual desde payload directo. Batch: ${payload.batch}/${payload.totalBatches}`);
     console.log(`🔗 Webhook URL: ${WEBHOOK_URL ? WEBHOOK_URL.substring(0, 50) + '...' : 'No configurada'}`);
 
-    // Validar datos del producto
-    if (!productData.recordId) {
-      throw new Error(`Producto ${productData.batch} no tiene recordId de Airtable`);
-    }
-    if (!productData.nombre) {
-      throw new Error(`Producto ${productData.batch} no tiene nombre`);
-    }
-    if (!productData.contentType) {
-      throw new Error(`Producto ${productData.batch} no tiene contentType`);
-    }
-    if (!productData.base64 || productData.base64.length === 0) {
-      throw new Error(`Producto ${productData.batch} no tiene datos base64 válidos`);
+    // Validar estructura del payload
+    if (!payload.marca || !payload.batch || !payload.totalBatches) {
+      throw new Error('Payload incompleto: faltan marca, batch o totalBatches');
     }
 
-    console.log(`✅ Validación de datos completada para producto ${productData.batch}`);
+    if (!payload.products || !Array.isArray(payload.products) || payload.products.length !== 1) {
+      throw new Error('Payload inválido: debe tener exactamente 1 producto en el array products');
+    }
+
+    const product = payload.products[0];
+
+    // Validar datos del producto
+    if (!product.recordId) {
+      throw new Error(`Producto ${payload.batch} no tiene recordId de Airtable`);
+    }
+    if (!product.nombre) {
+      throw new Error(`Producto ${payload.batch} no tiene nombre`);
+    }
+    if (!product.contentType) {
+      throw new Error(`Producto ${payload.batch} no tiene contentType`);
+    }
+    if (!product.base64 || product.base64.length === 0) {
+      throw new Error(`Producto ${payload.batch} no tiene datos base64 válidos`);
+    }
+
+    console.log(`✅ Validación de datos completada para producto ${payload.batch}`);
 
     if (!WEBHOOK_URL) {
       throw new Error('Webhook URL no configurada');
     }
 
     // Función de reintento para webhook
-    const sendToWebhook = async (payload: any, attempt: number = 1): Promise<Response> => {
+    const sendToWebhook = async (webhookPayload: any, attempt: number = 1): Promise<Response> => {
       try {
         console.log(`📡 Enviando producto individual al webhook (intento ${attempt}/${RETRY_ATTEMPTS + 1})`);
 
@@ -257,13 +270,13 @@ async function handleSingleProduct(request: NextRequest) {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify(payload),
+          body: JSON.stringify(webhookPayload),
         });
 
         if (!response.ok && attempt <= RETRY_ATTEMPTS) {
           console.warn(`⚠️ Webhook respondió ${response.status}, reintentando en ${attempt * 1000}ms...`);
           await new Promise(resolve => setTimeout(resolve, attempt * 1000));
-          return sendToWebhook(payload, attempt + 1);
+          return sendToWebhook(webhookPayload, attempt + 1);
         }
 
         return response;
@@ -271,43 +284,49 @@ async function handleSingleProduct(request: NextRequest) {
         if (attempt <= RETRY_ATTEMPTS) {
           console.warn(`⚠️ Error de conexión, reintentando en ${attempt * 1000}ms...`, error);
           await new Promise(resolve => setTimeout(resolve, attempt * 1000));
-          return sendToWebhook(payload, attempt + 1);
+          return sendToWebhook(webhookPayload, attempt + 1);
         }
         throw error;
       }
     };
 
-    // Enviar al webhook con mejor manejo de errores
-    // productData ya contiene la estructura completa del webhook (marca, batch, products, etc.)
-    const webhookResponse = await sendToWebhook(productData);
+    // Enviar al webhook
+    const webhookResponse = await sendToWebhook(payload);
 
     if (!webhookResponse.ok) {
       const errorText = await webhookResponse.text();
-      console.error(`❌ Webhook error para producto ${productData.batch}: ${webhookResponse.status} - ${errorText}`);
+      console.error(`❌ Webhook error para producto ${payload.batch}: ${webhookResponse.status} - ${errorText}`);
 
-      // No lanzar error para productos individuales, solo loggear y continuar
-      // Esto permite que el procesamiento continue aunque el webhook falle
-      Sentry.captureException(new Error(`Webhook failed for product ${productData.batch}`), {
+      // Capturar error en Sentry pero no fallar el request
+      Sentry.captureException(new Error(`Webhook failed for product ${payload.batch}`), {
         tags: {
           component: 'webhook',
           endpoint: '/api/products/upload',
-          productBatch: productData.batch?.toString() || 'unknown'
+          productBatch: payload.batch?.toString() || 'unknown',
+          errorType: 'webhook_failure_single_product'
         },
         extra: {
           webhookStatus: webhookResponse.status,
           webhookResponse: errorText,
-          productData: JSON.stringify(productData).substring(0, 500)
+          productData: JSON.stringify(payload).substring(0, 500)
         }
       });
-    } else {
-      console.log(`✅ Producto individual ${productData.batch} enviado exitosamente al webhook`);
-    }
 
-    return NextResponse.json({
-      success: true,
-      message: `Producto ${productData.batch} procesado exitosamente`,
-      batch: productData.batch
-    });
+      // Para productos individuales, devolvemos éxito pero con advertencia
+      return NextResponse.json({
+        success: true,
+        message: `Producto ${payload.batch} procesado, pero webhook falló`,
+        batch: payload.batch,
+        webhookWarning: true
+      });
+    } else {
+      console.log(`✅ Producto individual ${payload.batch} enviado exitosamente al webhook`);
+      return NextResponse.json({
+        success: true,
+        message: `Producto ${payload.batch} procesado exitosamente`,
+        batch: payload.batch
+      });
+    }
 
   } catch (error) {
     console.error('❌ Error procesando producto individual:', error);
@@ -316,7 +335,7 @@ async function handleSingleProduct(request: NextRequest) {
       tags: {
         component: 'api',
         endpoint: '/api/products/upload',
-        errorType: 'single_product_error'
+        errorType: 'single_product_processing_error'
       }
     });
 
@@ -328,6 +347,18 @@ async function handleSingleProduct(request: NextRequest) {
       { status: 500 }
     );
   }
+}
+
+// Función para manejar múltiples productos desde JSON (legacy support)
+async function handleMultipleProductsFromJson(payload: any) {
+  // Esta función maneja payloads JSON con múltiples productos
+  // Por ahora, redirigir a handleMultipleProducts si es necesario
+  console.log('🔄 Redirigiendo a procesamiento múltiple desde JSON');
+  // Implementar si es necesario
+  return NextResponse.json(
+    { error: "Procesamiento múltiple desde JSON no implementado aún" },
+    { status: 501 }
+  );
 }
 
 // Función para manejar múltiples productos (comportamiento original)
