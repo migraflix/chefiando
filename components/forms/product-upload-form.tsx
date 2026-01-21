@@ -118,7 +118,15 @@ export function ProductUploadForm({ marca }: { marca: string }) {
 
   // 🎯 FUNCIÓN PRINCIPAL: Cada "Agregar Producto" llama al webhook
   const addProduct = async () => {
-    console.log(`🎯 Click en Adicionar Produto - Step ${currentStep}/${MAX_PRODUCTS}`);
+    console.log(`🎯 CLICK DETECTADO: Adicionar Produto - Step ${currentStep}/${MAX_PRODUCTS}`);
+    console.log(`🔗 Estado actual del producto:`, {
+      hasPhoto: !!product.photo,
+      name: product.name,
+      description: product.description,
+      price: product.price,
+      tags: product.tags,
+      marca: marca
+    });
     console.log(`🔗 Este click VA A LLAMAR AL WEBHOOK con el producto actual`);
 
     // Evitar múltiples clicks simultáneos
@@ -127,10 +135,13 @@ export function ProductUploadForm({ marca }: { marca: string }) {
       return;
     }
 
+    console.log(`✅ Validando producto antes de procesar...`);
     // Validar el producto actual
     if (!validateCurrentProduct()) {
+      console.log(`❌ Validación fallida, deteniendo proceso`);
       return;
     }
+    console.log(`✅ Validación exitosa, procediendo con el procesamiento`);
 
     console.log('🔄 Iniciando procesamiento del producto y llamado al webhook...');
     setIsProcessingProduct(true);
