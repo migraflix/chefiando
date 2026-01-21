@@ -26,6 +26,14 @@
   - ✅ Logs en página de marca para confirmar carga correcta
   - ✅ Mejorar estilos del botón para asegurar visibilidad
 
+- **DEBUG: Investigación creación de records y webhooks en productos**
+  - ✅ Logs detallados en cada paso de `processAndSendProduct`
+  - ✅ Logs en `createPhotoRecord` para verificar creación en Airtable
+  - ✅ Logs en conversión de imagen a base64
+  - ✅ Logs en envío y respuesta del webhook
+  - ✅ Logs de validación y datos preparados
+  - ✅ Confirmación explícita de proceso completado
+
 - **FIX: Error "navigator is not defined" en prerendering**
   - ✅ Agregadas verificaciones `typeof window !== 'undefined'` en páginas de debug
   - ✅ Build exitoso sin errores de SSR
