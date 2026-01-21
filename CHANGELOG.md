@@ -2,6 +2,13 @@
 
 ## V1.0.1 (Actual) - 2025-01-21
 
+### 🚀 Nuevas Funcionalidades
+- **FEAT: Botón "Terminar" procesa productos pendientes**
+  - ✅ El botón "Terminar" ahora valida si hay productos con imagen sin procesar
+  - ✅ Si encuentra productos pendientes, los procesa y envía al webhook antes de salir
+  - ✅ Feedback visual durante el procesamiento del último producto
+  - ✅ Logging detallado del flujo de terminación para debugging
+
 ### 🐛 Correcciones Críticas
 - **FIX: Error "Load failed" en formulario de registro**
   - ✅ Agregado timeout de 30s para evitar conexiones colgadas
@@ -10,6 +17,11 @@
   - ✅ Validación JSON mejorada en sanitización con fallback seguro
   - ✅ Manejo específico de códigos HTTP en API de Airtable
   - ✅ Logging detallado para debugging de conexiones lentas
+
+### 🛠️ Mejoras Técnicas
+- **FIX: Error "navigator is not defined" en prerendering**
+  - ✅ Agregadas verificaciones `typeof window !== 'undefined'` en páginas de debug
+  - ✅ Build exitoso sin errores de SSR
 
 ### 📊 Mejoras en API
 - **API /brands**: Mejor parsing de JSON y manejo de errores de conexión
