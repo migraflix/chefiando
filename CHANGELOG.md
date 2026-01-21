@@ -48,6 +48,12 @@
   - ✅ Usuario ve mensaje positivo: "procesado" o "enviado"
   - ✅ Logging optimista: webhook "sent" o "pending", nunca "error"
 
+- **DEBUG: Marca incluida desde creación del registro**
+  - ✅ Logging detallado para confirmar marca en registros de fotos
+  - ✅ Verificación de que marca se incluye en Airtable desde el inicio
+  - ✅ Validación de recepción correcta de marca en API
+  - ✅ Confirmación visual de asociación Brand en campos de Airtable
+
 - **FIX: Error "navigator is not defined" en prerendering**
   - ✅ Agregadas verificaciones `typeof window !== 'undefined'` en páginas de debug
   - ✅ Build exitoso sin errores de SSR
