@@ -14,8 +14,16 @@ export async function POST(request: NextRequest) {
   try {
     const { productData, marca } = await request.json();
 
+    console.log(`🏷️ API create-record recibió marca: "${marca}"`);
+    console.log(`📦 Datos del producto:`, productData);
+
     if (!AIRTABLE_API_KEY || !AIRTABLE_BASE_ID) {
       throw new Error("Configuración de Airtable incompleta");
+    }
+
+    if (!marca) {
+      console.error(`❌ ERROR: No se recibió marca en la solicitud`);
+      throw new Error("Marca es requerida para crear el registro");
     }
 
     const encodedTableName = encodeURIComponent(PHOTOS_TABLE_NAME);
@@ -33,7 +41,9 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    console.log(`🔗 Asociando marca "${marca}" al campo Brand del registro`);
     fields["Brand"] = [marca];
+    console.log(`📋 Fields finales enviados a Airtable:`, fields);
 
     const response = await fetch(
       `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${encodedTableName}`,

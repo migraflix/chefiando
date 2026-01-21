@@ -82,11 +82,11 @@ export function ProductUploadForm({ marca }: { marca: string }) {
         console.error(`❌ Error procesando producto pendiente:`, error);
 
         // Mostrar error pero permitir continuar (no bloquear el terminar)
-        toast({
+      toast({
           title: t.products.uploading.processingError,
           description: `Error procesando último producto, pero puedes continuar.`,
-          variant: "destructive",
-        });
+        variant: "destructive",
+      });
 
         // Log del error pero no fallar
         const sessionId = await logFormError(
@@ -230,9 +230,9 @@ export function ProductUploadForm({ marca }: { marca: string }) {
         console.warn(`❌ Producto ${index + 1}: Datos incompletos, omitiendo`, {
           name: product.name.trim(),
           description: product.description.trim()
-        });
-        return;
-      }
+      });
+      return;
+    }
 
       console.log(`✅ Validaciones pasadas para producto ${index + 1}`);
 
@@ -250,7 +250,8 @@ export function ProductUploadForm({ marca }: { marca: string }) {
       };
 
       console.log(`📝 Datos preparados para Airtable:`, productData);
-      console.log(`📝 Creando registro en Airtable para producto ${index + 1}...`);
+      console.log(`🏷️ Marca a incluir en el registro: "${marca}"`);
+      console.log(`📝 Creando registro en Airtable para producto ${index + 1} CON MARCA INCLUIDA...`);
       let photoRecordId = await createPhotoRecord(productData, marca);
 
       if (!photoRecordId) {
@@ -409,17 +410,20 @@ export function ProductUploadForm({ marca }: { marca: string }) {
 
   // Función auxiliar para crear registro en Airtable (extraída para reutilizar)
   const createPhotoRecord = async (productData: any, marca: string): Promise<string | null> => {
-    console.log(`🗃️ Creando registro en Airtable - Datos:`, { productData, marca });
+    console.log(`🗃️ Creando registro en Airtable - Producto:`, productData);
+    console.log(`🏷️ Marca a asociar: "${marca}" (tipo: ${typeof marca})`);
 
     try {
-      console.log(`📡 Llamando a /api/products/create-record...`);
+      console.log(`📡 Llamando a /api/products/create-record con marca incluida...`);
+      const requestPayload = { productData, marca };
+      console.log(`📤 Payload enviado a API:`, requestPayload);
 
       const response = await fetch("/api/products/create-record", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ productData, marca }),
+        body: JSON.stringify(requestPayload),
       });
 
       console.log(`📡 Respuesta de create-record - Status: ${response.status} ${response.statusText}`);
@@ -594,54 +598,54 @@ export function ProductUploadForm({ marca }: { marca: string }) {
   };
 
   const validateCurrentProduct = (): boolean => {
-    if (!product.photo) {
-      toast({
-        title: t.products.validation.photoRequired,
-        variant: "destructive",
-      });
-      return false;
-    }
-    if (!product.name.trim()) {
-      toast({
-        title: t.products.validation.nameRequired,
-        variant: "destructive",
-      });
-      return false;
-    }
-    if (product.name.length > MAX_NAME_LENGTH) {
-      toast({
+      if (!product.photo) {
+        toast({
+          title: t.products.validation.photoRequired,
+          variant: "destructive",
+        });
+        return false;
+      }
+      if (!product.name.trim()) {
+        toast({
+          title: t.products.validation.nameRequired,
+          variant: "destructive",
+        });
+        return false;
+      }
+      if (product.name.length > MAX_NAME_LENGTH) {
+        toast({
         title: t.products.validation.nameTooLong,
         description: t.products.validation.nameTooLongDesc.replace("{max}", MAX_NAME_LENGTH.toString()),
-        variant: "destructive",
-      });
-      return false;
-    }
-    if (!product.description.trim()) {
-      toast({
-        title: t.products.validation.descriptionRequired,
-        variant: "destructive",
-      });
-      return false;
-    }
-    if (product.description.length > MAX_DESCRIPTION_LENGTH) {
-      toast({
+          variant: "destructive",
+        });
+        return false;
+      }
+      if (!product.description.trim()) {
+        toast({
+          title: t.products.validation.descriptionRequired,
+          variant: "destructive",
+        });
+        return false;
+      }
+      if (product.description.length > MAX_DESCRIPTION_LENGTH) {
+        toast({
         title: t.products.validation.maxLength,
         description: `La descripción no puede exceder ${MAX_DESCRIPTION_LENGTH} ${t.products.validation.characters}`,
-        variant: "destructive",
-      });
-      return false;
-    }
+          variant: "destructive",
+        });
+        return false;
+      }
 
-    // Validar que la descripción sea JSON-safe (sin caracteres problemáticos)
-    try {
-      JSON.stringify({ description: product.description });
-    } catch (error) {
-      toast({
+      // Validar que la descripción sea JSON-safe (sin caracteres problemáticos)
+      try {
+        JSON.stringify({ description: product.description });
+      } catch (error) {
+        toast({
         title: t.products.validation.descriptionInvalid,
         description: t.products.validation.descriptionInvalidChars,
-        variant: "destructive",
-      });
-      return false;
+          variant: "destructive",
+        });
+        return false;
     }
     return true;
   };
@@ -665,9 +669,9 @@ export function ProductUploadForm({ marca }: { marca: string }) {
           <CardHeader>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <CardTitle className="text-2xl">
+              <CardTitle className="text-2xl">
                   {t.products.productNumber.replace("{number}", currentStep.toString())}
-                </CardTitle>
+              </CardTitle>
                 {/* En sistema de páginas no necesitamos badge de procesado */}
               </div>
               {/* Sin botón de eliminar en sistema de páginas */}
@@ -855,7 +859,7 @@ export function ProductUploadForm({ marca }: { marca: string }) {
           <p className="text-green-600 font-medium mt-2">
             ¡{t.products.uploading.completed}! {t.products.uploading.completedDescription}
           </p>
-        </div>
+      </div>
       )}
     </div>
   );
