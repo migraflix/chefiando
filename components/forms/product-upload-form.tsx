@@ -196,18 +196,34 @@ export function ProductUploadForm({ marca }: { marca: string }) {
 
   // 🔗 FUNCIÓN QUE LLAMA AL WEBHOOK: Procesa y envía un producto individual al webhook
   const processAndSendProduct = async (product: Product, index: number) => {
+    console.log(`🎯 INICIANDO processAndSendProduct para producto ${index + 1}`);
+    console.log(`📊 Datos del producto:`, {
+      hasPhoto: !!product.photo,
+      photoSize: product.photo?.size,
+      name: product.name,
+      description: product.description,
+      price: product.price,
+      tags: product.tags,
+      marca
+    });
+
     try {
       console.log(`🚀 Procesando producto ${index + 1}...`);
 
       // Validar que tenga todos los datos necesarios
       if (!product.photo) {
-        console.warn(`Producto ${index + 1}: Sin foto, omitiendo`);
+        console.warn(`❌ Producto ${index + 1}: Sin foto, omitiendo`);
         return;
       }
       if (!product.name.trim() || !product.description.trim()) {
-        console.warn(`Producto ${index + 1}: Datos incompletos, omitiendo`);
+        console.warn(`❌ Producto ${index + 1}: Datos incompletos, omitiendo`, {
+          name: product.name.trim(),
+          description: product.description.trim()
+        });
         return;
       }
+
+      console.log(`✅ Validaciones pasadas para producto ${index + 1}`);
 
       // Preparar datos para envío (sanitización básica para frontend)
       const sanitizedNombre = product.name.trim();
@@ -222,24 +238,36 @@ export function ProductUploadForm({ marca }: { marca: string }) {
         tags: sanitizedTags
       };
 
+      console.log(`📝 Datos preparados para Airtable:`, productData);
       console.log(`📝 Creando registro en Airtable para producto ${index + 1}...`);
       const photoRecordId = await createPhotoRecord(productData, marca);
 
       if (!photoRecordId) {
+        console.error(`❌ Error: createPhotoRecord retornó null para producto ${index + 1}`);
         throw new Error(`Error creando registro en Airtable para producto ${index + 1}`);
       }
 
+      console.log(`✅ Registro creado en Airtable: ${photoRecordId}`);
+
       // Procesar imagen (comprimir si es necesario)
       let processedFile = product.photo;
+      console.log(`🖼️ Procesando imagen: ${processedFile.size} bytes, tipo: ${processedFile.type}`);
+
       if (product.photo.size > 4 * 1024 * 1024) {
         console.log(`🗜️ Comprimiendo imagen ${index + 1}...`);
         processedFile = await compressImage(product.photo);
+        console.log(`✅ Imagen comprimida: ${processedFile.size} bytes`);
       }
 
       // Convertir a base64
+      console.log(`🔄 Convirtiendo imagen a base64...`);
       const buffer = await processedFile.arrayBuffer();
+      console.log(`📏 Buffer creado: ${buffer.byteLength} bytes`);
+
       const base64Data = Buffer.from(buffer).toString("base64");
       const contentType = processedFile.type || "image/jpeg";
+
+      console.log(`✅ Base64 generado: ${base64Data.length} caracteres, contentType: ${contentType}`);
 
       // Preparar payload del webhook (arreglo de 1 producto, compatible con n8n)
       const webhookPayload = {
@@ -263,6 +291,7 @@ export function ProductUploadForm({ marca }: { marca: string }) {
 
       // Enviar al webhook con reintentos
       console.log(`📡 Enviando producto ${index + 1} al webhook...`);
+      console.log(`🔗 URL: /api/products/upload`);
 
       const response = await fetch("/api/products/upload", {
         method: "POST",
@@ -272,8 +301,11 @@ export function ProductUploadForm({ marca }: { marca: string }) {
         body: JSON.stringify(webhookPayload), // Enviar directamente el webhookPayload
       });
 
+      console.log(`📡 Respuesta del webhook - Status: ${response.status} ${response.statusText}`);
+
       if (!response.ok) {
         const errorData = await response.json();
+        console.error(`❌ Error en webhook:`, errorData);
         throw new Error(`Error en webhook: ${errorData.error || response.statusText}`);
       }
 
@@ -282,6 +314,8 @@ export function ProductUploadForm({ marca }: { marca: string }) {
 
       // Confirmar explícitamente que el webhook fue llamado
       confirmWebhookCalled(product.name, index + 1);
+
+      console.log(`🎉 PRODUCTO ${index + 1} COMPLETADO EXITOSAMENTE`);
 
     } catch (error) {
       console.error(`❌ Error procesando producto ${index + 1}:`, error);
@@ -307,7 +341,11 @@ export function ProductUploadForm({ marca }: { marca: string }) {
 
   // Función auxiliar para crear registro en Airtable (extraída para reutilizar)
   const createPhotoRecord = async (productData: any, marca: string): Promise<string | null> => {
+    console.log(`🗃️ Creando registro en Airtable - Datos:`, { productData, marca });
+
     try {
+      console.log(`📡 Llamando a /api/products/create-record...`);
+
       const response = await fetch("/api/products/create-record", {
         method: "POST",
         headers: {
@@ -316,14 +354,20 @@ export function ProductUploadForm({ marca }: { marca: string }) {
         body: JSON.stringify({ productData, marca }),
       });
 
+      console.log(`📡 Respuesta de create-record - Status: ${response.status} ${response.statusText}`);
+
       if (!response.ok) {
+        const errorText = await response.text();
+        console.error(`❌ Error en create-record:`, errorText);
         throw new Error(`Error creando registro: ${response.statusText}`);
       }
 
       const result = await response.json();
+      console.log(`✅ Registro creado exitosamente:`, result);
+
       return result.recordId;
     } catch (error) {
-      console.error('Error creando registro en Airtable:', error);
+      console.error('❌ Error creando registro en Airtable:', error);
       return null;
     }
   };
