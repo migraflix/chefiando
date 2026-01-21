@@ -61,6 +61,12 @@
   - ✅ Validación de recepción correcta de marca en API
   - ✅ Confirmación visual de asociación Brand en campos de Airtable
 
+- **FEAT: brandRecordId en payload del webhook**
+  - ✅ Agregado brandRecordId al payload del webhook
+  - ✅ Mantiene compatibilidad con campo 'marca'
+  - ✅ brandRecordId = ID del registro de marca en Airtable
+  - ✅ Logging actualizado para mostrar brandRecordId en payload
+
 - **FIX: Error "navigator is not defined" en prerendering**
   - ✅ Agregadas verificaciones `typeof window !== 'undefined'` en páginas de debug
   - ✅ Build exitoso sin errores de SSR
