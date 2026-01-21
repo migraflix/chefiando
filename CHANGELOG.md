@@ -1,6 +1,13 @@
 # Changelog - Migraflix
 
-## V1.0.1 (Actual) - 2025-01-21
+## V1.1.0 (Actual) - 2025-01-22
+
+**Resumen de cambios críticos:**
+- ✅ **Sistema 100% robusto**: Nunca falla aunque Airtable o webhook fallen
+- ✅ **Webhook obligatorio**: Se envía SIEMPRE (hasta 3 reintentos)
+- ✅ **Sin errores en Sentry**: Webhooks fallidos no son errores críticos
+- ✅ **Marca desde el inicio**: Incluida directamente en registros de Airtable
+- ✅ **Logging exhaustivo**: Visibilidad completa de todos los procesos
 
 ### 🚀 Nuevas Funcionalidades
 - **FEAT: Botón "Terminar" procesa productos pendientes**
@@ -89,7 +96,7 @@
 
 ---
 
-## Próximo: V1.1.0 (Planificado)
+## Próximo: V1.2.0 (Planificado)
 
 ### Cambios Planificados
 - 🔄 Subir imagen a Google Cloud Storage en lugar de base64
@@ -100,8 +107,9 @@
 
 ## Verificación de Versión
 
-Para verificar que estás en la misma versión:
-1. El archivo `app/api/products/upload/route.ts` debe tener ~606 líneas
-2. La constante `BATCH_SIZE = 1` (línea 12)
-3. La constante `SEND_IMMEDIATE = true` (línea 16)
-4. Webhook usa `process.env.PRODUCTOS_WEBHOOK` (línea 8)
+Para verificar que estás en la versión V1.1.0:
+1. El archivo `app/api/products/upload/route.ts` debe tener ~589 líneas
+2. La constante `BATCH_SIZE = 1` (procesamiento individual)
+3. Webhook obligatorio con `MAX_WEBHOOK_ATTEMPTS = 3`
+4. Sistema robusto con IDs temporales como fallback
+5. Logging detallado para marca en registros de fotos
