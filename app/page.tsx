@@ -6,6 +6,7 @@ import { Check, Sparkles, TrendingUp, Users } from "lucide-react"
 import Link from "next/link"
 import { useLanguage } from "@/contexts/language-context"
 import { LanguageSelector } from "@/components/language-selector"
+import { APP_VERSION } from "@/lib/version"
 
 export default function HomePage() {
   const { t } = useLanguage()
@@ -145,6 +146,9 @@ export default function HomePage() {
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto text-center space-y-4">
             <div className="text-2xl font-bold">ChefIAndo</div>
+            <span className="inline-block px-2 py-0.5 text-xs font-medium bg-primary/10 text-primary rounded-full">
+              v{APP_VERSION}
+            </span>
             <p className="text-muted-foreground">{t.landing.footer.description}</p>
             <div className="pt-4 text-sm text-muted-foreground">© 2025 ChefIAndo. {t.landing.footer.rights}</div>
           </div>
