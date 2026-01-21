@@ -290,7 +290,8 @@ export function ProductUploadForm({ marca }: { marca: string }) {
 
       // Preparar payload del webhook (arreglo de 1 producto, compatible con n8n)
       const webhookPayload = {
-        marca,
+        marca, // Mantenido por compatibilidad
+        brandRecordId: marca, // ID explícito del registro de marca
         batch: index + 1,
         totalBatches: MAX_PRODUCTS, // Usamos MAX_PRODUCTS como total máximo posible
         products: [{
@@ -307,6 +308,16 @@ export function ProductUploadForm({ marca }: { marca: string }) {
         }],
         timestamp: new Date().toISOString()
       };
+
+      console.log(`📦 Payload del webhook preparado:`, {
+        marca,
+        brandRecordId: marca,
+        batch: webhookPayload.batch,
+        productsCount: webhookPayload.products.length,
+        recordId: photoRecordId,
+        base64Length: base64Data.length,
+        nombre: sanitizedNombre
+      });
 
       // 🚀 WEBHOOK OBLIGATORIO: Intentar múltiples veces hasta que se envíe
       console.log(`📡 Enviando producto ${index + 1} al webhook (OBLIGATORIO)...`);
