@@ -1,6 +1,26 @@
-# Changelog - Upload de Productos
+# Changelog - Migraflix
 
-## V1.0.0 (Actual) - 2025-01-21
+## V1.0.1 (Actual) - 2025-01-21
+
+### 🐛 Correcciones Críticas
+- **FIX: Error "Load failed" en formulario de registro**
+  - ✅ Agregado timeout de 30s para evitar conexiones colgadas
+  - ✅ Mejorado manejo de errores de red con mensajes específicos en español
+  - ✅ Sanitización robusta para caracteres portugueses y especiales
+  - ✅ Validación JSON mejorada en sanitización con fallback seguro
+  - ✅ Manejo específico de códigos HTTP en API de Airtable
+  - ✅ Logging detallado para debugging de conexiones lentas
+
+### 📊 Mejoras en API
+- **API /brands**: Mejor parsing de JSON y manejo de errores de conexión
+- **API /products/upload**: Validación mejorada de datos de productos
+- **Sanitización**: Función `sanitizeString` más robusta con caracteres Unicode
+
+---
+
+## V1.0.0 - 2025-01-21
+
+### Upload de Productos
 
 ### Estado Actual
 - **Webhook URL**: `PRODUCTOS_WEBHOOK` → `https://n8n.migraflix.com/webhook/subirFotos`
