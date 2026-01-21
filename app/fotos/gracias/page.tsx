@@ -11,11 +11,19 @@ export default function GraciasPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const marca = searchParams.get("marca");
+  const processed = searchParams.get("processed");
   const { t, language, locationInfo } = useLanguage();
 
+  console.log('📄 Página de gracias cargada', { marca, processed, searchParams: Object.fromEntries(searchParams.entries()) });
+
   const handleGoToBrand = () => {
+    console.log('🖱️ Click en botón "Ver minha marca"', { marca });
+
     if (marca) {
+      console.log('🔗 Navegando a:', `/marca/ver/${marca}`);
       router.push(`/marca/ver/${marca}`);
+    } else {
+      console.error('❌ No hay parámetro marca disponible');
     }
   };
 
@@ -40,14 +48,20 @@ export default function GraciasPage() {
             <p className="text-lg text-muted-foreground mb-8">
               {t.products.thanks.description}
             </p>
-            {marca && (
+            {marca ? (
               <Button
                 onClick={handleGoToBrand}
                 size="lg"
-                className="text-lg px-8"
+                className="text-lg px-8 bg-orange-500 hover:bg-orange-600 text-white"
               >
                 {t.products.thanks.button}
               </Button>
+            ) : (
+              <div className="text-sm text-gray-500 p-4 border rounded">
+                ⚠️ No se pudo obtener el ID de la marca. Por favor, contacta al soporte.
+                <br />
+                <small>Parámetros recibidos: {JSON.stringify({ marca, processed })}</small>
+              </div>
             )}
           </CardContent>
         </Card>
