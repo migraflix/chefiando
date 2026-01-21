@@ -104,7 +104,16 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json()
+    let body;
+    try {
+      body = await request.json();
+    } catch (jsonError) {
+      console.error("Error parsing JSON:", jsonError);
+      return NextResponse.json(
+        { error: "Datos JSON inválidos" },
+        { status: 400 }
+      );
+    }
 
     // Asegurar que emprendedor siempre esté presente (incluso si es vacío)
     if (body.emprendedor === undefined || body.emprendedor === null) {

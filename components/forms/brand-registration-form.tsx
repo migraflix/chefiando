@@ -114,16 +114,39 @@ export function BrandRegistrationForm() {
 
       logFormSuccess("Enviando datos de sección 1 a API", "registration", "section1_api_call", section1Data);
 
-      const response = await fetch("/api/brands", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          ...section1Data,
-          status: "Basic Register",
-        }),
-      });
+      // Agregar timeout y mejor manejo de errores de red
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 segundos timeout
+
+      let response;
+      try {
+        response = await fetch("/api/brands", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            ...section1Data,
+            status: "Basic Register",
+          }),
+          signal: controller.signal,
+        });
+        clearTimeout(timeoutId);
+      } catch (fetchError: any) {
+        clearTimeout(timeoutId);
+
+        // Manejar errores de conexión específicamente
+        if (fetchError.name === 'AbortError') {
+          throw new Error('La conexión tardó demasiado tiempo. Verifica tu conexión a internet.');
+        }
+
+        // Para otros errores de fetch, dar un mensaje más claro
+        if (fetchError.message?.includes('Load failed') || fetchError.message?.includes('Failed to fetch')) {
+          throw new Error('Error de conexión. Verifica tu conexión a internet e intenta de nuevo.');
+        }
+
+        throw fetchError;
+      }
 
       const result = await response.json();
 
@@ -152,6 +175,17 @@ export function BrandRegistrationForm() {
     } catch (error: any) {
       console.error("Error saving section 1:", error);
 
+      // Determinar el tipo de error para dar mejor feedback
+      let userFriendlyMessage = error.message;
+
+      if (error.message?.includes('Load failed') || error.message?.includes('Failed to fetch')) {
+        userFriendlyMessage = 'Error de conexión. Verifica tu conexión a internet e intenta de nuevo.';
+      } else if (error.message?.includes('timeout') || error.message?.includes('aborted')) {
+        userFriendlyMessage = 'La conexión tardó demasiado. Intenta de nuevo.';
+      } else if (error.message?.includes('JSON')) {
+        userFriendlyMessage = 'Los datos contienen caracteres inválidos. Revisa la información e intenta de nuevo.';
+      }
+
       // Log del error con contexto completo
       const sessionId = await logFormError(
         error,
@@ -162,13 +196,14 @@ export function BrandRegistrationForm() {
           currentSection: 1,
           recordId,
           errorMessage: error.message,
+          userFriendlyMessage,
           errorStack: error.stack
         }
       );
 
       toast({
         title: t.registration.error.title,
-        description: `${error.message} (Session: ${sessionId})`,
+        description: `${userFriendlyMessage} (Session: ${sessionId})`,
         variant: "destructive",
       });
     } finally {

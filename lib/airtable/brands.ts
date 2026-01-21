@@ -152,31 +152,58 @@ export async function createBrand(formData: BrandFormData, status?: string) {
   const fields = mapFormDataToAirtable(formData, status);
   const encodedTableName = encodeURIComponent(TABLE_NAME);
 
-  // Crear registro en Airtable
-  const response = await fetch(
-    `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${encodedTableName}`,
-    {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${AIRTABLE_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        fields,
-        typecast: true,
-      }),
-    }
-  );
-
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-    console.error("Error creating brand in Airtable:", errorData);
-    throw new Error(
-      errorData.error?.message || "Error al crear el registro en Airtable"
+  // Crear registro en Airtable con mejor manejo de errores
+  let airtableResponse;
+  try {
+    airtableResponse = await fetch(
+      `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${encodedTableName}`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${AIRTABLE_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          fields,
+          typecast: true,
+        }),
+      }
     );
+  } catch (fetchError) {
+    console.error("Error de conexión con Airtable:", fetchError);
+    throw new Error("Error de conexión con la base de datos. Verifica tu conexión a internet.");
   }
 
-  const data = await response.json();
+  if (!airtableResponse.ok) {
+    let errorText;
+    try {
+      errorText = await airtableResponse.text();
+    } catch (textError) {
+      errorText = "No se pudo leer el error de Airtable";
+    }
+
+    console.error("Airtable error:", airtableResponse.status, errorText);
+
+    // Dar mensajes más específicos según el código de error
+    if (airtableResponse.status === 401) {
+      throw new Error("Error de autenticación con la base de datos");
+    } else if (airtableResponse.status === 403) {
+      throw new Error("Acceso denegado a la base de datos");
+    } else if (airtableResponse.status >= 500) {
+      throw new Error("Error interno del servidor de base de datos. Intenta más tarde.");
+    }
+
+    throw new Error(`Error en base de datos: ${airtableResponse.status}`);
+  }
+
+  let data;
+  try {
+    data = await airtableResponse.json();
+  } catch (jsonError) {
+    console.error("Error parseando respuesta de Airtable:", jsonError);
+    throw new Error("Respuesta inválida de la base de datos");
+  }
+
   const recordId = data.id;
 
   // Generar y actualizar el link de fotos

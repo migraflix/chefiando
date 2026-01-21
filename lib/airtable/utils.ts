@@ -36,6 +36,9 @@ export function sanitizeString(value: string | undefined): string | undefined {
     // Trim primero
     let sanitized = value.trim();
 
+    // Si el string está vacío después del trim, devolver undefined
+    if (!sanitized) return undefined;
+
     // Reemplazar caracteres problemáticos comunes
     sanitized = sanitized
       .replace(/\r\n/g, '\n') // Normalizar line breaks
@@ -51,11 +54,21 @@ export function sanitizeString(value: string | undefined): string | undefined {
     // Verificar que el string resultante sea válido para JSON
     JSON.stringify(sanitized);
 
-    return sanitized;
+    // Verificación final: si quedó vacío después de sanitizar, devolver undefined
+    return sanitized || undefined;
+
   } catch (error) {
     console.error('Error sanitizando string:', error, { originalValue: value.substring(0, 100) });
+
     // Si hay un error, devolver una versión muy básica y segura
-    return value.replace(/[^\w\sáéíóúüñÁÉÍÓÚÜÑ.,;:!?()-]/g, '').trim();
+    try {
+      const fallback = value.replace(/[^\w\sáéíóúüñÁÉÍÓÚÜÑ.,;:!?()-]/g, '').trim();
+      return fallback || undefined;
+    } catch (fallbackError) {
+      console.error('Error en fallback de sanitización:', fallbackError);
+      // Si todo falla, devolver un valor seguro
+      return 'Texto con caracteres especiales';
+    }
   }
 }
 
