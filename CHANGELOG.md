@@ -19,6 +19,13 @@
   - ✅ Logging detallado para debugging de conexiones lentas
 
 ### 🛠️ Mejoras Técnicas
+- **DEBUG: Investigación del botón "Ver minha marca"**
+  - ✅ Logs de debugging en página de gracias para verificar parámetro marca
+  - ✅ Logs en función de navegación para rastrear clicks
+  - ✅ Verificación visual si falta el parámetro marca
+  - ✅ Logs en página de marca para confirmar carga correcta
+  - ✅ Mejorar estilos del botón para asegurar visibilidad
+
 - **FIX: Error "navigator is not defined" en prerendering**
   - ✅ Agregadas verificaciones `typeof window !== 'undefined'` en páginas de debug
   - ✅ Build exitoso sin errores de SSR
