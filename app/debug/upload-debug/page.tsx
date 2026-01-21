@@ -224,8 +224,8 @@ export default function UploadDebugPage() {
   const exportLogs = () => {
     const logData = {
       timestamp: new Date().toISOString(),
-      userAgent: navigator.userAgent,
-      url: window.location.href,
+      userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : 'Server-side',
+      url: typeof window !== 'undefined' ? window.location.href : 'Server-side',
       logs: logs
     };
 
@@ -402,15 +402,15 @@ export default function UploadDebugPage() {
                 <CardTitle>💻 Información del Sistema</CardTitle>
               </CardHeader>
               <CardContent className="text-sm space-y-1">
-                <div><strong>Navegador:</strong> {navigator.userAgent.split(' ').pop()}</div>
-                <div><strong>Online:</strong> {navigator.onLine ? '✅' : '❌'}</div>
+                <div><strong>Navegador:</strong> {typeof navigator !== 'undefined' ? navigator.userAgent.split(' ').pop() : 'N/A'}</div>
+                <div><strong>Online:</strong> {typeof navigator !== 'undefined' ? (navigator.onLine ? '✅' : '❌') : 'N/A'}</div>
                 <div><strong>Memoria:</strong> {
-                  'memory' in performance ?
+                  typeof performance !== 'undefined' && 'memory' in performance ?
                   `${Math.round((performance as any).memory.usedJSHeapSize / 1024 / 1024)}MB usado` :
                   'No disponible'
                 }</div>
                 <div><strong>Conexión:</strong> {
-                  'connection' in navigator ?
+                  typeof navigator !== 'undefined' && 'connection' in navigator ?
                   `${(navigator as any).connection.effectiveType} (${(navigator as any).connection.downlink} Mbps)` :
                   'No disponible'
                 }</div>

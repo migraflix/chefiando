@@ -57,6 +57,65 @@ export function ProductUploadForm({ marca }: { marca: string }) {
     console.log(`   Producto actual (ID: ${product.id}): processed=${product.processed}`);
   }, [product, currentStep, processedCount]);
 
+  // 🎯 FUNCIÓN PARA TERMINAR: Procesa producto pendiente si existe y termina
+  const handleFinish = async () => {
+    console.log(`🏁 Click en Terminar - Verificando producto pendiente...`);
+
+    // Verificar si hay un producto pendiente con imagen y datos
+    const hasPendingProduct = product.photo && product.name.trim() && product.description.trim();
+
+    if (hasPendingProduct) {
+      console.log(`📦 Producto pendiente detectado, procesando antes de terminar...`);
+
+      try {
+        // Mostrar que estamos procesando el último producto
+        toast({
+          title: `🚀 ${t.products.uploading.processingImage}`,
+          description: `Procesando último producto antes de terminar...`,
+        });
+
+        // Procesar el producto pendiente
+        await processAndSendProduct(product, currentStep - 1);
+
+        console.log(`✅ Producto pendiente procesado exitosamente`);
+      } catch (error) {
+        console.error(`❌ Error procesando producto pendiente:`, error);
+
+        // Mostrar error pero permitir continuar (no bloquear el terminar)
+        toast({
+          title: t.products.uploading.processingError,
+          description: `Error procesando último producto, pero puedes continuar.`,
+          variant: "destructive",
+        });
+
+        // Log del error pero no fallar
+        const sessionId = await logFormError(
+          error instanceof Error ? error : new Error('Error procesando producto pendiente'),
+          "photo-upload",
+          "pending_product_processing_error",
+          {
+            productData: product,
+            currentStep,
+            processedCount,
+            errorMessage: error instanceof Error ? error.message : 'Error desconocido'
+          }
+        );
+      }
+    } else {
+      console.log(`ℹ️ No hay producto pendiente, terminando directamente...`);
+    }
+
+    // Mostrar mensaje de completado y redirigir
+    const totalProcessed = hasPendingProduct ? processedCount + 1 : processedCount;
+
+    toast({
+      title: `🎉 ${t.products.uploading.completed}`,
+      description: `${t.products.uploading.completedDescription} (${totalProcessed} productos procesados)`,
+    });
+
+    router.push(`/fotos/gracias?marca=${marca}&processed=${totalProcessed}`);
+  };
+
   // 🎯 FUNCIÓN PRINCIPAL: Cada "Agregar Producto" llama al webhook
   const addProduct = async () => {
     console.log(`🎯 Click en Adicionar Produto - Step ${currentStep}/${MAX_PRODUCTS}`);
@@ -642,19 +701,21 @@ export function ProductUploadForm({ marca }: { marca: string }) {
         {processedCount > 0 && (
         <Button
           type="button"
-            onClick={() => {
-              toast({
-                title: `🎉 ${t.products.uploading.completed}`,
-                description: t.products.uploading.completedDescription,
-              });
-              router.push(`/fotos/gracias?marca=${marca}`);
-            }}
+          onClick={handleFinish}
+          disabled={isProcessingProduct}
           size="lg"
-            className="flex-1 text-lg"
-            variant="outline"
-          >
-            {t.products.buttons.finish}
-          </Button>
+          className="flex-1 text-lg"
+          variant="outline"
+        >
+          {isProcessingProduct ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              {t.products.buttons.processing}
+            </>
+          ) : (
+            t.products.buttons.finish
+          )}
+        </Button>
         )}
       </div>
 
