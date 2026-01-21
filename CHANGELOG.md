@@ -34,6 +34,13 @@
   - ✅ Logs de validación y datos preparados
   - ✅ Confirmación explícita de proceso completado
 
+- **FIX: Sistema robusto de procesamiento de productos**
+  - ✅ Tolerancia a fallos: continúa aunque falle Airtable o webhook
+  - ✅ Fallback automático: IDs temporales si falla creación de records
+  - ✅ Feedback parcial: éxito aunque fallen componentes individuales
+  - ✅ Usuario nunca queda bloqueado: flujo continúa siempre
+  - ✅ Logging diferenciado: éxito total vs parcial vs error
+
 - **FIX: Error "navigator is not defined" en prerendering**
   - ✅ Agregadas verificaciones `typeof window !== 'undefined'` en páginas de debug
   - ✅ Build exitoso sin errores de SSR
