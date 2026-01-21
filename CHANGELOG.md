@@ -41,6 +41,13 @@
   - ✅ Usuario nunca queda bloqueado: flujo continúa siempre
   - ✅ Logging diferenciado: éxito total vs parcial vs error
 
+- **FIX: Webhook OBLIGATORIO con reintentos automáticos**
+  - ✅ Webhook se intenta enviar HASTA 3 veces automáticamente
+  - ✅ Si falla después de reintentos, NO es error crítico
+  - ✅ No se reporta a Sentry como error de aplicación
+  - ✅ Usuario ve mensaje positivo: "procesado" o "enviado"
+  - ✅ Logging optimista: webhook "sent" o "pending", nunca "error"
+
 - **FIX: Error "navigator is not defined" en prerendering**
   - ✅ Agregadas verificaciones `typeof window !== 'undefined'` en páginas de debug
   - ✅ Build exitoso sin errores de SSR
