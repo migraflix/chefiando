@@ -164,13 +164,7 @@ export function ProductUploadForm({ marca }: { marca: string }) {
       const nextStep = currentStep + 1;
       const newProcessedCount = processedCount + 1;
 
-      console.log(`✅ Producto ${currentStep} procesado y webhook llamado. Siguiente: step=${nextStep}, processed=${newProcessedCount}`);
-
-      // Mostrar confirmación de webhook exitoso
-      toast({
-        title: `✅ "${product.name}" enviado`,
-        description: "Producto procesado y webhook llamado exitosamente",
-      });
+      console.log(`✅ Producto ${currentStep} procesado y webhook confirmado. Navegando a step=${nextStep}, processed=${newProcessedCount}`);
 
       // Si llegó al límite, ir a página de gracias
       if (nextStep > MAX_PRODUCTS) {
@@ -356,11 +350,18 @@ export function ProductUploadForm({ marca }: { marca: string }) {
             const result = await response.json();
             console.log(`✅ Webhook enviado exitosamente en intento ${webhookAttempts}`, result);
             
-            // ✅ Webhook respondió con imageRecordId - continuar al siguiente
+            // ✅ Webhook respondió con imageRecordId - mostrar confirmación
             if (result.imageRecordId) {
               console.log(`📝 imageRecordId recibido: ${result.imageRecordId}`);
               console.log(`🎉 Producto ${index + 1} confirmado!`);
               webhookSuccess = true;
+              
+              // 🎉 TOAST DE CONFIRMACIÓN: Ya estamos creando tu imagen
+              toast({
+                title: `✨ ¡Ya estamos creando tu imagen!`,
+                description: `"${product.name}" se está procesando. Continuando...`,
+              });
+              
               confirmWebhookCalled(product.name, index + 1, true);
               break;
             } else {
@@ -413,10 +414,7 @@ export function ProductUploadForm({ marca }: { marca: string }) {
       // RESULTADO FINAL
       if (webhookSuccess) {
         console.log(`🎉 WEBHOOK ENVIADO Y CONFIRMADO para producto ${index + 1}`);
-        toast({
-          title: `✅ "${product.name}" listo`,
-          description: "Producto procesado y confirmado exitosamente",
-        });
+        // Toast ya se mostró arriba cuando recibimos imageRecordId
       } else {
         console.error(`❌ WEBHOOK FALLÓ después de ${MAX_WEBHOOK_ATTEMPTS} intentos para producto ${index + 1}`);
         
