@@ -36,10 +36,12 @@ export default function Error({
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-red-600">
             <AlertCircle className="h-6 w-6" />
-            Algo salió mal
+            {isChunkError ? "Tienes una versión vieja" : "Algo salió mal"}
           </CardTitle>
           <CardDescription>
-            Ha ocurrido un error inesperado. El error ha sido reportado automáticamente.
+            {isChunkError 
+              ? "Hicimos una actualización mientras usabas la app. Recarga la página para obtener la última versión."
+              : "Ha ocurrido un error inesperado. El error ha sido reportado automáticamente."}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
