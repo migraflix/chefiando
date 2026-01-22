@@ -158,13 +158,15 @@ export function ProductUploadForm({ marca }: { marca: string }) {
       });
 
       // Procesar el producto actual y enviar al webhook
+      console.log(`⏳ Esperando processAndSendProduct...`);
       await processAndSendProduct(product, currentStep - 1);
+      console.log(`✅ processAndSendProduct terminó!`);
 
       // Determinar el siguiente paso
       const nextStep = currentStep + 1;
       const newProcessedCount = processedCount + 1;
 
-      console.log(`✅ Producto ${currentStep} procesado y webhook confirmado. Navegando a step=${nextStep}, processed=${newProcessedCount}`);
+      console.log(`🚀🚀🚀 NAVEGANDO: step=${nextStep}, processed=${newProcessedCount}`);
 
       // Si llegó al límite, ir a página de gracias
       if (nextStep > MAX_PRODUCTS) {
@@ -359,10 +361,13 @@ export function ProductUploadForm({ marca }: { marca: string }) {
               // 🎉 TOAST DE CONFIRMACIÓN: Ya estamos creando tu imagen
               toast({
                 title: `✨ ¡Ya estamos creando tu imagen!`,
-                description: `"${product.name}" se está procesando. Continuando...`,
+                description: `ID: ${result.imageRecordId} - "${product.name}"`,
               });
               
+              console.log(`🚀 Llamando confirmWebhookCalled y terminando bucle...`);
               confirmWebhookCalled(product.name, index + 1, true);
+              
+              // IMPORTANTE: Salir del bucle while para que processAndSendProduct termine
               break;
             } else {
               // Webhook OK pero sin imageRecordId - reintentar
