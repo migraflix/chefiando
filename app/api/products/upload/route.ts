@@ -165,6 +165,46 @@ async function createPhotoRecordInAirtable(
   }
 }
 
+async function updatePhotoRecordStatus(
+  recordId: string,
+  status: string
+): Promise<boolean> {
+  if (!AIRTABLE_API_KEY || !AIRTABLE_BASE_ID) {
+    throw new Error("Configuración de Airtable incompleta");
+  }
+
+  try {
+    const encodedTableName = encodeURIComponent(PHOTOS_TABLE_NAME);
+
+    const response = await fetch(
+      `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${encodedTableName}/${recordId}`,
+      {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${AIRTABLE_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          fields: {
+            Status: status,
+          },
+        }),
+      }
+    );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Error actualizando status: ${response.status} - ${errorText}`);
+    }
+
+    const data = await response.json();
+    return true;
+  } catch (error) {
+    console.error(`Error actualizando status del registro ${recordId}:`, error);
+    throw error;
+  }
+}
+
 export async function POST(request: NextRequest) {
   const requestStartTime = Date.now();
 
@@ -289,41 +329,92 @@ async function handleSingleProductFromPayload(payload: any) {
         if (!response.ok) {
           const errorText = await response.text();
           console.warn(`⚠️ Webhook respondió ${response.status}: ${errorText}`);
-          
+
           if (attempt < RETRY_ATTEMPTS) {
             console.log(`⏳ Reintentando en ${attempt * 1500}ms...`);
             await new Promise(resolve => setTimeout(resolve, attempt * 1500));
             return sendToWebhook(webhookPayload, attempt + 1);
           }
-          
+
           return { ok: false, error: errorText, status: response.status };
         }
 
-        // Parsear respuesta exitosa
-        const responseData = await response.json() as WebhookResponse;
-        console.log(`✅ Webhook respondió OK:`, responseData);
-        
-        // Validar que tenga imageRecordId
-        if (!responseData.imageRecordId) {
-          console.warn(`⚠️ Webhook no devolvió imageRecordId, reintentando...`);
-          if (attempt < RETRY_ATTEMPTS) {
-            await new Promise(resolve => setTimeout(resolve, attempt * 1500));
-            return sendToWebhook(webhookPayload, attempt + 1);
+        // Verificar si hay contenido en la respuesta antes de intentar parsear JSON
+        const contentLength = response.headers.get('content-length');
+        const contentType = response.headers.get('content-type');
+
+        if (!contentLength || contentLength === '0' || !contentType?.includes('application/json')) {
+          console.log(`✅ Webhook respondió OK (${response.status}) pero sin contenido JSON - asumiendo éxito y actualizando status`);
+
+          // Si el webhook responde OK pero sin contenido, asumimos éxito
+          // Actualizar el registro en Airtable para marcar como completado
+          try {
+            await updatePhotoRecordStatus(payload.products[0].recordId, 'Por Revisar');
+            console.log(`✅ Status actualizado en Airtable para producto ${payload.products[0].recordId}`);
+          } catch (updateError) {
+            console.warn(`⚠️ No se pudo actualizar status en Airtable:`, updateError);
           }
-          return { ok: false, error: "Webhook no devolvió imageRecordId" };
+
+          return {
+            ok: true,
+            data: {
+              text: `Producto procesado exitosamente (sin respuesta JSON del webhook)`,
+              imageRecordId: payload.products[0].recordId // Usar el recordId original como imageRecordId
+            }
+          };
+        }
+
+        // Intentar parsear respuesta como JSON
+        let responseData: WebhookResponse;
+        try {
+          responseData = await response.json() as WebhookResponse;
+          console.log(`✅ Webhook respondió OK con JSON:`, responseData);
+        } catch (jsonError) {
+          console.warn(`⚠️ Webhook respondió OK pero con contenido no-JSON:`, jsonError);
+
+          // Si no puede parsear JSON pero el status es 200, asumimos éxito
+          // Actualizar status en Airtable
+          try {
+            await updatePhotoRecordStatus(payload.products[0].recordId, 'Por Revisar');
+            console.log(`✅ Status actualizado en Airtable para producto ${payload.products[0].recordId}`);
+          } catch (updateError) {
+            console.warn(`⚠️ No se pudo actualizar status en Airtable:`, updateError);
+          }
+
+          return {
+            ok: true,
+            data: {
+              text: `Producto procesado exitosamente (respuesta no-JSON del webhook)`,
+              imageRecordId: payload.products[0].recordId // Usar recordId original
+            }
+          };
+        }
+
+        // Validar que tenga imageRecordId si viene en la respuesta JSON
+        if (responseData && !responseData.imageRecordId) {
+          console.warn(`⚠️ Webhook devolvió JSON pero sin imageRecordId, usando recordId original...`);
+          responseData.imageRecordId = payload.products[0].recordId;
+        }
+
+        // Si tenemos respuesta JSON válida con o sin imageRecordId, actualizar status en Airtable
+        try {
+          await updatePhotoRecordStatus(payload.products[0].recordId, 'Por Revisar');
+          console.log(`✅ Status actualizado en Airtable para producto ${payload.products[0].recordId}`);
+        } catch (updateError) {
+          console.warn(`⚠️ No se pudo actualizar status en Airtable:`, updateError);
         }
 
         return { ok: true, data: responseData };
 
       } catch (error) {
         console.error(`❌ Error de conexión en intento ${attempt}:`, error);
-        
+
         if (attempt < RETRY_ATTEMPTS) {
           console.log(`⏳ Reintentando en ${attempt * 1500}ms...`);
           await new Promise(resolve => setTimeout(resolve, attempt * 1500));
           return sendToWebhook(webhookPayload, attempt + 1);
         }
-        
+
         return { ok: false, error: error instanceof Error ? error.message : 'Error de conexión' };
       }
     };
