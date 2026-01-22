@@ -194,13 +194,31 @@ Este script te ayudará a verificar que:
 - El project_id coincide
 - La estructura es correcta
 
+### `test-gcs-connection.js`
+Script avanzado para probar la conexión real con Google Cloud Storage. **No requiere que el bucket exista**. Ejecuta con:
+```bash
+node test-gcs-connection.js
+```
+
+Este script prueba:
+- ✅ **Credenciales válidas** - Verifica que el JSON se puede parsear
+- ✅ **Conectividad básica** - Intenta conectarse a Google Cloud
+- ✅ **Cliente GCS** - Inicializa el cliente de Storage
+- ✅ **Proyecto accesible** - Verifica que tienes acceso al proyecto
+- ✅ **Buckets existentes** - Lista buckets disponibles
+- ✅ **Bucket objetivo** - Intenta crear o acceder al bucket `migraflix-temp-images`
+- ✅ **Permisos** - Verifica que tienes permisos para Storage
+
+**¡Este es el script principal para probar tu configuración antes de crear el bucket!**
+
 ## Checklist Final
 
 - ✅ **Proyecto creado** en Google Cloud Console
 - ✅ **APIs habilitadas**: Cloud Storage API y Cloud Storage JSON API
 - ✅ **Service Account creada** con rol "Storage Admin"
 - ✅ **Clave JSON descargada** y guardada de forma segura
-- ✅ **Bucket creado**: `migraflix-temp-images`
+- ✅ **Conexión probada** con `test-gcs-connection.js`
+- ✅ **Bucket creado/accesible**: `migraflix-temp-images`
 - ✅ **Variables configuradas** en `.env.local`
 - ✅ **JSON validado** con el script helper
 - ✅ **TEST_UPLOAD=true** para habilitar GCS
