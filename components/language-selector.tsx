@@ -9,7 +9,7 @@ export function LanguageSelector() {
   const { language, setLanguage } = useLanguage();
   const [mounted, setMounted] = useState(false);
   const [methodConfig, setMethodConfig] = useState({
-    TEST_UPLOAD: 'loading...'
+    TEST_UPLOAD: 'false' // Default to base64 initially
   });
 
   // Evitar mismatch de hidratación
@@ -23,6 +23,7 @@ export function LanguageSelector() {
         if (response.ok) {
           const config = await response.json();
           console.log('LanguageSelector - Config loaded:', config);
+          console.log('LanguageSelector - TEST_UPLOAD value:', config.TEST_UPLOAD, 'type:', typeof config.TEST_UPLOAD);
           setMethodConfig({
             TEST_UPLOAD: config.TEST_UPLOAD
           });
