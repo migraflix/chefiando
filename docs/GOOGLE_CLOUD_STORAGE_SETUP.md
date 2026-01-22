@@ -8,6 +8,7 @@ Agrega estas variables a tu archivo `.env.local`:
 # Google Cloud Storage Configuration
 GCP_PROJECT_ID=chefiandoimages
 GCS_BUCKET_NAME=migraflix-temp-images
+GOOGLE_APPLICATION_CREDENTIALS_JSON={"type":"service_account","project_id":"chefiandoimages","private_key_id":"tu_private_key_id","private_key":"-----BEGIN PRIVATE KEY-----\ntu_private_key_completa\n-----END PRIVATE KEY-----\n","client_email":"tu-service-account@chefiandoimages.iam.gserviceaccount.com","client_id":"tu_client_id","auth_uri":"https://accounts.google.com/o/oauth2/auth","token_uri":"https://oauth2.googleapis.com/token","auth_provider_x509_cert_url":"https://www.googleapis.com/oauth2/v1/certs","client_x509_cert_url":"https://www.googleapis.com/robot/v1/metadata/x509/tu-service-account%40chefiandoimages.iam.gserviceaccount.com"}
 
 # BANDERA PARA HABILITAR GCS (true = usar GCS, false/undefined = usar base64)
 TEST_UPLOAD=false
@@ -136,9 +137,9 @@ TEST_UPLOAD=false
 **Para usar Google Cloud Storage (nueva funcionalidad):**
 ```bash
 TEST_UPLOAD=true
-GCP_PROJECT_ID=tu-project-id
-GCS_BUCKET_NAME=tu-bucket-name
-GOOGLE_APPLICATION_CREDENTIALS_JSON={...}
+GCP_PROJECT_ID=chefiandoimages
+GCS_BUCKET_NAME=migraflix-temp-images
+GOOGLE_APPLICATION_CREDENTIALS_JSON={"type":"service_account","project_id":"chefiandoimages",...}
 ```
 
 ### Beneficios de la Bandera
