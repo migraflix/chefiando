@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { MAX_PRODUCTS, MAX_FILE_SIZE, ALLOWED_TYPES, MAX_DESCRIPTION_LENGTH, MAX_NAME_LENGTH } from "@/lib/config";
+import { MAX_PRODUCTS, MAX_FILE_SIZE, ALLOWED_TYPES, MAX_DESCRIPTION_LENGTH, MAX_NAME_LENGTH } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";

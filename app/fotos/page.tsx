@@ -4,7 +4,7 @@ import { useSearchParams } from "next/navigation";
 import { ProductUploadForm } from "@/components/forms/product-upload-form";
 import { useLanguage } from "@/contexts/language-context";
 import { LanguageSelector } from "@/components/language-selector";
-import { MAX_PRODUCTS } from "@/lib/config";
+import { MAX_PRODUCTS } from "@/lib/constants";
 
 export default function FotosPage() {
   const searchParams = useSearchParams();
