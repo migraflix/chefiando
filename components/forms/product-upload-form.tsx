@@ -392,21 +392,32 @@ export function ProductUploadForm({ marca }: { marca: string }) {
               webhookSuccess = true;
               
               // 🔄 POLLING: Esperar hasta que el status sea "Por Revisar"
+              // Mostrar modal de "Preparando" que se mantiene hasta confirmación
               toast({
-                title: `⏳ Procesando "${product.name}"...`,
-                description: "Esperando confirmación del sistema...",
+                title: `🚀 Preparando "${product.name}"...`,
+                description: "No cierres esta página. Estamos subiendo tu imagen...",
               });
               
+              // 🔄 ESPERAR hasta que Status = "Por Revisar"
               const isReady = await pollForStatus(result.imageRecordId);
               
               if (isReady) {
                 console.log(`🎉 Producto ${index + 1} confirmado como listo!`);
+                webhookSuccess = true;
                 confirmWebhookCalled(product.name, index + 1, true);
+                break;
               } else {
-                console.warn(`⚠️ Polling agotado pero webhook fue exitoso`);
-                confirmWebhookCalled(product.name, index + 1, true);
+                // Si polling agotado, NO continuar - es error
+                console.error(`❌ Polling agotado para producto ${index + 1} - imagen no confirmada`);
+                
+                toast({
+                  title: `⚠️ Tiempo de espera agotado`,
+                  description: `"${product.name}" enviado pero no confirmado. Intenta de nuevo.`,
+                  variant: "destructive",
+                });
+                
+                throw new Error(`Imagen no confirmada después de esperar ${POLLING_MAX_ATTEMPTS * POLLING_INTERVAL_MS / 1000} segundos`);
               }
-              break;
             } else {
               console.warn(`⚠️ Webhook OK pero sin imageRecordId, reintentando...`);
               if (webhookAttempts < MAX_WEBHOOK_ATTEMPTS) {
