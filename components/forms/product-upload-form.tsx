@@ -276,15 +276,55 @@ export function ProductUploadForm({ marca }: { marca: string }) {
         console.log(`📝 Usando ID temporal: ${photoRecordId}`);
       }
 
-      // Usar la imagen ya subida a GCS
-      console.log(`🖼️ Usando imagen desde GCS: ${product.photoGcsPath}`);
-      console.log(`🔗 URL firmada: ${product.photoGcsUrl}`);
+      // Manejar imagen según el método configurado
+      let contentType: string;
+      let fileName: string;
+      let imageData: any = {};
 
-      // Extraer información del archivo original
-      const contentType = product.photo.type || "image/jpeg";
-      const fileName = product.photo.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+      if (process.env.TEST_UPLOAD === 'true' && product.photoGcsUrl) {
+        // Usar imagen desde GCS
+        console.log(`🖼️ Usando imagen desde GCS: ${product.photoGcsPath}`);
+        console.log(`🔗 URL firmada: ${product.photoGcsUrl}`);
 
-      console.log(`✅ Usando imagen de GCS: ${fileName}, contentType: ${contentType}`);
+        contentType = product.photo.type || "image/jpeg";
+        fileName = product.photo.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+
+        // Incluir información de GCS en el payload
+        imageData = {
+          gcsPath: product.photoGcsPath,
+          gcsSignedUrl: product.photoGcsUrl,
+          fileSize: product.photo.size,
+        };
+
+        console.log(`✅ Usando imagen de GCS: ${fileName}, contentType: ${contentType}`);
+      } else {
+        // Usar método base64 (TEST_UPLOAD=false o fallback)
+        console.log(`🖼️ Procesando imagen para base64: ${product.photo.size} bytes, tipo: ${product.photo.type}`);
+
+        let processedFile = product.photo;
+
+        if (product.photo.size > 4 * 1024 * 1024) {
+          console.log(`🗜️ Comprimiendo imagen ${index + 1}...`);
+          processedFile = await compressImage(product.photo);
+          console.log(`✅ Imagen comprimida: ${processedFile.size} bytes`);
+        }
+
+        // Convertir a base64
+        console.log(`🔄 Convirtiendo imagen a base64...`);
+        const buffer = await processedFile.arrayBuffer();
+        console.log(`📏 Buffer creado: ${buffer.byteLength} bytes`);
+
+        const base64Data = Buffer.from(buffer).toString("base64");
+        contentType = processedFile.type || "image/jpeg";
+        fileName = processedFile.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+
+        // Incluir base64 en el payload
+        imageData = {
+          base64: base64Data,
+        };
+
+        console.log(`✅ Base64 generado: ${base64Data.length} caracteres, contentType: ${contentType}`);
+      }
 
       // Preparar payload del webhook (arreglo de 1 producto, compatible con n8n)
       const webhookPayload = {
@@ -294,14 +334,10 @@ export function ProductUploadForm({ marca }: { marca: string }) {
         totalBatches: MAX_PRODUCTS, // Usamos MAX_PRODUCTS como total máximo posible
         products: [{
           recordId: photoRecordId,
-          nombre: fileName, // Usar nombre del archivo original
+          nombre: fileName,
           contentType: contentType,
-          // Información de GCS en lugar de base64
-          gcsPath: product.photoGcsPath,
-          gcsSignedUrl: product.photoGcsUrl,
-          fileSize: product.photo.size,
-          // Remover base64 para reducir tamaño del payload
-          base64: undefined,
+          // Incluir datos de imagen (GCS o base64 según configuración)
+          ...imageData,
           datosProducto: {
             nombre: sanitizedNombre,
             descripcion: sanitizedDescripcion,
@@ -318,8 +354,11 @@ export function ProductUploadForm({ marca }: { marca: string }) {
         batch: webhookPayload.batch,
         productsCount: webhookPayload.products.length,
         recordId: photoRecordId,
-        gcsPath: product.photoGcsPath,
-        gcsSignedUrl: product.photoGcsUrl,
+        method: process.env.TEST_UPLOAD === 'true' ? 'GCS' : 'base64',
+        ...(process.env.TEST_UPLOAD === 'true'
+          ? { gcsPath: product.photoGcsPath, gcsSignedUrl: product.photoGcsUrl }
+          : { base64Length: (imageData as any).base64?.length }
+        ),
         nombre: sanitizedNombre
       });
 
@@ -646,8 +685,20 @@ export function ProductUploadForm({ marca }: { marca: string }) {
         photoUploaded: false, // Reset flag while uploading
       });
 
-      // Subir automáticamente a GCS
-      await uploadPhotoToGcs(file, id);
+      // Subir automáticamente a GCS solo si está habilitado
+      if (process.env.TEST_UPLOAD === 'true') {
+        await uploadPhotoToGcs(file, id);
+      } else {
+        // En modo base64, marcar como subida (no necesita subida a GCS)
+        updateProduct({
+          photoUploaded: true,
+        });
+
+        toast({
+          title: "✅ Imagen seleccionada",
+          description: "Imagen lista para procesar (modo base64)",
+        });
+      }
     };
 
     reader.onerror = (error) => {
@@ -759,11 +810,18 @@ export function ProductUploadForm({ marca }: { marca: string }) {
         return false;
       }
 
-      // Validar que la imagen esté subida a GCS
-      if (!product.photoUploaded) {
+      // Validar que la imagen esté lista (subida a GCS si está habilitado, o seleccionada si no)
+      if (process.env.TEST_UPLOAD === 'true' && !product.photoUploaded) {
         toast({
           title: "Imagen no subida",
-          description: "Espera a que la imagen se suba completamente antes de continuar",
+          description: "Espera a que la imagen se suba completamente a la nube antes de continuar",
+          variant: "destructive",
+        });
+        return false;
+      } else if (process.env.TEST_UPLOAD !== 'true' && !product.photo) {
+        toast({
+          title: "Imagen requerida",
+          description: "Selecciona una imagen antes de continuar",
           variant: "destructive",
         });
         return false;
@@ -860,15 +918,15 @@ export function ProductUploadForm({ marca }: { marca: string }) {
                     className="cursor-pointer"
                   >
                     <div className={`flex items-center gap-2 px-4 py-2 border rounded-md hover:bg-accent ${isUploadingToGcs ? 'opacity-50 cursor-not-allowed' : ''}`}>
-                      {isUploadingToGcs ? (
+                      {process.env.TEST_UPLOAD === 'true' && isUploadingToGcs ? (
                         <>
                           <Loader2 className="h-4 w-4 animate-spin" />
-                          <span>Subiendo imagen...</span>
+                          <span>Subiendo a la nube...</span>
                         </>
                       ) : product.photoUploaded ? (
                         <>
                           <CheckCircle className="h-4 w-4 text-green-500" />
-                          <span>Imagen subida</span>
+                          <span>{process.env.TEST_UPLOAD === 'true' ? 'Imagen en la nube' : 'Imagen lista'}</span>
                         </>
                       ) : (
                         <>
@@ -879,14 +937,14 @@ export function ProductUploadForm({ marca }: { marca: string }) {
                     </div>
                   </Label>
                 </div>
-                {product.photoPreview && (
+                    {product.photoPreview && (
                   <div className="relative w-24 h-24 rounded-md overflow-hidden border">
                     <img
                       src={product.photoPreview}
                       alt="Preview"
                       className="w-full h-full object-cover"
                     />
-                    {isUploadingToGcs && (
+                    {process.env.TEST_UPLOAD === 'true' && isUploadingToGcs && (
                       <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
                         <Loader2 className="h-6 w-6 animate-spin text-white" />
                       </div>
