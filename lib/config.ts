@@ -1,39 +1,46 @@
-/**
- * Configuración centralizada de la aplicación
- * Todas las constantes importantes se definen aquí
- */
+import { Storage } from '@google-cloud/storage';
 
-// ⚙️ CONFIGURACIÓN PRINCIPAL - LEE DE VARIABLES DE ENTORNO
-export const CONFIG = {
-  // Límite máximo de productos por marca - LEE DE .env.local (NEXT_PUBLIC_MAX_PRODUCTS)
-  MAX_PRODUCTS: parseInt(process.env.NEXT_PUBLIC_MAX_PRODUCTS || '3'),
+// Configuración de Google Cloud Storage
+export const GCS_CONFIG = {
+  projectId: process.env.GCP_PROJECT_ID || 'migraflix-project',
+  bucketName: process.env.GCS_BUCKET_NAME || 'migraflix-temp-images',
+  keyFilename: process.env.GOOGLE_APPLICATION_CREDENTIALS,
+  // URLs firmadas expiran en 1 hora
+  signedUrlExpiry: 60 * 60 * 1000, // 1 hora en milisegundos
+  // Prefijo para archivos temporales
+  tempPrefix: 'temp/',
+  // Limpieza automática después de 24 horas
+  cleanupAfterHours: 24,
+};
 
-  // Límites de archivos
-  MAX_FILE_SIZE: 5 * 1024 * 1024, // 5MB
-  ALLOWED_TYPES: ["image/jpeg", "image/jpg", "image/png"],
-  MAX_DESCRIPTION_LENGTH: 1000,
-  MAX_NAME_LENGTH: 100,
-} as const;
+// Inicializar cliente de GCS
+let gcsClient: Storage | null = null;
 
-// Para compatibilidad, exportamos individualmente
-export const MAX_PRODUCTS = CONFIG.MAX_PRODUCTS;
-export const MAX_FILE_SIZE = CONFIG.MAX_FILE_SIZE;
-export const ALLOWED_TYPES = CONFIG.ALLOWED_TYPES;
-export const MAX_DESCRIPTION_LENGTH = CONFIG.MAX_DESCRIPTION_LENGTH;
-export const MAX_NAME_LENGTH = CONFIG.MAX_NAME_LENGTH;
+export function getGCSClient(): Storage {
+  if (!gcsClient) {
+    if (!GCS_CONFIG.keyFilename && !process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON) {
+      throw new Error('Google Cloud credentials not configured. Set GOOGLE_APPLICATION_CREDENTIALS or GOOGLE_APPLICATION_CREDENTIALS_JSON');
+    }
 
-/**
- * 🔧 INSTRUCCIONES PARA CAMBIAR LA CONFIGURACIÓN:
- *
- * 1. Para cambiar el número máximo de productos:
- *    - Edita .env.local: NEXT_PUBLIC_MAX_PRODUCTS=5
- *    - Cambia el número por el valor deseado
- *
- * 2. Para cambiar límites de archivos:
- *    - Edita los valores en este archivo (MAX_FILE_SIZE, etc.)
- *
- * 3. Reinicia el servidor de desarrollo después de cambiar
- *
- * .✅ NEXT_PUBLIC_ variables están disponibles en servidor y cliente
- * ✅ Evita errores de hidratación (hydration mismatch)
- */
+    const config: any = {
+      projectId: GCS_CONFIG.projectId,
+    };
+
+    // Si tenemos credentials como JSON string (para Vercel)
+    if (process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON) {
+      config.credentials = JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON);
+    } else if (GCS_CONFIG.keyFilename) {
+      config.keyFilename = GCS_CONFIG.keyFilename;
+    }
+
+    gcsClient = new Storage(config);
+  }
+
+  return gcsClient;
+}
+
+// Función helper para obtener el bucket
+export function getGCSBucket() {
+  const storage = getGCSClient();
+  return storage.bucket(GCS_CONFIG.bucketName);
+}

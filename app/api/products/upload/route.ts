@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import * as Sentry from "@sentry/nextjs";
 import { sanitizeString, sanitizeFileName } from "@/lib/airtable/utils";
+import { gcsService } from "@/lib/gcs-service";
 
 const AIRTABLE_API_KEY = process.env.AIRTABLE_API_KEY;
 const AIRTABLE_BASE_ID = process.env.AIRTABLE_BASE_ID;
@@ -300,6 +301,36 @@ async function handleSingleProductFromPayload(payload: any) {
       throw new Error('Webhook URL no configurada');
     }
 
+    // 🚀 SUBIR IMAGEN A GOOGLE CLOUD STORAGE
+    console.log(`☁️ Subiendo imagen a Google Cloud Storage...`);
+    let gcsFileInfo;
+
+    try {
+      gcsFileInfo = await gcsService.uploadFromBase64(
+        product.base64,
+        product.nombre,
+        product.contentType,
+        {
+          prefix: 'products/',
+          metadata: {
+            productName: product.nombre,
+            recordId: product.recordId,
+            batch: payload.batch,
+            brandId: payload.marca,
+          }
+        }
+      );
+
+      console.log(`✅ Imagen subida a GCS: ${gcsFileInfo.gcsPath}`);
+      console.log(`🔗 URL firmada: ${gcsFileInfo.signedUrl}`);
+    } catch (gcsError) {
+      console.error('❌ Error subiendo a GCS:', gcsError);
+
+      // Si falla GCS, intentar continuar con base64 (fallback)
+      console.warn('⚠️ Continuando con base64 como fallback...');
+      gcsFileInfo = null;
+    }
+
     // Generar cURL para debugging
     const generateCurlCommand = (webhookPayload: any): string => {
       const payloadStr = JSON.stringify(webhookPayload);
@@ -419,8 +450,28 @@ async function handleSingleProductFromPayload(payload: any) {
       }
     };
 
+    // Preparar payload para webhook - ahora incluye GCS
+    const webhookPayload = {
+      ...payload,
+      products: [{
+        ...product,
+        // Si tenemos GCS, enviar info de GCS en lugar de base64
+        ...(gcsFileInfo ? {
+          gcsPath: gcsFileInfo.gcsPath,
+          gcsSignedUrl: gcsFileInfo.signedUrl,
+          gcsPublicUrl: gcsFileInfo.publicUrl,
+          fileSize: gcsFileInfo.size,
+          // Remover base64 para reducir tamaño del payload
+          base64: undefined,
+        } : {
+          // Fallback: mantener base64 si GCS falló
+          base64: product.base64,
+        }),
+      }],
+    };
+
     // Enviar al webhook
-    const webhookResult = await sendToWebhook(payload);
+    const webhookResult = await sendToWebhook(webhookPayload);
 
     if (!webhookResult.ok) {
       console.error(`❌ Webhook falló después de ${RETRY_ATTEMPTS} intentos para producto ${payload.batch}`);
@@ -459,13 +510,22 @@ async function handleSingleProductFromPayload(payload: any) {
     // Webhook exitoso - devolver imageRecordId para polling
     console.log(`✅ Producto individual ${payload.batch} enviado exitosamente al webhook`);
     console.log(`📝 imageRecordId recibido: ${webhookResult.data?.imageRecordId}`);
-    
+
     return NextResponse.json({
       success: true,
       message: webhookResult.data?.text || `Producto ${payload.batch} procesado exitosamente`,
       batch: payload.batch,
       imageRecordId: webhookResult.data?.imageRecordId,
-      recordId: payload.products?.[0]?.recordId
+      recordId: payload.products?.[0]?.recordId,
+      // Incluir información de GCS si está disponible
+      ...(gcsFileInfo && {
+        gcsInfo: {
+          path: gcsFileInfo.gcsPath,
+          signedUrl: gcsFileInfo.signedUrl,
+          publicUrl: gcsFileInfo.publicUrl,
+          size: gcsFileInfo.size,
+        }
+      })
     });
 
   } catch (error) {
