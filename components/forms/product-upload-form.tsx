@@ -44,6 +44,11 @@ export function ProductUploadForm({ marca }: { marca: string }) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
+  // Estado para configuración del método de upload
+  const [methodConfig, setMethodConfig] = useState({
+    TEST_UPLOAD: 'false' // valor por defecto
+  });
+
   // Leer parámetros de URL
   const currentStep = parseInt(searchParams.get('step') || '1');
   const processedCount = parseInt(searchParams.get('processed') || '0');
@@ -61,6 +66,31 @@ export function ProductUploadForm({ marca }: { marca: string }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isProcessingProduct, setIsProcessingProduct] = useState(false);
   const [isUploadingToGcs, setIsUploadingToGcs] = useState(false);
+
+  // Cargar configuración del método de upload desde la API
+  React.useEffect(() => {
+    const loadConfig = async () => {
+      try {
+        const response = await fetch('/api/config');
+        if (response.ok) {
+          const config = await response.json();
+          console.log('ProductUploadForm - Config loaded:', {
+            TEST_UPLOAD: config.TEST_UPLOAD,
+            GCS_BUCKET_NAME: config.GCS_BUCKET_NAME
+          });
+          setMethodConfig({
+            TEST_UPLOAD: config.TEST_UPLOAD
+          });
+        } else {
+          console.error('ProductUploadForm - Failed to load config:', response.status);
+        }
+      } catch (error) {
+        console.error('ProductUploadForm - Error loading config:', error);
+      }
+    };
+
+    loadConfig();
+  }, []);
 
   // Debug: Ver estado del producto actual
   React.useEffect(() => {
@@ -280,7 +310,7 @@ export function ProductUploadForm({ marca }: { marca: string }) {
       let fileName: string;
       let imageData: any = {};
 
-      if (process.env.TEST_UPLOAD === 'true' && product.photoGcsUrl) {
+      if (methodConfig.TEST_UPLOAD === 'true' && product.photoGcsUrl) {
         // Usar imagen desde GCS
         console.log(`🖼️ Usando imagen desde GCS: ${product.photoGcsPath}`);
         console.log(`🔗 URL firmada: ${product.photoGcsUrl}`);
@@ -353,8 +383,8 @@ export function ProductUploadForm({ marca }: { marca: string }) {
         batch: webhookPayload.batch,
         productsCount: webhookPayload.products.length,
         recordId: photoRecordId,
-        method: process.env.TEST_UPLOAD === 'true' ? 'GCS' : 'base64',
-        ...(process.env.TEST_UPLOAD === 'true'
+        method: methodConfig.TEST_UPLOAD === 'true' ? 'GCS' : 'base64',
+        ...(methodConfig.TEST_UPLOAD === 'true'
           ? { gcsPath: product.photoGcsPath, gcsSignedUrl: product.photoGcsUrl }
           : { base64Length: (imageData as any).base64?.length }
         ),
@@ -685,7 +715,7 @@ export function ProductUploadForm({ marca }: { marca: string }) {
       });
 
       // Subir automáticamente a GCS solo si está habilitado
-      if (process.env.TEST_UPLOAD === 'true') {
+      if (methodConfig.TEST_UPLOAD === 'true') {
         await uploadPhotoToGcs(file, id);
       } else {
         // En modo base64, marcar como subida (no necesita subida a GCS)
@@ -808,14 +838,14 @@ export function ProductUploadForm({ marca }: { marca: string }) {
       }
 
       // Validar que la imagen esté lista
-      if (process.env.TEST_UPLOAD === 'true' && !product.photoUploaded) {
+      if (methodConfig.TEST_UPLOAD === 'true' && !product.photoUploaded) {
         toast({
           title: "Subida en progreso",
           description: "La imagen se está subiendo a Google Cloud. Espera un momento...",
           variant: "destructive",
         });
         return false;
-      } else if (process.env.TEST_UPLOAD !== 'true' && !product.photo) {
+      } else if (methodConfig.TEST_UPLOAD !== 'true' && !product.photo) {
         toast({
           title: "Imagen requerida",
           description: "Selecciona una imagen antes de continuar",
@@ -915,7 +945,7 @@ export function ProductUploadForm({ marca }: { marca: string }) {
                     className="cursor-pointer"
                   >
                     <div className={`flex items-center gap-2 px-4 py-2 border rounded-md hover:bg-accent ${isUploadingToGcs ? 'opacity-50 cursor-not-allowed' : ''}`}>
-                      {process.env.TEST_UPLOAD === 'true' && isUploadingToGcs ? (
+                      {methodConfig.TEST_UPLOAD === 'true' && isUploadingToGcs ? (
                         <>
                           <Loader2 className="h-4 w-4 animate-spin" />
                           <span>Subiendo a la nube...</span>
@@ -923,7 +953,7 @@ export function ProductUploadForm({ marca }: { marca: string }) {
                       ) : product.photoUploaded ? (
                         <>
                           <CheckCircle className="h-4 w-4 text-green-500" />
-                          <span>{process.env.TEST_UPLOAD === 'true' ? 'Imagen en la nube' : 'Imagen lista'}</span>
+                          <span>{methodConfig.TEST_UPLOAD === 'true' ? 'Imagen en la nube' : 'Imagen lista'}</span>
                         </>
                       ) : (
                         <>
@@ -941,7 +971,7 @@ export function ProductUploadForm({ marca }: { marca: string }) {
                       alt="Preview"
                       className="w-full h-full object-cover"
                     />
-                    {process.env.TEST_UPLOAD === 'true' && isUploadingToGcs && (
+                    {methodConfig.TEST_UPLOAD === 'true' && isUploadingToGcs && (
                       <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
                         <Loader2 className="h-6 w-6 animate-spin text-white" />
                       </div>
@@ -955,7 +985,7 @@ export function ProductUploadForm({ marca }: { marca: string }) {
                 )}
               </div>
               <p className="text-sm text-muted-foreground">
-                {process.env.TEST_UPLOAD === 'true'
+                {methodConfig.TEST_UPLOAD === 'true'
                   ? "Sin límite de tamaño - se sube automáticamente a Google Cloud Storage"
                   : t.products.validation.photoSizeFormat
                 }
