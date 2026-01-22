@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,6 +14,39 @@ export default function TestUploadPage() {
   const [preview, setPreview] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadResult, setUploadResult] = useState<any>(null);
+  const [envConfig, setEnvConfig] = useState({
+    TEST_UPLOAD: 'loading...',
+    GCS_BUCKET_NAME: 'loading...'
+  });
+
+  // Cargar configuración del servidor
+  useEffect(() => {
+    async function loadConfig() {
+      try {
+        const response = await fetch('/api/config');
+        if (response.ok) {
+          const config = await response.json();
+          setEnvConfig({
+            TEST_UPLOAD: config.TEST_UPLOAD,
+            GCS_BUCKET_NAME: config.GCS_BUCKET_NAME
+          });
+        } else {
+          setEnvConfig({
+            TEST_UPLOAD: 'error',
+            GCS_BUCKET_NAME: 'error'
+          });
+        }
+      } catch (error) {
+        console.error('Error cargando configuración:', error);
+        setEnvConfig({
+          TEST_UPLOAD: 'error',
+          GCS_BUCKET_NAME: 'error'
+        });
+      }
+    }
+
+    loadConfig();
+  }, []);
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -166,8 +199,8 @@ export default function TestUploadPage() {
         <div className="mt-2 p-3 bg-muted rounded-lg">
           <strong>Configuración actual:</strong>
           <br />
-          TEST_UPLOAD: <code>{process.env.TEST_UPLOAD || 'false'}</code> |
-          GCS_BUCKET: <code>{process.env.GCS_BUCKET_NAME || 'no-configurado'}</code>
+          TEST_UPLOAD: <code>{envConfig.TEST_UPLOAD}</code> |
+          GCS_BUCKET: <code>{envConfig.GCS_BUCKET_NAME}</code>
         </div>
       </div>
 
@@ -309,15 +342,15 @@ export default function TestUploadPage() {
         </Card>
       </div>
 
-      {/* Información adicional */}
+        {/* Información adicional */}
       <Card className="mt-6">
         <CardHeader>
           <CardTitle>ℹ️ Información de Debug</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid gap-2 text-sm">
-            <div><strong>TEST_UPLOAD:</strong> {process.env.TEST_UPLOAD || 'false'}</div>
-            <div><strong>GCS_BUCKET_NAME:</strong> {process.env.GCS_BUCKET_NAME || 'no-configurado'}</div>
+            <div><strong>TEST_UPLOAD:</strong> {envConfig.TEST_UPLOAD}</div>
+            <div><strong>GCS_BUCKET_NAME:</strong> {envConfig.GCS_BUCKET_NAME}</div>
             <div><strong>GCP_PROJECT_ID:</strong> {process.env.GCP_PROJECT_ID || 'no-configurado'}</div>
             <div><strong>Environment:</strong> {process.env.NODE_ENV || 'development'}</div>
           </div>
