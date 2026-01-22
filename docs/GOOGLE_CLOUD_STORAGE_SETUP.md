@@ -177,6 +177,34 @@ Si pierdes la clave JSON:
 
 **⚠️ IMPORTANTE**: Al crear una nueva clave, la anterior deja de funcionar inmediatamente.
 
+## Archivos Helper para Configuración
+
+### `env-template-gcs.txt`
+Archivo template con todas las variables de entorno necesarias. Copia su contenido a tu `.env.local` y reemplaza los valores entre `[]` con tus credenciales reales.
+
+### `validate-gcs-json.js`
+Script para validar que tu JSON de Google Cloud Storage es válido y completo. Ejecuta con:
+```bash
+node validate-gcs-json.js
+```
+
+Este script te ayudará a verificar que:
+- El JSON es válido
+- Todos los campos requeridos están presentes
+- El project_id coincide
+- La estructura es correcta
+
+## Checklist Final
+
+- ✅ **Proyecto creado** en Google Cloud Console
+- ✅ **APIs habilitadas**: Cloud Storage API y Cloud Storage JSON API
+- ✅ **Service Account creada** con rol "Storage Admin"
+- ✅ **Clave JSON descargada** y guardada de forma segura
+- ✅ **Bucket creado**: `migraflix-temp-images`
+- ✅ **Variables configuradas** en `.env.local`
+- ✅ **JSON validado** con el script helper
+- ✅ **TEST_UPLOAD=true** para habilitar GCS
+
 ## Limpieza Automática
 
 Los archivos temporales se eliminan automáticamente después de 24 horas usando Cloud Functions o un job programado.
