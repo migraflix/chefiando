@@ -1,56 +1,56 @@
-# Configuración de Google Cloud Storage
+# Configuração do Google Cloud Storage
 
-## Variables de Entorno Requeridas
+## Variáveis de Ambiente Necessárias
 
-Agrega estas variables a tu archivo `.env.local`:
+Adicione estas variáveis ao seu arquivo `.env.local`:
 
 ```bash
 # Google Cloud Storage Configuration
-GCP_PROJECT_ID=migraflix-project
+GCP_PROJECT_ID=chefiandoimages
 GCS_BUCKET_NAME=migraflix-temp-images
 
-# BANDERA PARA HABILITAR GCS (true = usar GCS, false/undefined = usar base64)
+# BANDEIRA PARA HABILITAR GCS (true = usar GCS, false/undefined = usar base64)
 TEST_UPLOAD=false
 
-# Credenciales - Solo necesarias si TEST_UPLOAD=true
-# Opción 1: Archivo de credenciales
+# Credenciais - Apenas necessárias se TEST_UPLOAD=true
+# Opção 1: Arquivo de credenciais
 GOOGLE_APPLICATION_CREDENTIALS=./path/to/service-account-key.json
 
-# Opción 2: JSON inline (recomendado para Vercel)
+# Opção 2: JSON inline (recomendado para Vercel)
 GOOGLE_APPLICATION_CREDENTIALS_JSON={"type":"service_account","project_id":"..."...}
 ```
 
-## Configuración en Google Cloud Console
+## Configuração no Google Cloud Console
 
-### 1. Crear Proyecto
-1. Ve a [Google Cloud Console](https://console.cloud.google.com/)
-2. Crea un nuevo proyecto o selecciona uno existente
-3. Copia el Project ID
+### 1. Criar Projeto
+1. Vá para [Google Cloud Console](https://console.cloud.google.com/)
+2. Crie um novo projeto ou selecione um existente
+3. Copie o Project ID
 
 ### 2. Habilitar APIs
-1. Ve a "APIs & Services" > "Library"
-2. Busca y habilita:
+1. Vá para "APIs & Services" > "Library"
+2. Procure e habilite:
    - Cloud Storage API
    - Cloud Storage JSON API
 
-### 3. Crear Service Account
-1. Ve a "IAM & Admin" > "Service Accounts"
-2. Crea una nueva Service Account con rol "Storage Admin"
-3. Crea y descarga la key JSON
+### 3. Criar Service Account
+1. Vá para "IAM & Admin" > "Service Accounts"
+2. Crie uma nova Service Account com o papel "Storage Admin"
+3. Crie e baixe a chave JSON
 
-### 4. Crear Bucket
-1. Ve a "Cloud Storage" > "Buckets"
-2. Crea un nuevo bucket con:
-   - Nombre: `migraflix-temp-images`
-   - Región: `us-central1` (o la más cercana)
-   - Clase de almacenamiento: Standard
-   - Control de acceso: Uniform
+### 4. Criar Bucket
+1. Vá para "Cloud Storage" > "Buckets"
+2. Crie um novo bucket com:
+   - Nome: `migraflix-temp-images`
+   - Região: `us-central1` (ou a mais próxima)
+   - Classe de armazenamento: Standard
+   - Controle de acesso: Uniform
 
-### 5. Configurar CORS (si es necesario)
+### 5. Configurar CORS (se necessário)
 ```json
 [
   {
-    "origin": ["https://tu-dominio.com"],
+    "origin": ["https://seu-dominio.com"],
     "method": ["GET", "POST", "PUT"],
     "responseHeader": ["Content-Type"],
     "maxAgeSeconds": 3600
@@ -58,7 +58,7 @@ GOOGLE_APPLICATION_CREDENTIALS_JSON={"type":"service_account","project_id":"..."
 ]
 ```
 
-## Uso en el Código
+## Uso no Código
 
 ```typescript
 import { getGCSBucket } from '@/lib/config';
@@ -66,43 +66,43 @@ import { getGCSBucket } from '@/lib/config';
 const bucket = getGCSBucket();
 const file = bucket.file('temp/image.jpg');
 
-// Subir archivo
+// Subir arquivo
 await file.save(buffer, {
   metadata: { contentType: 'image/jpeg' }
 });
 
-// Generar URL firmada
+// Gerar URL assinada
 const [url] = await file.getSignedUrl({
   action: 'read',
   expires: Date.now() + 3600000 // 1 hora
 });
 ```
 
-## Modo de Prueba vs Producción
+## Modo de Teste vs Produção
 
-### Usando la Bandera TEST_UPLOAD
+### Usando a Bandeira TEST_UPLOAD
 
-**Para usar base64 (método actual - producción):**
+**Para usar base64 (método atual - produção):**
 ```bash
 TEST_UPLOAD=false
-# o simplemente no definir la variable
+# ou simplesmente não definir a variável
 ```
 
-**Para usar Google Cloud Storage (nueva funcionalidad):**
+**Para usar Google Cloud Storage (nova funcionalidade):**
 ```bash
 TEST_UPLOAD=true
-GCP_PROJECT_ID=tu-project-id
-GCS_BUCKET_NAME=tu-bucket-name
+GCP_PROJECT_ID=seu-project-id
+GCS_BUCKET_NAME=seu-bucket-name
 GOOGLE_APPLICATION_CREDENTIALS_JSON={...}
 ```
 
-### Beneficios de la Bandera
+### Benefícios da Bandeira
 
-- ✅ **Testing seguro**: Prueba GCS sin afectar producción
-- ✅ **Fácil alternancia**: Cambia una sola variable
-- ✅ **Rollback inmediato**: Si hay problemas, vuelve a base64
-- ✅ **Configuración gradual**: Configura GCS mientras mantienes funcionamiento
+- ✅ **Teste seguro**: Teste GCS sem afetar produção
+- ✅ **Alternância fácil**: Mude uma única variável
+- ✅ **Rollback imediato**: Se houver problemas, volte para base64
+- ✅ **Configuração gradual**: Configure GCS enquanto mantém funcionamento
 
-## Limpieza Automática
+## Limpeza Automática
 
-Los archivos temporales se eliminan automáticamente después de 24 horas usando Cloud Functions o un job programado.
+Os arquivos temporários são excluídos automaticamente após 24 horas usando Cloud Functions ou um job programado.
