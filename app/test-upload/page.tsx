@@ -130,7 +130,7 @@ export default function TestUploadPage() {
         fileName: selectedFile.name,
         fileSize: selectedFile.size,
         contentType: selectedFile.type,
-        testUpload: process.env.TEST_UPLOAD
+        testUpload: envConfig.TEST_UPLOAD
       });
 
       // Enviar al endpoint
@@ -159,6 +159,11 @@ export default function TestUploadPage() {
           toast({
             title: "📦 GCS activado",
             description: `Imagen subida a bucket temporal`,
+          });
+        } else if (envConfig.TEST_UPLOAD === 'false') {
+          toast({
+            title: "📄 Base64 usado",
+            description: `Imagen procesada con método base64`,
           });
         }
       } else {
@@ -225,12 +230,17 @@ export default function TestUploadPage() {
                 disabled={isUploading}
                 className="mt-1"
               />
-              <p className="text-sm text-muted-foreground mt-1">
-                {process.env.TEST_UPLOAD === 'true'
-                  ? "Sin límite de tamaño con Google Cloud Storage - formatos: JPG, PNG, GIF, WebP"
-                  : "Máximo 5MB, formatos: JPG, PNG, GIF, WebP"
-                }
-              </p>
+              <div className="flex items-center gap-2 mt-1">
+                <div className={`w-2 h-2 rounded-full ${
+                  envConfig.TEST_UPLOAD === 'true' ? 'bg-green-500' : 'bg-blue-500'
+                }`}></div>
+                <p className="text-sm text-muted-foreground">
+                  {envConfig.TEST_UPLOAD === 'true'
+                    ? "Sin límite de tamaño con Google Cloud Storage - formatos: JPG, PNG, GIF, WebP"
+                    : "Máximo 5MB, formatos: JPG, PNG, GIF, WebP"
+                  }
+                </p>
+              </div>
             </div>
 
             {/* Preview */}
@@ -313,14 +323,30 @@ export default function TestUploadPage() {
                   </div>
                 </div>
 
-                {/* Información de GCS */}
-                {uploadResult.gcsInfo && (
-                  <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                    <div className="font-medium text-blue-800">📦 GCS Information</div>
-                    <div className="text-sm text-blue-700 mt-1">
+                {/* Información del método usado */}
+                {envConfig.TEST_UPLOAD === 'true' && uploadResult.gcsInfo && (
+                  <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
+                    <div className="font-medium text-green-800 flex items-center gap-2">
+                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                      Google Cloud Storage
+                    </div>
+                    <div className="text-sm text-green-700 mt-1">
                       <div>Path: {uploadResult.gcsInfo.path}</div>
                       <div>Size: {Math.round(uploadResult.gcsInfo.size / 1024)}KB</div>
                       <div>Signed URL: Disponible</div>
+                    </div>
+                  </div>
+                )}
+
+                {envConfig.TEST_UPLOAD === 'false' && (
+                  <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                    <div className="font-medium text-blue-800 flex items-center gap-2">
+                      <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                      Base64 Method
+                    </div>
+                    <div className="text-sm text-blue-700 mt-1">
+                      <div>Imagen procesada directamente</div>
+                      <div>Método: Base64 encoding</div>
                     </div>
                   </div>
                 )}
@@ -361,8 +387,14 @@ export default function TestUploadPage() {
           <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
             <strong>💡 Consejos:</strong>
             <ul className="text-sm mt-1 list-disc list-inside">
-              <li>Si TEST_UPLOAD=true, las imágenes van a GCS</li>
-              <li>Si TEST_UPLOAD=false, se usa base64 directo</li>
+              <li className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                GCS: Sin límites, URLs firmadas al webhook
+              </li>
+              <li className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                Base64: Máximo 5MB, datos directos al webhook
+              </li>
               <li>Revisa la consola del navegador para más detalles</li>
               <li>Los logs del servidor aparecen en la terminal</li>
             </ul>
