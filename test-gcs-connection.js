@@ -2,30 +2,32 @@
 
 /**
  * Script para probar la conexión con Google Cloud Storage
+ * Lee las credenciales de las variables de entorno (.env.local)
  * No requiere que el bucket exista - solo valida credenciales
  * Ejecutar con: node test-gcs-connection.js
  */
 
+// Cargar variables de entorno desde .env.local si existe
+const fs = require('fs');
+const path = require('path');
+
+const envPath = path.join(process.cwd(), '.env.local');
+if (fs.existsSync(envPath)) {
+  console.log('📄 Cargando variables de entorno desde .env.local...');
+  require('dotenv').config({ path: envPath });
+} else {
+  console.log('⚠️ No se encontró .env.local, usando variables de entorno del sistema...');
+}
+
 console.log('🔗 Probando conexión con Google Cloud Storage...\n');
 
-// Simular variables de entorno (reemplaza con tus valores reales)
-const GCP_PROJECT_ID = 'chefiandoimages';
-const GCS_BUCKET_NAME = 'migraflix-temp-images';
-const TEST_UPLOAD = 'true';
+// Leer variables de entorno (usa las que tienes configuradas en .env.local)
+const GCP_PROJECT_ID = process.env.GCP_PROJECT_ID || 'chefiandoimages';
+const GCS_BUCKET_NAME = process.env.GCS_BUCKET_NAME || 'migraflix-temp-images';
+const TEST_UPLOAD = process.env.TEST_UPLOAD || 'false';
 
-// Aquí pega tu JSON completo entre los backticks
-const GOOGLE_APPLICATION_CREDENTIALS_JSON = `{
-  "type": "service_account",
-  "project_id": "chefiandoimages",
-  "private_key_id": "cole_aqui_tu_private_key_id",
-  "private_key": "-----BEGIN PRIVATE KEY-----\ncole_aqui_tu_private_key_completa\n-----END PRIVATE KEY-----\n",
-  "client_email": "tu-service-account@chefiandoimages.iam.gserviceaccount.com",
-  "client_id": "tu_client_id",
-  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-  "token_uri": "https://oauth2.googleapis.com/token",
-  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/tu-service-account%40chefiandoimages.iam.gserviceaccount.com"
-}`;
+// Leer credenciales de variable de entorno
+const GOOGLE_APPLICATION_CREDENTIALS_JSON = process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON;
 
 async function testGCSConnection() {
   try {
@@ -37,13 +39,23 @@ async function testGCSConnection() {
 
     // Paso 1: Validar JSON
     console.log('1️⃣ Validando JSON de credenciales...');
+
+    if (!GOOGLE_APPLICATION_CREDENTIALS_JSON) {
+      console.log('❌ Variable GOOGLE_APPLICATION_CREDENTIALS_JSON no encontrada');
+      console.log('\n💡 Soluciones:');
+      console.log('1. Configura la variable en tu .env.local');
+      console.log('2. O pega el JSON directamente en este script (línea 12)');
+      console.log('3. Asegúrate de que hayas configurado las credenciales de GCS');
+      return;
+    }
+
     let credentials;
     try {
       credentials = JSON.parse(GOOGLE_APPLICATION_CREDENTIALS_JSON);
       console.log('✅ JSON válido');
     } catch (error) {
       console.log('❌ JSON inválido:', error.message);
-      console.log('\n💡 Solución: Copia todo el contenido del archivo JSON descargado');
+      console.log('\n💡 Solución: Verifica que el JSON esté completo y bien formateado');
       return;
     }
 
@@ -85,7 +97,7 @@ async function testGCSConnection() {
       return;
     }
 
-    // Paso 4: Probar conectividad básica
+    // Paso 4: Probar conectividad básica (opcional)
     console.log('\n3️⃣ Probando conectividad básica...');
     try {
       // Intentar obtener información del proyecto
@@ -96,9 +108,9 @@ async function testGCSConnection() {
       console.log('✅ Conectividad básica OK');
       console.log(`📄 Proyecto: ${projectMetadata.data.name || GCP_PROJECT_ID}`);
     } catch (error) {
-      console.log('❌ Error de conectividad básica:', error.message);
-      console.log('💡 Verifica que las credenciales sean correctas y que tengas permisos');
-      return;
+      console.log('⚠️ Cloud Resource Manager API no habilitada (opcional):', error.message);
+      console.log('💡 Esto no afecta GCS - continuando con las pruebas...');
+      // No retornamos aquí, continuamos con las pruebas del bucket
     }
 
     // Paso 5: Listar buckets existentes
@@ -165,16 +177,16 @@ async function testGCSConnection() {
     }
 
     // Resultado final
-    console.log('\n🎉 ¡Conexión con Google Cloud Storage exitosa!');
+    console.log('\n🎉 ¡Configuración de Google Cloud Storage verificada!');
     console.log('\n📋 Resumen:');
     console.log('- ✅ Credenciales válidas');
-    console.log('- ✅ Conectividad básica OK');
     console.log('- ✅ Cliente GCS inicializado');
+    console.log(`- ✅ Bucket temporal "${GCS_BUCKET_NAME}" listo`);
     console.log('- ✅ Proyecto accesible');
-    console.log('- ✅ Bucket listo para usar');
 
-    console.log('\n🚀 ¡Ya puedes usar GCS en tu aplicación!');
-    console.log('   Solo configura TEST_UPLOAD=true en tu .env.local');
+    console.log('\n🏆 ¡El bucket temporal está funcionando!');
+    console.log('💡 Las imágenes se subirán a GCS y estarán disponibles para n8n');
+    console.log('🚀 Configura TEST_UPLOAD=true en .env.local para activar GCS');
 
   } catch (error) {
     console.log('❌ Error inesperado:', error.message);

@@ -211,6 +211,29 @@ Este script prueba:
 
 **¡Este es el script principal para probar tu configuración antes de crear el bucket!**
 
+### Página de Prueba `/test-upload`
+Página web simple para probar la subida de imágenes desde el navegador:
+
+```
+http://localhost:3000/test-upload
+```
+
+**Características:**
+- ✅ Interfaz gráfica simple
+- ✅ Preview de imágenes
+- ✅ Validación de archivos
+- ✅ Resultados detallados
+- ✅ Información de GCS si está activado
+- ✅ Debug completo
+
+**Uso recomendado:**
+1. Ve a `http://localhost:3000/test-upload`
+2. Selecciona una imagen
+3. Haz clic en "Subir Imagen"
+4. Revisa los resultados y logs
+
+**¡Esta es la forma más fácil de probar GCS antes de activarlo en producción!**
+
 ## Checklist Final
 
 - ✅ **Proyecto creado** en Google Cloud Console
