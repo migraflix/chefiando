@@ -301,34 +301,38 @@ async function handleSingleProductFromPayload(payload: any) {
       throw new Error('Webhook URL no configurada');
     }
 
-    // 🚀 SUBIR IMAGEN A GOOGLE CLOUD STORAGE
-    console.log(`☁️ Subiendo imagen a Google Cloud Storage...`);
-    let gcsFileInfo;
+    // 🚀 SUBIR IMAGEN A GOOGLE CLOUD STORAGE (solo si TEST_UPLOAD=true)
+    // Si TEST_UPLOAD=false o undefined, usa base64 (método actual)
+    let gcsFileInfo = null;
 
-    try {
-      gcsFileInfo = await gcsService.uploadFromBase64(
-        product.base64,
-        product.nombre,
-        product.contentType,
-        {
-          prefix: 'products/',
-          metadata: {
-            productName: product.nombre,
-            recordId: product.recordId,
-            batch: payload.batch,
-            brandId: payload.marca,
+    if (process.env.TEST_UPLOAD === 'true') {
+      console.log(`☁️ Subiendo imagen a Google Cloud Storage...`);
+
+      try {
+        gcsFileInfo = await gcsService.uploadFromBase64(
+          product.base64,
+          product.nombre,
+          product.contentType,
+          {
+            prefix: 'products/',
+            metadata: {
+              productName: product.nombre,
+              recordId: product.recordId,
+              batch: payload.batch,
+              brandId: payload.marca,
+            }
           }
-        }
-      );
+        );
 
-      console.log(`✅ Imagen subida a GCS: ${gcsFileInfo.gcsPath}`);
-      console.log(`🔗 URL firmada: ${gcsFileInfo.signedUrl}`);
-    } catch (gcsError) {
-      console.error('❌ Error subiendo a GCS:', gcsError);
-
-      // Si falla GCS, intentar continuar con base64 (fallback)
-      console.warn('⚠️ Continuando con base64 como fallback...');
-      gcsFileInfo = null;
+        console.log(`✅ Imagen subida a GCS: ${gcsFileInfo.gcsPath}`);
+        console.log(`🔗 URL firmada: ${gcsFileInfo.signedUrl}`);
+      } catch (gcsError) {
+        console.error('❌ Error subiendo a GCS:', gcsError);
+        console.warn('⚠️ GCS falló, usando base64 como fallback...');
+        gcsFileInfo = null;
+      }
+    } else {
+      console.log(`📦 Usando método base64 (TEST_UPLOAD=false o no definido)`);
     }
 
     // Generar cURL para debugging

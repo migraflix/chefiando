@@ -11,6 +11,8 @@ export const GCS_CONFIG = {
   tempPrefix: 'temp/',
   // Limpieza automática después de 24 horas
   cleanupAfterHours: 24,
+  // Bandera para habilitar/deshabilitar GCS
+  enabled: process.env.TEST_UPLOAD === 'true',
 };
 
 // Inicializar cliente de GCS

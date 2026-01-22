@@ -9,8 +9,10 @@ Agrega estas variables a tu archivo `.env.local`:
 GCP_PROJECT_ID=migraflix-project
 GCS_BUCKET_NAME=migraflix-temp-images
 
-# Credenciales - Elige una de las dos opciones:
+# BANDERA PARA HABILITAR GCS (true = usar GCS, false/undefined = usar base64)
+TEST_UPLOAD=false
 
+# Credenciales - Solo necesarias si TEST_UPLOAD=true
 # Opción 1: Archivo de credenciales
 GOOGLE_APPLICATION_CREDENTIALS=./path/to/service-account-key.json
 
@@ -75,6 +77,31 @@ const [url] = await file.getSignedUrl({
   expires: Date.now() + 3600000 // 1 hora
 });
 ```
+
+## Modo de Prueba vs Producción
+
+### Usando la Bandera TEST_UPLOAD
+
+**Para usar base64 (método actual - producción):**
+```bash
+TEST_UPLOAD=false
+# o simplemente no definir la variable
+```
+
+**Para usar Google Cloud Storage (nueva funcionalidad):**
+```bash
+TEST_UPLOAD=true
+GCP_PROJECT_ID=tu-project-id
+GCS_BUCKET_NAME=tu-bucket-name
+GOOGLE_APPLICATION_CREDENTIALS_JSON={...}
+```
+
+### Beneficios de la Bandera
+
+- ✅ **Testing seguro**: Prueba GCS sin afectar producción
+- ✅ **Fácil alternancia**: Cambia una sola variable
+- ✅ **Rollback inmediato**: Si hay problemas, vuelve a base64
+- ✅ **Configuración gradual**: Configura GCS mientras mantienes funcionamiento
 
 ## Limpieza Automática
 
