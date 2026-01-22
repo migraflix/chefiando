@@ -27,6 +27,9 @@ interface Product {
 
 // ✅ Todas las constantes ahora están centralizadas en lib/config.ts
 
+// 🔧 CONFIGURACIÓN DEBUG - cambiar a false cuando todo funcione
+const DEBUG_MODE = true; // Si hay error, parar TODO y avisar al usuario
+
 // ⏱️ Configuración de polling (reservado para uso futuro si se necesita)
 // const POLLING_INTERVAL_MS = 20000;
 // const POLLING_MAX_ATTEMPTS = 15;
@@ -442,7 +445,7 @@ export function ProductUploadForm({ marca }: { marca: string }) {
     } catch (error) {
       console.error(`❌ Error procesando producto ${index + 1}:`, error);
 
-      // Log del error silenciosamente
+      // Log del error a Sentry
       const sessionId = await logFormError(
         error instanceof Error ? error : new Error('Error desconocido'),
         "photo-upload",
@@ -456,7 +459,22 @@ export function ProductUploadForm({ marca }: { marca: string }) {
         }
       );
 
-      // Error silencioso - solo logging, no feedback visual
+      // 🚨 DEBUG_MODE: Mostrar error al usuario y PARAR
+      if (DEBUG_MODE) {
+        const errorMsg = error instanceof Error ? error.message : 'Error desconocido';
+        console.error(`🚨 DEBUG_MODE: Error crítico - "${product.name}": ${errorMsg}`);
+        
+        toast({
+          title: `❌ Error subiendo "${product.name}"`,
+          description: `${errorMsg} (Session: ${sessionId})`,
+          variant: "destructive",
+        });
+        
+        // Lanzar error para que handleAddProduct lo capture y NO navegue
+        throw error;
+      }
+      
+      // Si DEBUG_MODE = false, continuar silenciosamente
       console.error(`⚠️ Error silencioso en "${product.name}": ${error instanceof Error ? error.message : 'Error desconocido'}`);
     }
   };
