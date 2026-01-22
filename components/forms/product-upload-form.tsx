@@ -27,6 +27,10 @@ interface Product {
 
 // ✅ Todas las constantes ahora están centralizadas en lib/config.ts
 
+// ⏱️ Configuración de polling - ajustar según necesidad
+const POLLING_INTERVAL_MS = 20000; // 20 segundos entre cada verificación
+const POLLING_MAX_ATTEMPTS = 15; // Máximo de intentos (20s x 15 = 5 minutos máximo)
+
 export function ProductUploadForm({ marca }: { marca: string }) {
   const { t } = useLanguage();
   const { toast } = useToast();
@@ -206,18 +210,18 @@ export function ProductUploadForm({ marca }: { marca: string }) {
   };
 
   // 🔄 FUNCIÓN DE POLLING: Espera hasta que el status sea "Por Revisar"
-  const pollForStatus = async (recordId: string, maxAttempts: number = 30, intervalMs: number = 2000): Promise<boolean> => {
-    console.log(`🔄 Iniciando polling para recordId: ${recordId}`);
+  const pollForStatus = async (recordId: string): Promise<boolean> => {
+    console.log(`🔄 Iniciando polling para recordId: ${recordId} (intervalo: ${POLLING_INTERVAL_MS}ms, max: ${POLLING_MAX_ATTEMPTS})`);
     
-    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    for (let attempt = 1; attempt <= POLLING_MAX_ATTEMPTS; attempt++) {
       try {
-        console.log(`📡 Polling intento ${attempt}/${maxAttempts}...`);
+        console.log(`📡 Polling intento ${attempt}/${POLLING_MAX_ATTEMPTS}...`);
         
         const response = await fetch(`/api/products/poll-status?recordId=${recordId}`);
         
         if (!response.ok) {
           console.warn(`⚠️ Error en polling: ${response.status}`);
-          await new Promise(resolve => setTimeout(resolve, intervalMs));
+          await new Promise(resolve => setTimeout(resolve, POLLING_INTERVAL_MS));
           continue;
         }
         
@@ -229,23 +233,15 @@ export function ProductUploadForm({ marca }: { marca: string }) {
           return true;
         }
         
-        // Actualizar toast con progreso
-        if (attempt % 5 === 0) {
-          toast({
-            title: `⏳ Procesando imagen...`,
-            description: `Esperando confirmación (${attempt}/${maxAttempts})`,
-          });
-        }
-        
-        await new Promise(resolve => setTimeout(resolve, intervalMs));
+        await new Promise(resolve => setTimeout(resolve, POLLING_INTERVAL_MS));
         
       } catch (error) {
         console.error(`❌ Error en polling intento ${attempt}:`, error);
-        await new Promise(resolve => setTimeout(resolve, intervalMs));
+        await new Promise(resolve => setTimeout(resolve, POLLING_INTERVAL_MS));
       }
     }
     
-    console.warn(`⚠️ Polling agotado después de ${maxAttempts} intentos`);
+    console.warn(`⚠️ Polling agotado después de ${POLLING_MAX_ATTEMPTS} intentos`);
     return false;
   };
 
