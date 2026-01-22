@@ -301,6 +301,20 @@ export const translations = {
         button: "Ver minha marca",
       },
     },
+    // Error Page
+    errorPage: {
+      general: {
+        title: "Algo deu errado",
+        description: "Ocorreu um erro inesperado. O erro foi reportado automaticamente.",
+        retryButton: "Tentar novamente",
+      },
+      chunkError: {
+        title: "Você tem uma versão antiga",
+        description: "Fizemos uma atualização enquanto você usava o app. Recarregue a página para obter a última versão.",
+        reloadButton: "Recarregar página",
+      },
+      backToHome: "Voltar ao início",
+    },
   },
   es: {
     // Landing Page
@@ -601,6 +615,20 @@ export const translations = {
         description: "También puedes ver y compartir tus posts desde tu página de marca.",
         button: "Ver mi marca",
       },
+    },
+    // Error Page
+    errorPage: {
+      general: {
+        title: "Algo salió mal",
+        description: "Ha ocurrido un error inesperado. El error ha sido reportado automáticamente.",
+        retryButton: "Intentar de nuevo",
+      },
+      chunkError: {
+        title: "Tienes una versión vieja",
+        description: "Hicimos una actualización mientras usabas la app. Recarga la página para obtener la última versión.",
+        reloadButton: "Recargar página",
+      },
+      backToHome: "Volver al inicio",
     },
   },
 }

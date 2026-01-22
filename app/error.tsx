@@ -5,6 +5,7 @@ import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { AlertCircle } from "lucide-react";
+import { useLanguage } from "@/contexts/language-context";
 
 export default function Error({
   error,
@@ -13,6 +14,8 @@ export default function Error({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  const { t } = useLanguage();
+
   // Detectar si es error de chunk loading (deploy nuevo mientras usuario tenía versión vieja)
   const isChunkError = error.message?.includes('chunk') || error.message?.includes('Loading chunk');
 
@@ -36,12 +39,12 @@ export default function Error({
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-red-600">
             <AlertCircle className="h-6 w-6" />
-            {isChunkError ? "Tienes una versión vieja" : "Algo salió mal"}
+            {isChunkError ? t.errorPage.chunkError.title : t.errorPage.general.title}
           </CardTitle>
           <CardDescription>
-            {isChunkError 
-              ? "Hicimos una actualización mientras usabas la app. Recarga la página para obtener la última versión."
-              : "Ha ocurrido un error inesperado. El error ha sido reportado automáticamente."}
+            {isChunkError
+              ? t.errorPage.chunkError.description
+              : t.errorPage.general.description}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -57,13 +60,13 @@ export default function Error({
           </div>
           <div className="flex gap-4">
             <Button onClick={handleRetry} variant="default">
-              {isChunkError ? "Recargar página" : "Intentar de nuevo"}
+              {isChunkError ? t.errorPage.chunkError.reloadButton : t.errorPage.general.retryButton}
             </Button>
             <Button
               onClick={() => (window.location.href = "/")}
               variant="outline"
             >
-              Volver al inicio
+              {t.errorPage.backToHome}
             </Button>
           </div>
         </CardContent>
