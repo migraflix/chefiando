@@ -13,10 +13,22 @@ export default function Error({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  // Detectar si es error de chunk loading (deploy nuevo mientras usuario tenía versión vieja)
+  const isChunkError = error.message?.includes('chunk') || error.message?.includes('Loading chunk');
+
   useEffect(() => {
     // Capturar el error en Sentry automáticamente
     Sentry.captureException(error);
   }, [error]);
+
+  // Para errores de chunk, hacer hard reload para cargar nueva versión
+  const handleRetry = () => {
+    if (isChunkError) {
+      window.location.reload();
+    } else {
+      reset();
+    }
+  };
 
   return (
     <div className="container mx-auto p-6 max-w-2xl">
@@ -42,8 +54,8 @@ export default function Error({
             )}
           </div>
           <div className="flex gap-4">
-            <Button onClick={reset} variant="default">
-              Intentar de nuevo
+            <Button onClick={handleRetry} variant="default">
+              {isChunkError ? "Recargar página" : "Intentar de nuevo"}
             </Button>
             <Button
               onClick={() => (window.location.href = "/")}
