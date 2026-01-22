@@ -22,12 +22,6 @@ export function LanguageSelector() {
         const response = await fetch('/api/config');
         if (response.ok) {
           const config = await response.json();
-          console.log('LanguageSelector - Config loaded:', {
-            TEST_UPLOAD: config.TEST_UPLOAD,
-            GCS_BUCKET_NAME: config.GCS_BUCKET_NAME
-          });
-          console.log('LanguageSelector - TEST_UPLOAD value:', config.TEST_UPLOAD, 'type:', typeof config.TEST_UPLOAD);
-          console.log('LanguageSelector - Setting methodConfig to:', { TEST_UPLOAD: config.TEST_UPLOAD });
           setMethodConfig({
             TEST_UPLOAD: config.TEST_UPLOAD
           });
@@ -46,27 +40,17 @@ export function LanguageSelector() {
   // Durante SSR usar "es" por defecto para consistencia
   const displayLanguage = mounted ? language : "es";
 
-  console.log('LanguageSelector render - TEST_UPLOAD:', methodConfig.TEST_UPLOAD, 'isTrue?', methodConfig.TEST_UPLOAD === 'true');
 
   return (
     <div className="flex items-center gap-1 bg-card border rounded-lg p-2 shadow-sm" suppressHydrationWarning>
       {/* Indicador del método de upload */}
-      {(() => {
-        const isGcs = methodConfig.TEST_UPLOAD === 'true';
-        const colorClass = isGcs ? 'bg-blue-500' : 'bg-green-500';
-        const tooltip = isGcs ? 'Google Cloud Storage activado' : 'Base64 activado';
-
-        console.log('LanguageSelector - Color calculation:', {
-          TEST_UPLOAD: methodConfig.TEST_UPLOAD,
-          isGcs,
-          colorClass,
-          tooltip
-        });
-
-        return (
-          <div className={`w-2 h-2 rounded-full ${colorClass}`} title={tooltip}></div>
-        );
-      })()}
+      <div className={`w-2 h-2 rounded-full ${
+        methodConfig.TEST_UPLOAD === 'true' ? 'bg-blue-500' : 'bg-green-500'
+      }`} title={
+        methodConfig.TEST_UPLOAD === 'true'
+          ? 'Google Cloud Storage activado'
+          : 'Base64 activado'
+      }></div>
 
       <Languages className="h-4 w-4 text-muted-foreground" />
       <span className="text-xs font-medium mr-2">
