@@ -759,8 +759,8 @@ export function ProductUploadForm({ marca }: { marca: string }) {
       });
 
       toast({
-        title: "✅ Imagen subida",
-        description: "La imagen se ha subido correctamente a la nube",
+        title: "✅ Imagen en Google Cloud",
+        description: `Imagen "${file.name}" subida exitosamente a la nube`,
       });
 
       logFormSuccess("Imagen subida automáticamente a GCS", "photo-upload", "gcs_upload_success", {
@@ -807,11 +807,11 @@ export function ProductUploadForm({ marca }: { marca: string }) {
         return false;
       }
 
-      // Validar que la imagen esté lista (subida a GCS si está habilitado, o seleccionada si no)
+      // Validar que la imagen esté lista
       if (process.env.TEST_UPLOAD === 'true' && !product.photoUploaded) {
         toast({
-          title: "Imagen no subida",
-          description: "Espera a que la imagen se suba completamente a la nube antes de continuar",
+          title: "Subida en progreso",
+          description: "La imagen se está subiendo a Google Cloud. Espera un momento...",
           variant: "destructive",
         });
         return false;
@@ -955,7 +955,10 @@ export function ProductUploadForm({ marca }: { marca: string }) {
                 )}
               </div>
               <p className="text-sm text-muted-foreground">
-                {t.products.validation.photoSizeFormat}
+                {process.env.TEST_UPLOAD === 'true'
+                  ? "Sin límite de tamaño - se sube automáticamente a Google Cloud Storage"
+                  : t.products.validation.photoSizeFormat
+                }
               </p>
             </div>
 

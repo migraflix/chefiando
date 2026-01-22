@@ -92,6 +92,8 @@ GOOGLE_APPLICATION_CREDENTIALS_JSON={"type":"service_account","project_id":"..."
    - Clase de almacenamiento: Standard
    - Control de acceso: Uniform
 
+**Nota**: Con Google Cloud Storage, ya no hay límite de 5MB para las imágenes. Los usuarios pueden subir archivos de cualquier tamaño (dentro de los límites de GCS).
+
 ### 5. Configurar CORS (si es necesario)
 ```json
 [

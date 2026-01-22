@@ -226,7 +226,10 @@ export default function TestUploadPage() {
                 className="mt-1"
               />
               <p className="text-sm text-muted-foreground mt-1">
-                Máximo 5MB, formatos: JPG, PNG, GIF, WebP
+                {process.env.TEST_UPLOAD === 'true'
+                  ? "Sin límite de tamaño con Google Cloud Storage - formatos: JPG, PNG, GIF, WebP"
+                  : "Máximo 5MB, formatos: JPG, PNG, GIF, WebP"
+                }
               </p>
             </div>
 
