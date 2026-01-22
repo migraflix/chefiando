@@ -11,7 +11,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useLanguage } from "@/contexts/language-context";
 import { useToast } from "@/hooks/use-toast";
 import { useErrorLogger } from "@/lib/error-logger";
-import { gcsService } from "@/lib/gcs-service";
 import { Upload, X, Loader2, CheckCircle } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 
@@ -725,38 +724,36 @@ export function ProductUploadForm({ marca }: { marca: string }) {
     updateProduct({ tags: newTags });
   };
 
-  // Función para subir imagen automáticamente a GCS
+  // Función para subir imagen automáticamente a GCS via API
   const uploadPhotoToGcs = async (file: File, productId: string) => {
     console.log(`☁️ Subiendo imagen automáticamente a GCS para producto ${productId}...`);
     setIsUploadingToGcs(true);
 
     try {
-      // Generar nombre único para el archivo
-      const timestamp = Date.now();
-      const randomId = Math.random().toString(36).substring(2, 15);
-      const fileName = `products/${timestamp}_${randomId}_${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
+      // Crear FormData para enviar el archivo
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('productId', productId);
 
-      // Subir a GCS
-      const result = await gcsService.uploadFromBuffer(
-        Buffer.from(await file.arrayBuffer()),
-        fileName,
-        file.type,
-        {
-          metadata: {
-            productId: productId,
-            originalName: file.name,
-            uploadedAt: new Date().toISOString(),
-            source: 'auto-upload'
-          }
-        }
-      );
+      // Subir via API route
+      const response = await fetch('/api/upload-gcs', {
+        method: 'POST',
+        body: formData
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Error uploading to GCS');
+      }
+
+      const result = await response.json();
 
       console.log(`✅ Imagen subida a GCS: ${result.gcsPath}`);
-      console.log(`🔗 URL firmada: ${result.signedUrl}`);
+      console.log(`🔗 URL firmada: ${result.gcsSignedUrl}`);
 
       // Actualizar estado del producto con la información de GCS
       updateProduct({
-        photoGcsUrl: result.signedUrl,
+        photoGcsUrl: result.gcsSignedUrl,
         photoGcsPath: result.gcsPath,
         photoUploaded: true,
       });
