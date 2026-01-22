@@ -22,12 +22,15 @@ export function LanguageSelector() {
         const response = await fetch('/api/config');
         if (response.ok) {
           const config = await response.json();
+          console.log('LanguageSelector - Config loaded:', config);
           setMethodConfig({
             TEST_UPLOAD: config.TEST_UPLOAD
           });
+        } else {
+          console.error('LanguageSelector - Failed to load config:', response.status);
         }
       } catch (error) {
-        console.error('Error cargando config del método:', error);
+        console.error('LanguageSelector - Error loading config:', error);
       }
     }
 
@@ -37,6 +40,8 @@ export function LanguageSelector() {
   // Usar el idioma del contexto (ya detectado por IP)
   // Durante SSR usar "es" por defecto para consistencia
   const displayLanguage = mounted ? language : "es";
+
+  console.log('LanguageSelector render - methodConfig:', methodConfig);
 
   return (
     <div className="flex items-center gap-1 bg-card border rounded-lg p-2 shadow-sm" suppressHydrationWarning>
