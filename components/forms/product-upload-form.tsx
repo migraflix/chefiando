@@ -11,6 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useLanguage } from "@/contexts/language-context";
 import { useToast } from "@/hooks/use-toast";
 import { useErrorLogger } from "@/lib/error-logger";
+import { gcsService } from "@/lib/gcs-service";
 import { Upload, X, Loader2, CheckCircle } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 
@@ -18,6 +19,9 @@ interface Product {
   id: string;
   photo: File | null;
   photoPreview: string | null;
+  photoGcsUrl?: string; // URL de Google Cloud Storage
+  photoGcsPath?: string; // Path en GCS
+  photoUploaded?: boolean; // Flag para saber si ya se subió a GCS
   name: string;
   description: string;
   price: string;
@@ -57,6 +61,7 @@ export function ProductUploadForm({ marca }: { marca: string }) {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isProcessingProduct, setIsProcessingProduct] = useState(false);
+  const [isUploadingToGcs, setIsUploadingToGcs] = useState(false);
 
   // Debug: Ver estado del producto actual
   React.useEffect(() => {
@@ -271,25 +276,15 @@ export function ProductUploadForm({ marca }: { marca: string }) {
         console.log(`📝 Usando ID temporal: ${photoRecordId}`);
       }
 
-      // Procesar imagen (comprimir si es necesario)
-      let processedFile = product.photo;
-      console.log(`🖼️ Procesando imagen: ${processedFile.size} bytes, tipo: ${processedFile.type}`);
+      // Usar la imagen ya subida a GCS
+      console.log(`🖼️ Usando imagen desde GCS: ${product.photoGcsPath}`);
+      console.log(`🔗 URL firmada: ${product.photoGcsUrl}`);
 
-      if (product.photo.size > 4 * 1024 * 1024) {
-        console.log(`🗜️ Comprimiendo imagen ${index + 1}...`);
-        processedFile = await compressImage(product.photo);
-        console.log(`✅ Imagen comprimida: ${processedFile.size} bytes`);
-      }
+      // Extraer información del archivo original
+      const contentType = product.photo.type || "image/jpeg";
+      const fileName = product.photo.name.replace(/[^a-zA-Z0-9._-]/g, '_');
 
-      // Convertir a base64
-      console.log(`🔄 Convirtiendo imagen a base64...`);
-      const buffer = await processedFile.arrayBuffer();
-      console.log(`📏 Buffer creado: ${buffer.byteLength} bytes`);
-
-      const base64Data = Buffer.from(buffer).toString("base64");
-      const contentType = processedFile.type || "image/jpeg";
-
-      console.log(`✅ Base64 generado: ${base64Data.length} caracteres, contentType: ${contentType}`);
+      console.log(`✅ Usando imagen de GCS: ${fileName}, contentType: ${contentType}`);
 
       // Preparar payload del webhook (arreglo de 1 producto, compatible con n8n)
       const webhookPayload = {
@@ -299,9 +294,14 @@ export function ProductUploadForm({ marca }: { marca: string }) {
         totalBatches: MAX_PRODUCTS, // Usamos MAX_PRODUCTS como total máximo posible
         products: [{
           recordId: photoRecordId,
-          nombre: processedFile.name.replace(/[^a-zA-Z0-9._-]/g, '_'), // Sanitizar nombre básico
+          nombre: fileName, // Usar nombre del archivo original
           contentType: contentType,
-          base64: base64Data,
+          // Información de GCS en lugar de base64
+          gcsPath: product.photoGcsPath,
+          gcsSignedUrl: product.photoGcsUrl,
+          fileSize: product.photo.size,
+          // Remover base64 para reducir tamaño del payload
+          base64: undefined,
           datosProducto: {
             nombre: sanitizedNombre,
             descripcion: sanitizedDescripcion,
@@ -318,7 +318,8 @@ export function ProductUploadForm({ marca }: { marca: string }) {
         batch: webhookPayload.batch,
         productsCount: webhookPayload.products.length,
         recordId: photoRecordId,
-        base64Length: base64Data.length,
+        gcsPath: product.photoGcsPath,
+        gcsSignedUrl: product.photoGcsUrl,
         nombre: sanitizedNombre
       });
 
@@ -630,18 +631,23 @@ export function ProductUploadForm({ marca }: { marca: string }) {
       fileName: file.name
     });
 
-    // Crear preview
+    // Crear preview y subir automáticamente a GCS
     const reader = new FileReader();
-    reader.onloadend = () => {
+    reader.onloadend = async () => {
       logFormSuccess("Preview de imagen creado", "photo-upload", "image_preview_created", {
         productId: id,
         fileName: file.name
       });
 
+      // Actualizar estado con preview
       updateProduct({
         photo: file,
         photoPreview: reader.result as string,
+        photoUploaded: false, // Reset flag while uploading
       });
+
+      // Subir automáticamente a GCS
+      await uploadPhotoToGcs(file, id);
     };
 
     reader.onerror = (error) => {
@@ -668,10 +674,96 @@ export function ProductUploadForm({ marca }: { marca: string }) {
     updateProduct({ tags: newTags });
   };
 
+  // Función para subir imagen automáticamente a GCS
+  const uploadPhotoToGcs = async (file: File, productId: string) => {
+    console.log(`☁️ Subiendo imagen automáticamente a GCS para producto ${productId}...`);
+    setIsUploadingToGcs(true);
+
+    try {
+      // Generar nombre único para el archivo
+      const timestamp = Date.now();
+      const randomId = Math.random().toString(36).substring(2, 15);
+      const fileName = `products/${timestamp}_${randomId}_${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
+
+      // Subir a GCS
+      const result = await gcsService.uploadFromBuffer(
+        Buffer.from(await file.arrayBuffer()),
+        fileName,
+        file.type,
+        {
+          metadata: {
+            productId: productId,
+            originalName: file.name,
+            uploadedAt: new Date().toISOString(),
+            source: 'auto-upload'
+          }
+        }
+      );
+
+      console.log(`✅ Imagen subida a GCS: ${result.gcsPath}`);
+      console.log(`🔗 URL firmada: ${result.signedUrl}`);
+
+      // Actualizar estado del producto con la información de GCS
+      updateProduct({
+        photoGcsUrl: result.signedUrl,
+        photoGcsPath: result.gcsPath,
+        photoUploaded: true,
+      });
+
+      toast({
+        title: "✅ Imagen subida",
+        description: "La imagen se ha subido correctamente a la nube",
+      });
+
+      logFormSuccess("Imagen subida automáticamente a GCS", "photo-upload", "gcs_upload_success", {
+        productId: productId,
+        gcsPath: result.gcsPath,
+        fileSize: result.size
+      });
+
+    } catch (error) {
+      console.error('❌ Error subiendo imagen a GCS:', error);
+
+      // Marcar como no subida para que el usuario pueda reintentar
+      updateProduct({
+        photoUploaded: false,
+      });
+
+      toast({
+        title: "❌ Error al subir imagen",
+        description: "No se pudo subir la imagen a la nube. Inténtalo de nuevo.",
+        variant: "destructive",
+      });
+
+      logFormError(
+        `Error subiendo imagen a GCS: ${error instanceof Error ? error.message : 'Error desconocido'}`,
+        "photo-upload",
+        "gcs_upload_error",
+        {
+          productId: productId,
+          fileName: file.name,
+          error: error
+        }
+      );
+    } finally {
+      setIsUploadingToGcs(false);
+    }
+  };
+
   const validateCurrentProduct = (): boolean => {
       if (!product.photo) {
         toast({
           title: t.products.validation.photoRequired,
+          variant: "destructive",
+        });
+        return false;
+      }
+
+      // Validar que la imagen esté subida a GCS
+      if (!product.photoUploaded) {
+        toast({
+          title: "Imagen no subida",
+          description: "Espera a que la imagen se suba completamente antes de continuar",
           variant: "destructive",
         });
         return false;
@@ -767,9 +859,23 @@ export function ProductUploadForm({ marca }: { marca: string }) {
                     htmlFor={`photo-${currentStep}`}
                     className="cursor-pointer"
                   >
-                    <div className="flex items-center gap-2 px-4 py-2 border rounded-md hover:bg-accent">
-                      <Upload className="h-4 w-4" />
-                      <span>{product.photo ? product.photo.name : t.products.validation.uploadPhoto}</span>
+                    <div className={`flex items-center gap-2 px-4 py-2 border rounded-md hover:bg-accent ${isUploadingToGcs ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                      {isUploadingToGcs ? (
+                        <>
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                          <span>Subiendo imagen...</span>
+                        </>
+                      ) : product.photoUploaded ? (
+                        <>
+                          <CheckCircle className="h-4 w-4 text-green-500" />
+                          <span>Imagen subida</span>
+                        </>
+                      ) : (
+                        <>
+                          <Upload className="h-4 w-4" />
+                          <span>{product.photo ? product.photo.name : t.products.validation.uploadPhoto}</span>
+                        </>
+                      )}
                     </div>
                   </Label>
                 </div>
@@ -780,6 +886,16 @@ export function ProductUploadForm({ marca }: { marca: string }) {
                       alt="Preview"
                       className="w-full h-full object-cover"
                     />
+                    {isUploadingToGcs && (
+                      <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                        <Loader2 className="h-6 w-6 animate-spin text-white" />
+                      </div>
+                    )}
+                    {product.photoUploaded && (
+                      <div className="absolute top-1 right-1 bg-green-500 rounded-full p-1">
+                        <CheckCircle className="h-3 w-3 text-white" />
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
