@@ -8,10 +8,30 @@ import { Languages } from "lucide-react";
 export function LanguageSelector() {
   const { language, setLanguage } = useLanguage();
   const [mounted, setMounted] = useState(false);
+  const [methodConfig, setMethodConfig] = useState({
+    TEST_UPLOAD: 'loading...'
+  });
 
   // Evitar mismatch de hidratación
   useEffect(() => {
     setMounted(true);
+
+    // Cargar configuración del método de upload
+    async function loadConfig() {
+      try {
+        const response = await fetch('/api/config');
+        if (response.ok) {
+          const config = await response.json();
+          setMethodConfig({
+            TEST_UPLOAD: config.TEST_UPLOAD
+          });
+        }
+      } catch (error) {
+        console.error('Error cargando config del método:', error);
+      }
+    }
+
+    loadConfig();
   }, []);
 
   // Usar el idioma del contexto (ya detectado por IP)
@@ -20,6 +40,15 @@ export function LanguageSelector() {
 
   return (
     <div className="flex items-center gap-1 bg-card border rounded-lg p-2 shadow-sm" suppressHydrationWarning>
+      {/* Indicador del método de upload */}
+      <div className={`w-2 h-2 rounded-full ${
+        methodConfig.TEST_UPLOAD === 'true' ? 'bg-blue-500' : 'bg-green-500'
+      }`} title={
+        methodConfig.TEST_UPLOAD === 'true'
+          ? 'Google Cloud Storage activado'
+          : 'Base64 activado'
+      }></div>
+
       <Languages className="h-4 w-4 text-muted-foreground" />
       <span className="text-xs font-medium mr-2">
         {displayLanguage === "pt" ? "Português" : "Español"}
