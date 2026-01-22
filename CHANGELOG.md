@@ -1,6 +1,32 @@
 # Changelog - Migraflix
 
-## V1.1.0 (Actual) - 2025-01-22
+## V1.2.0 (Actual) - 2025-01-22
+
+### 🔄 **Webhook con Confirmación y Polling**
+
+#### 🚀 **Nuevas Funcionalidades**
+- **Respuesta con imageRecordId**: Webhook ahora espera respuesta JSON con `imageRecordId`
+- **Polling automático**: Espera hasta que el status en Airtable sea "Por Revisar"
+- **cURL para debugging**: Si falla después de 3 intentos, muestra cURL exacto que falló
+- **Nuevo endpoint `/api/products/poll-status`**: Verifica estado del registro en tiempo real
+
+#### 📋 **Respuesta esperada del webhook**
+```json
+{
+  "text": "Preparando tu Foto",
+  "imageRecordId": "recXXXXXXXXXXX"
+}
+```
+
+#### 🔄 **Flujo de procesamiento V1.2.0**
+1. Enviar producto al webhook (máx 3 intentos)
+2. Esperar respuesta con `imageRecordId`
+3. Hacer polling cada 2s hasta que Status = "Por Revisar"
+4. Si falla, mostrar cURL para debugging en alerta
+
+---
+
+## V1.1.0 - 2025-01-22
 
 ### 🎯 **Transformación Completa del Sistema de Upload**
 

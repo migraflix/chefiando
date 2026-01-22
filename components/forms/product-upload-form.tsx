@@ -205,6 +205,50 @@ export function ProductUploadForm({ marca }: { marca: string }) {
     }
   };
 
+  // 🔄 FUNCIÓN DE POLLING: Espera hasta que el status sea "Por Revisar"
+  const pollForStatus = async (recordId: string, maxAttempts: number = 30, intervalMs: number = 2000): Promise<boolean> => {
+    console.log(`🔄 Iniciando polling para recordId: ${recordId}`);
+    
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      try {
+        console.log(`📡 Polling intento ${attempt}/${maxAttempts}...`);
+        
+        const response = await fetch(`/api/products/poll-status?recordId=${recordId}`);
+        
+        if (!response.ok) {
+          console.warn(`⚠️ Error en polling: ${response.status}`);
+          await new Promise(resolve => setTimeout(resolve, intervalMs));
+          continue;
+        }
+        
+        const data = await response.json();
+        console.log(`📊 Status actual: ${data.status}, isReady: ${data.isReady}`);
+        
+        if (data.isReady) {
+          console.log(`✅ ¡Producto listo! Status: ${data.status}`);
+          return true;
+        }
+        
+        // Actualizar toast con progreso
+        if (attempt % 5 === 0) {
+          toast({
+            title: `⏳ Procesando imagen...`,
+            description: `Esperando confirmación (${attempt}/${maxAttempts})`,
+          });
+        }
+        
+        await new Promise(resolve => setTimeout(resolve, intervalMs));
+        
+      } catch (error) {
+        console.error(`❌ Error en polling intento ${attempt}:`, error);
+        await new Promise(resolve => setTimeout(resolve, intervalMs));
+      }
+    }
+    
+    console.warn(`⚠️ Polling agotado después de ${maxAttempts} intentos`);
+    return false;
+  };
+
   // 🔗 FUNCIÓN QUE LLAMA AL WEBHOOK: Procesa y envía un producto individual al webhook
   const processAndSendProduct = async (product: Product, index: number) => {
     console.log(`🎯 INICIANDO processAndSendProduct para producto ${index + 1}`);
@@ -345,14 +389,53 @@ export function ProductUploadForm({ marca }: { marca: string }) {
           if (response.ok) {
             const result = await response.json();
             console.log(`✅ Webhook enviado exitosamente en intento ${webhookAttempts}`, result);
-            webhookSuccess = true;
-
-            // Confirmar éxito del webhook
-            confirmWebhookCalled(product.name, index + 1, true);
-            break;
+            
+            // Verificar que tenemos imageRecordId
+            if (result.imageRecordId) {
+              console.log(`📝 imageRecordId recibido: ${result.imageRecordId}`);
+              webhookSuccess = true;
+              
+              // 🔄 POLLING: Esperar hasta que el status sea "Por Revisar"
+              toast({
+                title: `⏳ Procesando "${product.name}"...`,
+                description: "Esperando confirmación del sistema...",
+              });
+              
+              const isReady = await pollForStatus(result.imageRecordId);
+              
+              if (isReady) {
+                console.log(`🎉 Producto ${index + 1} confirmado como listo!`);
+                confirmWebhookCalled(product.name, index + 1, true);
+              } else {
+                console.warn(`⚠️ Polling agotado pero webhook fue exitoso`);
+                confirmWebhookCalled(product.name, index + 1, true);
+              }
+              break;
+            } else {
+              console.warn(`⚠️ Webhook OK pero sin imageRecordId, reintentando...`);
+              if (webhookAttempts < MAX_WEBHOOK_ATTEMPTS) {
+                await new Promise(resolve => setTimeout(resolve, 2000));
+              }
+            }
           } else {
             const errorData = await response.json();
             console.warn(`⚠️ Webhook falló en intento ${webhookAttempts}:`, errorData);
+            
+            // Si es el último intento, mostrar error con cURL
+            if (webhookAttempts >= MAX_WEBHOOK_ATTEMPTS && errorData.curlCommand) {
+              console.error(`🔧 cURL para debug:\n${errorData.curlCommand}`);
+              
+              toast({
+                title: `❌ Error enviando "${product.name}"`,
+                description: `Falló después de ${MAX_WEBHOOK_ATTEMPTS} intentos. Ver consola para cURL de debug.`,
+                variant: "destructive",
+              });
+              
+              // Mostrar alerta con cURL
+              alert(`ERROR: No se pudo enviar "${product.name}" después de ${MAX_WEBHOOK_ATTEMPTS} intentos.\n\nDetalles: ${errorData.details || errorData.error}\n\ncURL para debug:\n${errorData.curlCommand}`);
+              
+              throw new Error(`Webhook falló: ${errorData.error || 'Error desconocido'}`);
+            }
 
             if (webhookAttempts < MAX_WEBHOOK_ATTEMPTS) {
               console.log(`⏳ Esperando 2 segundos antes del siguiente intento...`);
@@ -374,25 +457,28 @@ export function ProductUploadForm({ marca }: { marca: string }) {
         }
       }
 
-      // RESULTADO FINAL: Webhook enviado o no, pero NO ES ERROR
+      // RESULTADO FINAL
       if (webhookSuccess) {
-        console.log(`🎉 WEBHOOK ENVIADO EXITOSAMENTE para producto ${index + 1}`);
+        console.log(`🎉 WEBHOOK ENVIADO Y CONFIRMADO para producto ${index + 1}`);
         toast({
-          title: `✅ "${product.name}" enviado`,
-          description: "Producto procesado y webhook enviado exitosamente",
+          title: `✅ "${product.name}" listo`,
+          description: "Producto procesado y confirmado exitosamente",
         });
       } else {
-        console.log(`⚠️ WEBHOOK NO ENVIADO después de ${MAX_WEBHOOK_ATTEMPTS} intentos, pero producto procesado`);
-        console.log(`📝 El webhook se enviará automáticamente más tarde desde el sistema`);
-
-        // NO es error - solo notificación informativa
+        console.error(`❌ WEBHOOK FALLÓ después de ${MAX_WEBHOOK_ATTEMPTS} intentos para producto ${index + 1}`);
+        
+        // Generar cURL manual para debugging
+        const curlCommand = `curl -X POST "/api/products/upload" -H "Content-Type: application/json" -d '${JSON.stringify(webhookPayload).substring(0, 200)}...'`;
+        console.error(`🔧 cURL aproximado:\n${curlCommand}`);
+        
         toast({
-          title: `📝 "${product.name}" procesado`,
-          description: "Producto listo. Webhook se enviará automáticamente.",
+          title: `❌ Error con "${product.name}"`,
+          description: `No se pudo enviar después de ${MAX_WEBHOOK_ATTEMPTS} intentos. Intenta de nuevo.`,
+          variant: "destructive",
         });
-
-        // Confirmar como enviado (aunque falló, no es error crítico)
-        confirmWebhookCalled(product.name, index + 1, true); // true porque se intentó
+        
+        // Lanzar error para detener el flujo
+        throw new Error(`Webhook falló después de ${MAX_WEBHOOK_ATTEMPTS} intentos`);
       }
 
       console.log(`🎉 PRODUCTO ${index + 1} COMPLETADO EXITOSAMENTE`);

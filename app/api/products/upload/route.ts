@@ -12,7 +12,7 @@ const MAX_TOTAL_SIZE = 15 * 1024 * 1024; // 15MB total máximo (5MB x 3 promedio
 const BATCH_SIZE = 1; // Procesar 1 imagen por vez para envío inmediato al webhook
 const COMPRESSION_QUALITY = 0.8; // 80% calidad para reducir tamaño
 const MAX_PROCESSING_TIME = 15000; // 15 segundos máximo total
-const RETRY_ATTEMPTS = 2; // Reintentos para fallos temporales
+const RETRY_ATTEMPTS = 3; // Reintentos para fallos temporales (3 intentos total)
 const SEND_IMMEDIATE = true; // Enviar cada lote inmediatamente al webhook
 
 /**
@@ -260,10 +260,23 @@ async function handleSingleProductFromPayload(payload: any) {
       throw new Error('Webhook URL no configurada');
     }
 
-    // Función de reintento para webhook
-    const sendToWebhook = async (webhookPayload: any, attempt: number = 1): Promise<Response> => {
+    // Generar cURL para debugging
+    const generateCurlCommand = (webhookPayload: any): string => {
+      const payloadStr = JSON.stringify(webhookPayload);
+      // Escapar comillas para shell
+      const escapedPayload = payloadStr.replace(/"/g, '\\"');
+      return `curl -X POST "${WEBHOOK_URL}" -H "Content-Type: application/json" -d "${escapedPayload.substring(0, 500)}..."`;
+    };
+
+    // Función de reintento para webhook - ahora espera respuesta con imageRecordId
+    interface WebhookResponse {
+      text?: string;
+      imageRecordId?: string;
+    }
+
+    const sendToWebhook = async (webhookPayload: any, attempt: number = 1): Promise<{ ok: boolean; data?: WebhookResponse; error?: string; status?: number }> => {
       try {
-        console.log(`📡 Enviando producto individual al webhook (intento ${attempt}/${RETRY_ATTEMPTS + 1})`);
+        console.log(`📡 Enviando producto individual al webhook (intento ${attempt}/${RETRY_ATTEMPTS})`);
 
         const response = await fetch(WEBHOOK_URL!, {
           method: "POST",
@@ -273,60 +286,96 @@ async function handleSingleProductFromPayload(payload: any) {
           body: JSON.stringify(webhookPayload),
         });
 
-        if (!response.ok && attempt <= RETRY_ATTEMPTS) {
-          console.warn(`⚠️ Webhook respondió ${response.status}, reintentando en ${attempt * 1000}ms...`);
-          await new Promise(resolve => setTimeout(resolve, attempt * 1000));
-          return sendToWebhook(webhookPayload, attempt + 1);
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.warn(`⚠️ Webhook respondió ${response.status}: ${errorText}`);
+          
+          if (attempt < RETRY_ATTEMPTS) {
+            console.log(`⏳ Reintentando en ${attempt * 1500}ms...`);
+            await new Promise(resolve => setTimeout(resolve, attempt * 1500));
+            return sendToWebhook(webhookPayload, attempt + 1);
+          }
+          
+          return { ok: false, error: errorText, status: response.status };
         }
 
-        return response;
+        // Parsear respuesta exitosa
+        const responseData = await response.json() as WebhookResponse;
+        console.log(`✅ Webhook respondió OK:`, responseData);
+        
+        // Validar que tenga imageRecordId
+        if (!responseData.imageRecordId) {
+          console.warn(`⚠️ Webhook no devolvió imageRecordId, reintentando...`);
+          if (attempt < RETRY_ATTEMPTS) {
+            await new Promise(resolve => setTimeout(resolve, attempt * 1500));
+            return sendToWebhook(webhookPayload, attempt + 1);
+          }
+          return { ok: false, error: "Webhook no devolvió imageRecordId" };
+        }
+
+        return { ok: true, data: responseData };
+
       } catch (error) {
-        if (attempt <= RETRY_ATTEMPTS) {
-          console.warn(`⚠️ Error de conexión, reintentando en ${attempt * 1000}ms...`, error);
-          await new Promise(resolve => setTimeout(resolve, attempt * 1000));
+        console.error(`❌ Error de conexión en intento ${attempt}:`, error);
+        
+        if (attempt < RETRY_ATTEMPTS) {
+          console.log(`⏳ Reintentando en ${attempt * 1500}ms...`);
+          await new Promise(resolve => setTimeout(resolve, attempt * 1500));
           return sendToWebhook(webhookPayload, attempt + 1);
         }
-        throw error;
+        
+        return { ok: false, error: error instanceof Error ? error.message : 'Error de conexión' };
       }
     };
 
     // Enviar al webhook
-    const webhookResponse = await sendToWebhook(payload);
+    const webhookResult = await sendToWebhook(payload);
 
-    if (!webhookResponse.ok) {
-      const errorText = await webhookResponse.text();
-      console.error(`❌ Webhook error para producto ${payload.batch}: ${webhookResponse.status} - ${errorText}`);
+    if (!webhookResult.ok) {
+      console.error(`❌ Webhook falló después de ${RETRY_ATTEMPTS} intentos para producto ${payload.batch}`);
+      
+      // Generar cURL para debugging
+      const curlCommand = generateCurlCommand(payload);
+      console.error(`🔧 cURL para debug:\n${curlCommand}`);
 
-      // Capturar error en Sentry pero no fallar el request
-      Sentry.captureException(new Error(`Webhook failed for product ${payload.batch}`), {
+      // Capturar error en Sentry
+      Sentry.captureException(new Error(`Webhook failed for product ${payload.batch} after ${RETRY_ATTEMPTS} attempts`), {
         tags: {
           component: 'webhook',
           endpoint: '/api/products/upload',
           productBatch: payload.batch?.toString() || 'unknown',
-          errorType: 'webhook_failure_single_product'
+          errorType: 'webhook_failure_all_retries'
         },
         extra: {
-          webhookStatus: webhookResponse.status,
-          webhookResponse: errorText,
-          productData: JSON.stringify(payload).substring(0, 500)
+          webhookError: webhookResult.error,
+          webhookStatus: webhookResult.status,
+          curlCommand: curlCommand,
+          productRecordId: payload.products?.[0]?.recordId
         }
       });
 
-      // Para productos individuales, devolvemos éxito pero con advertencia
+      // Devolver error con cURL para que el frontend lo muestre
       return NextResponse.json({
-        success: true,
-        message: `Producto ${payload.batch} procesado, pero webhook falló`,
+        success: false,
+        error: `Webhook falló después de ${RETRY_ATTEMPTS} intentos`,
+        details: webhookResult.error,
         batch: payload.batch,
-        webhookWarning: true
-      });
-    } else {
-      console.log(`✅ Producto individual ${payload.batch} enviado exitosamente al webhook`);
-      return NextResponse.json({
-        success: true,
-        message: `Producto ${payload.batch} procesado exitosamente`,
-        batch: payload.batch
-      });
+        curlCommand: curlCommand,
+        recordId: payload.products?.[0]?.recordId
+      }, { status: 500 });
     }
+
+    // Webhook exitoso - devolver imageRecordId para polling
+    console.log(`✅ Producto individual ${payload.batch} enviado exitosamente al webhook`);
+    console.log(`📝 imageRecordId recibido: ${webhookResult.data?.imageRecordId}`);
+    
+    return NextResponse.json({
+      success: true,
+      message: webhookResult.data?.text || `Producto ${payload.batch} procesado exitosamente`,
+      batch: payload.batch,
+      imageRecordId: webhookResult.data?.imageRecordId,
+      recordId: payload.products?.[0]?.recordId
+    });
 
   } catch (error) {
     console.error('❌ Error procesando producto individual:', error);
