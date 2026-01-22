@@ -1,56 +1,101 @@
-# Configuração do Google Cloud Storage
+# Configuración de Google Cloud Storage
 
-## Variáveis de Ambiente Necessárias
+## Variables de Entorno Requeridas
 
-Adicione estas variáveis ao seu arquivo `.env.local`:
+Agrega estas variables a tu archivo `.env.local`:
 
 ```bash
 # Google Cloud Storage Configuration
 GCP_PROJECT_ID=chefiandoimages
 GCS_BUCKET_NAME=migraflix-temp-images
 
-# BANDEIRA PARA HABILITAR GCS (true = usar GCS, false/undefined = usar base64)
+# BANDERA PARA HABILITAR GCS (true = usar GCS, false/undefined = usar base64)
 TEST_UPLOAD=false
 
-# Credenciais - Apenas necessárias se TEST_UPLOAD=true
-# Opção 1: Arquivo de credenciais
+# Credenciales - Solo necesarias si TEST_UPLOAD=true
+# Opción 1: Archivo de credenciales
 GOOGLE_APPLICATION_CREDENTIALS=./path/to/service-account-key.json
 
-# Opção 2: JSON inline (recomendado para Vercel)
+# Opción 2: JSON inline (recomendado para Vercel)
 GOOGLE_APPLICATION_CREDENTIALS_JSON={"type":"service_account","project_id":"..."...}
 ```
 
-## Configuração no Google Cloud Console
+## Configuración en Google Cloud Console
 
-### 1. Criar Projeto
-1. Vá para [Google Cloud Console](https://console.cloud.google.com/)
-2. Crie um novo projeto ou selecione um existente
-3. Copie o Project ID
+### 1. Crear Proyecto
+1. Ve a [Google Cloud Console](https://console.cloud.google.com/)
+2. Crea un nuevo proyecto o selecciona uno existente
+3. Copia el Project ID
 
 ### 2. Habilitar APIs
-1. Vá para "APIs & Services" > "Library"
-2. Procure e habilite:
+1. Ve a "APIs & Services" > "Library"
+2. Busca y habilita:
    - Cloud Storage API
    - Cloud Storage JSON API
 
-### 3. Criar Service Account
-1. Vá para "IAM & Admin" > "Service Accounts"
-2. Crie uma nova Service Account com o papel "Storage Admin"
-3. Crie e baixe a chave JSON
+### 3. Crear Service Account
+1. Ve a "IAM & Admin" > "Service Accounts"
+2. Crea una nueva Service Account con rol "Storage Admin"
+3. **Crear y descargar la clave JSON:**
 
-### 4. Criar Bucket
-1. Vá para "Cloud Storage" > "Buckets"
-2. Crie um novo bucket com:
-   - Nome: `migraflix-temp-images`
-   - Região: `us-central1` (ou a mais próxima)
-   - Classe de armazenamento: Standard
-   - Controle de acesso: Uniform
+   **Paso a paso detallado:**
 
-### 5. Configurar CORS (se necessário)
+   a) **Acceder a la Service Account:**
+      - En "IAM & Admin" > "Service Accounts", haz clic en el nombre de la Service Account que acabas de crear
+
+   b) **Ir a la pestaña Keys:**
+      - En la página de detalles de la Service Account, haz clic en la pestaña "Keys" (Claves) en la parte superior
+
+   c) **Crear nueva clave:**
+      - Haz clic en el botón "Add Key" (Agregar clave)
+      - Selecciona "Create new key" (Crear nueva clave) del menú desplegable
+
+   d) **Seleccionar tipo JSON:**
+      - En la ventana emergente, selecciona "JSON" como tipo de clave
+      - Haz clic en "Create" (Crear)
+
+   e) **Descargar archivo:**
+      - El archivo JSON se descargará automáticamente a tu carpeta de descargas
+      - El archivo se llamará algo como: `chefiandoimages-[random-id].json`
+
+   f) **Guardar el archivo:**
+      - **IMPORTANTE**: Mueve este archivo a una carpeta segura en tu computadora
+      - **NUNCA** lo subas a Git o lo compartas
+      - Esta es tu única copia de las credenciales
+
+   **Contenido del archivo JSON:**
+   ```json
+   {
+     "type": "service_account",
+     "project_id": "chefiandoimages",
+     "private_key_id": "...",
+     "private_key": "-----BEGIN PRIVATE KEY-----\n...",
+     "client_email": "service-account@chefiandoimages.iam.gserviceaccount.com",
+     "client_id": "...",
+     "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+     "token_uri": "https://oauth2.googleapis.com/token",
+     "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+     "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/..."
+   }
+   ```
+
+   **Usar el archivo descargado:**
+   - **Opción 1**: Copia todo el contenido JSON y pégalo como valor de `GOOGLE_APPLICATION_CREDENTIALS_JSON` en `.env.local`
+   - **Opción 2**: Guarda el archivo como `service-account-key.json` en tu proyecto y usa `GOOGLE_APPLICATION_CREDENTIALS=./service-account-key.json`
+
+### 4. Crear Bucket
+1. Ve a "Cloud Storage" > "Buckets"
+2. Crea un nuevo bucket con:
+   - Nombre: `migraflix-temp-images`
+   - Región: `us-central1` (o la más cercana)
+   - Clase de almacenamiento: Standard
+   - Control de acceso: Uniform
+
+### 5. Configurar CORS (si es necesario)
 ```json
 [
   {
-    "origin": ["https://seu-dominio.com"],
+    "origin": ["https://tu-dominio.com"],
     "method": ["GET", "POST", "PUT"],
     "responseHeader": ["Content-Type"],
     "maxAgeSeconds": 3600
@@ -58,7 +103,7 @@ GOOGLE_APPLICATION_CREDENTIALS_JSON={"type":"service_account","project_id":"..."
 ]
 ```
 
-## Uso no Código
+## Uso en el Código
 
 ```typescript
 import { getGCSBucket } from '@/lib/config';
@@ -66,43 +111,72 @@ import { getGCSBucket } from '@/lib/config';
 const bucket = getGCSBucket();
 const file = bucket.file('temp/image.jpg');
 
-// Subir arquivo
+// Subir archivo
 await file.save(buffer, {
   metadata: { contentType: 'image/jpeg' }
 });
 
-// Gerar URL assinada
+// Generar URL firmada
 const [url] = await file.getSignedUrl({
   action: 'read',
   expires: Date.now() + 3600000 // 1 hora
 });
 ```
 
-## Modo de Teste vs Produção
+## Modo de Prueba vs Producción
 
-### Usando a Bandeira TEST_UPLOAD
+### Usando la Bandera TEST_UPLOAD
 
-**Para usar base64 (método atual - produção):**
+**Para usar base64 (método actual - producción):**
 ```bash
 TEST_UPLOAD=false
-# ou simplesmente não definir a variável
+# o simplemente no definir la variable
 ```
 
-**Para usar Google Cloud Storage (nova funcionalidade):**
+**Para usar Google Cloud Storage (nueva funcionalidad):**
 ```bash
 TEST_UPLOAD=true
-GCP_PROJECT_ID=seu-project-id
-GCS_BUCKET_NAME=seu-bucket-name
+GCP_PROJECT_ID=tu-project-id
+GCS_BUCKET_NAME=tu-bucket-name
 GOOGLE_APPLICATION_CREDENTIALS_JSON={...}
 ```
 
-### Benefícios da Bandeira
+### Beneficios de la Bandera
 
-- ✅ **Teste seguro**: Teste GCS sem afetar produção
-- ✅ **Alternância fácil**: Mude uma única variável
-- ✅ **Rollback imediato**: Se houver problemas, volte para base64
-- ✅ **Configuração gradual**: Configure GCS enquanto mantém funcionamento
+- ✅ **Testing seguro**: Prueba GCS sin afectar producción
+- ✅ **Fácil alternancia**: Cambia una sola variable
+- ✅ **Rollback inmediato**: Si hay problemas, vuelve a base64
+- ✅ **Configuración gradual**: Configura GCS mientras mantienes funcionamiento
 
-## Limpeza Automática
+## Solución de Problemas
 
-Os arquivos temporários são excluídos automaticamente após 24 horas usando Cloud Functions ou um job programado.
+### Problemas con las Credenciales
+
+**Error: "Invalid credentials" o "Could not load the default credentials"**
+- Verifica que el JSON de la clave sea válido (no esté truncado)
+- Asegúrate de que la Service Account tenga el rol "Storage Admin"
+- Confirma que el `project_id` en el JSON coincida con `GCP_PROJECT_ID`
+
+**Error: "Access denied"**
+- Verifica que la Service Account tenga permisos en el bucket
+- Asegúrate de que el bucket existe y está en la región correcta
+
+**Error: "Bucket does not exist"**
+- Confirma que creaste el bucket con el nombre exacto: `migraflix-temp-images`
+- Verifica que esté en la región correcta
+
+### Regenerar Clave si se pierde
+
+Si pierdes la clave JSON:
+
+1. Ve a "IAM & Admin" > "Service Accounts"
+2. Haz clic en tu Service Account
+3. Ve a la pestaña "Keys"
+4. Elimina la clave antigua (si existe)
+5. Crea una nueva clave siguiendo los pasos anteriores
+
+**⚠️ IMPORTANTE**: Al crear una nueva clave, la anterior deja de funcionar inmediatamente.
+
+## Limpieza Automática
+
+Los archivos temporales se eliminan automáticamente después de 24 horas usando Cloud Functions o un job programado.
