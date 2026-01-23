@@ -18,6 +18,14 @@
 #### 🔧 **Correcciones de código**
 - `app/api/debug/check-env/route.ts`: Cambiado `analysis.apiKey.startsWith()` por `apiKey.startsWith()`
 - `app/api/debug/permissions/route.ts`: Removido `request.ip` inexistente, usar solo headers
+- `app/api/debug/upload-test/route.ts`: Removido `request.ip` inexistente
+- `app/api/detect-language/route.ts`: Removido `request.ip` inexistente
+
+#### 🗑️ **Limpieza de código**
+- Eliminado `app/api/debug/upload-test/` (ruta completa)
+- Eliminado `app/debug/upload-test/` (página completa)
+- Eliminado `app/debug/upload-debug/` (página completa)
+- Removido código de debug innecesario
 
 ---
 
