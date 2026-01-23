@@ -457,6 +457,8 @@ async function handleSingleProductFromPayload(payload: any) {
     // Preparar payload para webhook - ahora incluye GCS
     const webhookPayload = {
       ...payload,
+      // Indicar qué método de subida se usó (GCS o base64)
+      uploadMethod: gcsFileInfo ? 'gcs' : 'base64',
       products: [{
         ...product,
         // Si tenemos GCS, enviar info de GCS en lugar de base64

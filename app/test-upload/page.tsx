@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Upload, Loader2, CheckCircle, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/contexts/language-context";
 
 export default function TestUploadPage() {
   const { toast } = useToast();
@@ -147,8 +148,8 @@ export default function TestUploadPage() {
       if (response.ok) {
         setUploadResult(result);
         toast({
-          title: "✅ Subida exitosa",
-          description: `Imagen subida correctamente`,
+          title: t.testUpload.uploadSuccess,
+          description: t.testUpload.uploadSuccessDesc,
         });
 
         console.log('✅ Resultado:', result);
@@ -157,13 +158,13 @@ export default function TestUploadPage() {
         if (result.gcsInfo) {
           console.log('📦 GCS Info:', result.gcsInfo);
           toast({
-            title: "📦 GCS activado",
-            description: `Imagen subida a bucket temporal`,
+            title: t.testUpload.gcsActivated,
+            description: t.testUpload.gcsActivatedDesc,
           });
         } else if (envConfig.TEST_UPLOAD === 'false') {
           toast({
-            title: "📄 Base64 usado",
-            description: `Imagen procesada con método base64`,
+            title: t.testUpload.base64Used,
+            description: t.testUpload.base64UsedDesc,
           });
         }
       } else {
@@ -179,7 +180,7 @@ export default function TestUploadPage() {
     } catch (error) {
       console.error('❌ Error:', error);
       toast({
-        title: "❌ Error de conexión",
+        title: t.testUpload.connectionError,
         description: error instanceof Error ? error.message : "Error desconocido",
         variant: "destructive",
       });
@@ -197,15 +198,15 @@ export default function TestUploadPage() {
   return (
     <div className="container mx-auto p-6 max-w-4xl">
       <div className="mb-6">
-        <h1 className="text-3xl font-bold mb-2">🧪 Prueba de Upload GCS</h1>
+        <h1 className="text-3xl font-bold mb-2">{t.testUpload.title}</h1>
         <p className="text-muted-foreground">
-          Página de prueba para verificar que la subida de imágenes funciona correctamente con Google Cloud Storage.
+          {t.testUpload.subtitle}
         </p>
         <div className="mt-2 p-3 bg-muted rounded-lg">
-          <strong>Configuración actual:</strong>
+          <strong>{t.testUpload.configLabel}</strong>
           <br />
-          TEST_UPLOAD: <code>{envConfig.TEST_UPLOAD}</code> |
-          GCS_BUCKET: <code>{envConfig.GCS_BUCKET_NAME}</code>
+          {t.testUpload.testUpload} <code>{envConfig.TEST_UPLOAD}</code> |
+          {t.testUpload.gcsBucket} <code>{envConfig.GCS_BUCKET_NAME}</code>
         </div>
       </div>
 
@@ -281,12 +282,12 @@ export default function TestUploadPage() {
                 {isUploading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Subiendo...
+                    {t.testUpload.uploading}
                   </>
                 ) : (
                   <>
                     <Upload className="mr-2 h-4 w-4" />
-                    Subir Imagen
+                    {t.testUpload.uploadImage}
                   </>
                 )}
               </Button>
@@ -305,7 +306,7 @@ export default function TestUploadPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <CheckCircle className="h-5 w-5" />
-              Resultados
+              {t.testUpload.results}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -341,7 +342,7 @@ export default function TestUploadPage() {
                   <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
                     <div className="font-medium text-blue-800 flex items-center gap-2">
                       <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                      Base64 Method
+                      {t.testUpload.base64Method}
                     </div>
                     <div className="text-sm text-blue-700 mt-1">
                       <div>Imagen procesada directamente</div>
@@ -363,7 +364,7 @@ export default function TestUploadPage() {
             ) : (
               <div className="text-center text-muted-foreground py-8">
                 <Upload className="mx-auto h-12 w-12 mb-4 opacity-50" />
-                <p>Sube una imagen para ver los resultados aquí</p>
+                <p>{t.testUpload.uploadToResults}</p>
               </div>
             )}
           </CardContent>
@@ -373,7 +374,7 @@ export default function TestUploadPage() {
         {/* Información adicional */}
       <Card className="mt-6">
         <CardHeader>
-          <CardTitle>ℹ️ Información de Debug</CardTitle>
+          <CardTitle>{t.testUpload.debugInfo}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid gap-2 text-sm">
@@ -388,14 +389,14 @@ export default function TestUploadPage() {
             <ul className="text-sm mt-1 list-disc list-inside">
               <li className="flex items-center gap-2">
                 <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                GCS: Sin límites, URLs firmadas al webhook
+                {t.testUpload.gcsTips}
               </li>
               <li className="flex items-center gap-2">
                 <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                Base64: Máximo 5MB, datos directos al webhook
+                {t.testUpload.base64Tips}
               </li>
-              <li>Revisa la consola del navegador para más detalles</li>
-              <li>Los logs del servidor aparecen en la terminal</li>
+              <li>{t.testUpload.consoleTips}</li>
+              <li>{t.testUpload.terminalTips}</li>
             </ul>
           </div>
         </CardContent>
