@@ -621,6 +621,11 @@ async function handleSingleProductFromPayload(payload: any) {
       webhookPayload = {
         ...payload,
         uploadMethod: 'gcs',
+        // URLs de endpoints para que el webhook suba imágenes generadas
+        endpoints: {
+          createContentRecord: `${process.env.NEXT_PUBLIC_APP_URL || 'https://app.migraflix.com'}/api/webhook/create-content-record`,
+          uploadGeneratedImage: `${process.env.NEXT_PUBLIC_APP_URL || 'https://app.migraflix.com'}/api/webhook/upload-generated-image`,
+        },
         products: [{
           ...product,
           // SOLO datos de GCS (sin base64 para mantener payload pequeño)
@@ -643,6 +648,11 @@ async function handleSingleProductFromPayload(payload: any) {
       webhookPayload = {
         ...payload,
         uploadMethod: 'base64',
+        // URLs de endpoints para que el webhook suba imágenes generadas
+        endpoints: {
+          createContentRecord: `${process.env.NEXT_PUBLIC_APP_URL || 'https://app.migraflix.com'}/api/webhook/create-content-record`,
+          uploadGeneratedImage: `${process.env.NEXT_PUBLIC_APP_URL || 'https://app.migraflix.com'}/api/webhook/upload-generated-image`,
+        },
         products: [{
           ...product,
           // Solo base64
