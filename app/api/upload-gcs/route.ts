@@ -1,6 +1,44 @@
 import { NextRequest, NextResponse } from "next/server";
 import { gcsService } from "@/lib/gcs-service";
 
+/**
+ * Sanitiza el nombre de archivo para evitar problemas con GCS
+ * - Remueve acentos y caracteres especiales (português, español, etc.)
+ * - Remueve paréntesis, corchetes, llaves
+ * - Remueve espacios y caracteres de escape
+ * - Solo permite letras, números, guiones, guiones bajos y puntos
+ */
+function sanitizeFileName(fileName: string): string {
+  // Separar nombre y extensión
+  const lastDot = fileName.lastIndexOf('.');
+  const name = lastDot > 0 ? fileName.substring(0, lastDot) : fileName;
+  const ext = lastDot > 0 ? fileName.substring(lastDot) : '';
+
+  // Normalizar caracteres acentuados (NFD descompone, luego removemos diacríticos)
+  let sanitized = name
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '') // Remover acentos
+    .replace(/ñ/gi, 'n') // ñ -> n
+    .replace(/ç/gi, 'c') // ç -> c
+    .replace(/[()[\]{}]/g, '') // Remover paréntesis, corchetes, llaves
+    .replace(/\s+/g, '_') // Espacios -> guiones bajos
+    .replace(/['"`,;:!?@#$%^&*+=<>|\\\/~`]/g, '') // Remover caracteres especiales
+    .replace(/[^\w.-]/g, '_') // Cualquier otro caracter -> guion bajo
+    .replace(/_+/g, '_') // Múltiples guiones bajos -> uno solo
+    .replace(/^_|_$/g, '') // Remover guiones bajos al inicio/final
+    .toLowerCase();
+
+  // Si el nombre queda vacío, usar 'file'
+  if (!sanitized) {
+    sanitized = 'file';
+  }
+
+  // Sanitizar también la extensión
+  const sanitizedExt = ext.toLowerCase().replace(/[^a-z0-9.]/g, '');
+
+  return sanitized + sanitizedExt;
+}
+
 export async function POST(request: NextRequest) {
   try {
     // Verificar si GCS está habilitado
@@ -40,18 +78,13 @@ export async function POST(request: NextRequest) {
     // Convertir File a Buffer
     const buffer = Buffer.from(await file.arrayBuffer());
 
-    // Crear un File-like object desde Buffer
-    const fileObject = {
-      buffer,
-      originalname: file.name,
-      mimetype: file.type,
-      size: file.size
-    };
-
-    // Generar nombre único (subir directamente al root)
+    // Sanitizar y generar nombre único (subir directamente al root)
     const timestamp = Date.now();
     const randomId = Math.random().toString(36).substring(2, 15);
-    const fileName = `${timestamp}_${randomId}_${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
+    const sanitizedName = sanitizeFileName(file.name);
+    const fileName = `${timestamp}_${randomId}_${sanitizedName}`;
+
+    console.log(`📝 Nombre original: "${file.name}" → Sanitizado: "${sanitizedName}"`);
 
     // Subir a GCS
     const result = await gcsService.uploadFromBuffer(

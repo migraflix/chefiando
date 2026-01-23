@@ -3,7 +3,7 @@ const nextConfig = {
   // API: aumentar límites para subir archivos grandes
   api: {
     bodyParser: {
-      sizeLimit: '15mb', // Límite de 15MB por imagen (margen sobre 12MB)
+      sizeLimit: '30mb', // Límite de 30MB (margen sobre 25MB)
     },
   },
 
