@@ -13,7 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Copy } from "lucide-react";
-import { Check } from "lucide-react";
+import { CheckIcon } from "lucide-react";
 import { Search } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { LanguageSelector } from "@/components/language-selector";
@@ -304,7 +304,7 @@ export function BrandsListClient() {
                             >
                               {copiedId === brand.id ? (
                                 <>
-                                  <Check className="h-4 w-4" />
+                                  <CheckIcon className="h-4 w-4" />
                                   {t.brands.table.copied}
                                 </>
                               ) : (
