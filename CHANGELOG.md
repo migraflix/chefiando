@@ -21,6 +21,7 @@
 - `app/api/debug/upload-test/route.ts`: Removido `request.ip` inexistente
 - `app/api/detect-language/route.ts`: Removido `request.ip` inexistente
 - `app/api/logs/errors/route.ts`: Agregada propiedad `sentryInfo` faltante en `mockLogs`
+- `components/all-content-table.tsx`: Cambiado `t.lang` por `language` en múltiples lugares
 
 #### 🗑️ **Limpieza de código**
 - Eliminado `app/api/debug/upload-test/` (ruta completa)
