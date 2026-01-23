@@ -20,6 +20,7 @@
 - `app/api/debug/permissions/route.ts`: Removido `request.ip` inexistente, usar solo headers
 - `app/api/debug/upload-test/route.ts`: Removido `request.ip` inexistente
 - `app/api/detect-language/route.ts`: Removido `request.ip` inexistente
+- `app/api/logs/errors/route.ts`: Agregada propiedad `sentryInfo` faltante en `mockLogs`
 
 #### 🗑️ **Limpieza de código**
 - Eliminado `app/api/debug/upload-test/` (ruta completa)
