@@ -3,7 +3,7 @@
 
 // Configuración de productos
 export const MAX_PRODUCTS = 5;
-export const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+export const MAX_FILE_SIZE = 15 * 1024 * 1024; // 15MB (aumentado para evitar error 413)
 export const MAX_NAME_LENGTH = 100;
 export const MAX_DESCRIPTION_LENGTH = 500;
 

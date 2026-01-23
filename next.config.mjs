@@ -36,6 +36,13 @@ const nextConfig = {
     },
   },
 
+  // Configuración de API para manejar archivos grandes
+  api: {
+    bodyParser: {
+      sizeLimit: '50mb',
+    },
+  },
+
   // Configuración de build
   output: 'standalone',
 
