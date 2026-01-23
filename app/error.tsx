@@ -4,7 +4,7 @@ import * as Sentry from "@sentry/nextjs";
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { AlertCircle } from "lucide-react";
+import { AlertTriangle } from "lucide-react";
 import { useLanguage } from "@/contexts/language-context";
 
 export default function Error({
@@ -38,7 +38,7 @@ export default function Error({
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-red-600">
-            <AlertCircle className="h-6 w-6" />
+            <AlertTriangle className="h-6 w-6" />
             {isChunkError ? t.errorPage.chunkError.title : t.errorPage.general.title}
           </CardTitle>
           <CardDescription>
