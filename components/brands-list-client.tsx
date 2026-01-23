@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/select";
 import { Copy } from "lucide-react";
 import { CheckIcon } from "lucide-react";
-import { Search } from "lucide-react";
+import { SearchIcon } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { LanguageSelector } from "@/components/language-selector";
 
@@ -218,7 +218,7 @@ export function BrandsListClient() {
         {/* Filtros de búsqueda, país e idioma*/}
         <div className="mb-6 flex flex-col gap-4 sm:flex-row">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <SearchIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               type="text"
               placeholder="Buscar marcas..."

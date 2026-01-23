@@ -1,6 +1,6 @@
 "use client"
 
-import { Star } from "lucide-react"
+import { StarIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 interface StarRatingProps {
@@ -19,7 +19,7 @@ export function StarRating({ rating, onRatingChange, maxRating = 5 }: StarRating
           onClick={() => onRatingChange(star)}
           className="transition-transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded"
         >
-          <Star
+          <StarIcon
             className={cn(
               "h-8 w-8 transition-colors",
               star <= rating ? "fill-primary text-primary" : "fill-muted text-muted-foreground",

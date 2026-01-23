@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { ExternalLink, Loader2, Filter } from "lucide-react"
+import { ExternalLink, Loader2, FilterIcon } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
 import { useLanguage } from "@/contexts/language-context"
@@ -144,7 +144,7 @@ export function AllContentTable({ status }: { status: "pending" | "reviewed" }) 
         {/* Brand Filter */}
         <Card className="p-6">
           <div className="flex items-center gap-4">
-            <Filter className="h-5 w-5 text-gray-500" />
+            <FilterIcon className="h-5 w-5 text-gray-500" />
             <div className="flex-1">
               <label className="text-sm font-medium text-gray-700 mb-2 block">
                 {language === "pt" ? "Filtrar por marca" : "Filtrar por marca"}
