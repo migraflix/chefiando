@@ -4,6 +4,26 @@ const AIRTABLE_API_KEY = process.env.AIRTABLE_API_KEY;
 const AIRTABLE_BASE_ID = process.env.AIRTABLE_BASE_ID;
 const CONTENT_TABLE_NAME = "Content";
 
+interface ImageAnalysis {
+  id: string;
+  status: string;
+  created: string;
+  images: {
+    airtable: boolean;
+    gcs: {
+      signed: boolean;
+      public: boolean;
+      path: boolean;
+    };
+    source: string;
+  };
+  urls: {
+    airtable: string | null;
+    gcsSigned: string | null;
+    gcsPublic: string | null;
+  };
+}
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
@@ -30,7 +50,7 @@ export async function GET(request: NextRequest) {
     const records = data.records || [];
 
     // Analizar cada registro
-    const analysis = records.map((record: any) => {
+    const analysis: ImageAnalysis[] = records.map((record: any) => {
       const fields = record.fields;
       const hasAirtableImage = !!(fields["📥 Image"]?.[0]?.url);
       const hasGcsSigned = !!fields["GCS Signed URL"];
