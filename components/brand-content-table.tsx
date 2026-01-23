@@ -133,7 +133,7 @@ export function BrandContentTable({ recordIdMarca }: { recordIdMarca: string }) 
       return {
         label: t.brand.status.creatingImage,
         color: "bg-blue-100 text-blue-800",
-        icon: Image,
+        icon: () => <Image src="/placeholder.svg" alt="creating image" width={16} height={16} />,
         description: t.brand.status.creatingImageDescription,
         isProcessing: true,
       }
@@ -147,7 +147,7 @@ export function BrandContentTable({ recordIdMarca }: { recordIdMarca: string }) 
         return {
           label: t.brand.status.creatingImage,
           color: "bg-blue-100 text-blue-800",
-          icon: Image,
+          icon: () => <Image src="/placeholder.svg" alt="creating image" width={16} height={16} />,
           description: t.brand.status.creatingImageDescription,
           isProcessing: true,
         }
@@ -305,7 +305,7 @@ export function BrandContentTable({ recordIdMarca }: { recordIdMarca: string }) 
                         {hasImage ? (
                           <div className="relative w-32 h-32 rounded-lg overflow-hidden bg-gray-100 shadow-md">
                             <Image
-                              src={item.fields["📥 Image"][0].url || "/placeholder.svg"}
+                              src={item.fields["📥 Image"]?.[0]?.url || "/placeholder.svg"}
                               alt="Imagen del post"
                               fill
                               className="object-cover"
@@ -381,7 +381,7 @@ export function BrandContentTable({ recordIdMarca }: { recordIdMarca: string }) 
                     {hasImage ? (
                       <div className="relative w-32 h-32 rounded-lg overflow-hidden bg-gray-100 shadow-md">
                         <Image
-                          src={item.fields["📥 Image"][0].url || "/placeholder.svg"}
+                          src={item.fields["📥 Image"]?.[0]?.url || "/placeholder.svg"}
                           alt="Imagen del post"
                           fill
                           className="object-cover"

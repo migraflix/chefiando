@@ -71,8 +71,7 @@ if (dsn) {
       Sentry.browserTracingIntegration(),
     ],
 
-    // Capturar errores no manejados automáticamente
-    captureUnhandledRejections: true,
+
   });
 }
 

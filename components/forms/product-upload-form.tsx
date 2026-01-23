@@ -601,7 +601,7 @@ export function ProductUploadForm({ marca }: { marca: string }) {
     // Log adicional para confirmar el webhook (nunca es error)
     logFormSuccess(
       success ? `Webhook enviado exitosamente para producto: ${productName}` : `Webhook pendiente para producto: ${productName} - se enviará automáticamente`,
-      "webhook-calls",
+      "photo-upload",
       success ? "webhook_sent" : "webhook_pending", // Nunca usar "error" o "partial"
       {
         productName,

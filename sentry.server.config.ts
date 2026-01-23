@@ -26,22 +26,19 @@ Sentry.init({
     };
 
     // Agregar información de la request si está disponible
-    if (hint.request) {
+    if ((hint as any).request) {
       event.contexts = {
         ...event.contexts,
         request: {
-          method: hint.request.method,
-          url: hint.request.url,
-          headers: hint.request.headers,
+          method: (hint as any).request.method,
+          url: (hint as any).request.url,
+          headers: (hint as any).request.headers,
         },
       };
     }
 
     return event;
   },
-
-  // Capturar errores no manejados automáticamente
-  captureUnhandledRejections: true,
 
   // Uncomment the line below to enable Spotlight (https://spotlightjs.com)
   // spotlight: process.env.NODE_ENV === 'development',

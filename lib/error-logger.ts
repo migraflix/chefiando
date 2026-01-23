@@ -138,7 +138,7 @@ class ErrorLogger {
             errorType: 'form_validation',
             severity: 'high'
           },
-          extra: bugReport
+          extra: { bugReport }
         }
       );
 
