@@ -301,6 +301,20 @@ export const translations = {
         button: "Ver minha marca",
       },
     },
+    // Error Page
+    errorPage: {
+      oldVersion: {
+        title: "Você tem uma versão antiga",
+        description: "Fizemos uma atualização enquanto você usava o app. Recarregue a página para obter a última versão.",
+        button: "Recarregar página",
+      },
+      generic: {
+        title: "Algo deu errado",
+        description: "Ocorreu um erro inesperado. O erro foi reportado automaticamente.",
+        button: "Tentar novamente",
+        goHome: "Voltar ao início",
+      },
+    },
     // Test Upload Page
     testUpload: {
       title: "🧪 Teste de Upload GCS",
@@ -332,20 +346,6 @@ export const translations = {
       base64Tips: "Base64: Máximo 5MB, datos directos al webhook",
       consoleTips: "Revisa la consola del navegador para más detalles",
       terminalTips: "Los logs del servidor aparecen en la terminal",
-    },
-    // Error Page
-    errorPage: {
-      general: {
-        title: "Algo deu errado",
-        description: "Ocorreu um erro inesperado. O erro foi reportado automaticamente.",
-        retryButton: "Tentar novamente",
-      },
-      chunkError: {
-        title: "Você tem uma versão antiga",
-        description: "Fizemos uma atualização enquanto você usava o app. Recarregue a página para obter a última versão.",
-        reloadButton: "Recarregar página",
-      },
-      backToHome: "Voltar ao início",
     },
   },
   es: {
@@ -648,6 +648,20 @@ export const translations = {
         button: "Ver mi marca",
       },
     },
+    // Error Page
+    errorPage: {
+      oldVersion: {
+        title: "Tienes una versión antigua",
+        description: "Hicimos una actualización mientras usabas la app. Recarga la página para obtener la última versión.",
+        button: "Recargar página",
+      },
+      generic: {
+        title: "Algo salió mal",
+        description: "Ha ocurrido un error inesperado. El error ha sido reportado automáticamente.",
+        button: "Intentar de nuevo",
+        goHome: "Volver al inicio",
+      },
+    },
     // Test Upload Page
     testUpload: {
       title: "🧪 Prueba de Upload GCS",
@@ -679,20 +693,6 @@ export const translations = {
       base64Tips: "Base64: Máximo 5MB, datos directos al webhook",
       consoleTips: "Revisa la consola del navegador para más detalles",
       terminalTips: "Los logs del servidor aparecen en la terminal",
-    },
-    // Error Page
-    errorPage: {
-      general: {
-        title: "Algo salió mal",
-        description: "Ha ocurrido un error inesperado. El error ha sido reportado automáticamente.",
-        retryButton: "Intentar de nuevo",
-      },
-      chunkError: {
-        title: "Tienes una versión vieja",
-        description: "Hicimos una actualización mientras usabas la app. Recarga la página para obtener la última versión.",
-        reloadButton: "Recargar página",
-      },
-      backToHome: "Volver al inicio",
     },
   },
 }

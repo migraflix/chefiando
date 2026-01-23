@@ -322,7 +322,7 @@ export function ProductUploadForm({ marca }: { marca: string }) {
         imageData = {
           gcsPath: product.photoGcsPath,
           gcsSignedUrl: product.photoGcsUrl,
-          gcsPublicUrl: product.photoGcsPublicUrl,
+          gcsPublicUrl: product.photoGcsUrl,
           fileSize: product.photo.size,
         };
 

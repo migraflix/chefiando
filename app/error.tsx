@@ -41,12 +41,12 @@ export default function Error({
             <svg className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.268 16.5c-.77.833.192 2.5 1.732 2.5z" />
             </svg>
-            {isChunkError ? t.errorPage.chunkError.title : t.errorPage.general.title}
+            {isChunkError ? t.errorPage.oldVersion.title : t.errorPage.generic.title}
           </CardTitle>
           <CardDescription>
             {isChunkError
-              ? t.errorPage.chunkError.description
-              : t.errorPage.general.description}
+              ? t.errorPage.oldVersion.description
+              : t.errorPage.generic.description}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -62,13 +62,13 @@ export default function Error({
           </div>
           <div className="flex gap-4">
             <Button onClick={handleRetry} variant="default">
-              {isChunkError ? t.errorPage.chunkError.reloadButton : t.errorPage.general.retryButton}
+              {isChunkError ? t.errorPage.oldVersion.button : t.errorPage.generic.button}
             </Button>
             <Button
               onClick={() => (window.location.href = "/")}
               variant="outline"
             >
-              {t.errorPage.backToHome}
+              {t.errorPage.generic.goHome}
             </Button>
           </div>
         </CardContent>
