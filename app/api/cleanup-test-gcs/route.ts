@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Buscar archivos de test (que empiecen con 'test-')-
+    // Buscar archivos de test (que empiecen con 'test-')
     const allFiles = await gcsService.listFiles();
     const testFiles = allFiles.filter(file => file.startsWith('test-'));
 

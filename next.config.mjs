@@ -5,20 +5,16 @@ const nextConfig = {
     ignoreBuildErrors: false,
   },
 
-  // Imágenes: mantener sin optimización (útil para desarrollo)
+  // Imágenes: configuración correcta para Vercel
   images: {
-    unoptimized: true,
-  },
-
-  // Configuración de Turbopack para Next.js 16+
-  turbopack: {
-    // Configuraciones específicas de Turbopack
-    rules: {
-      '*.svg': {
-        loaders: ['@svgr/webpack'],
-        as: '*.js',
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'storage.googleapis.com',
+        pathname: '**',
       },
-    },
+    ],
+    unoptimized: false, // Habilitar optimización en producción
   },
 
   // Optimizaciones adicionales
@@ -26,25 +22,14 @@ const nextConfig = {
     removeConsole: process.env.NODE_ENV === 'production',
   },
 
-  // Reducir tamaño del bundle con tree-shaking
+  // ⚠️ REMOVIDO: Ya no usamos lucide-react, solo @radix-ui/react-icons
   modularizeImports: {
-    'lucide-react': {
-      transform: 'lucide-react/{{member}}',
-    },
     '@radix-ui/react-icons': {
       transform: '@radix-ui/react-icons/{{member}}',
     },
   },
 
-  // Configuración de Turbopack para resolver problemas de root
-  turbopack: {
-    root: './',
-  },
-
-  // Configuración de build
-  output: 'standalone',
-
-  // Excluir páginas innecesarias del build estático
+  // Configuración correcta para Vercel
   trailingSlash: false,
 }
 

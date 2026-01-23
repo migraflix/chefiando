@@ -12,7 +12,7 @@
     "lint": "next lint",
     "lint:fix": "next lint --fix",
     "start": "next start",
-    "clean": "node -e \"require('fs').rmSync('.next', {recursive: true, force: true})\"",
+    "clean": "node -e \"const fs = require('fs'); const path = require('path'); const dir = '.next'; if (fs.existsSync(dir)) { try { fs.rmSync(dir, { recursive: true, force: true }); console.log('.next directory cleaned'); } catch (e) { console.warn('Could not clean .next:', e.message); } }\"",
     "check-env": "node scripts/check-env.js"
   },
   "dependencies": {
