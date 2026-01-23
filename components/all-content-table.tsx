@@ -30,7 +30,7 @@ export function AllContentTable({ status }: { status: "pending" | "reviewed" }) 
   const [brands, setBrands] = useState<Array<{ id: string; name: string }>>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const { t } = useLanguage()
+  const { t, language } = useLanguage()
 
   useEffect(() => {
     async function fetchAllContent() {
@@ -75,10 +75,10 @@ export function AllContentTable({ status }: { status: "pending" | "reviewed" }) 
 
   const pageTitle =
     status === "pending"
-      ? t.lang === "pt"
+      ? language === "pt"
         ? "Conteúdo para Revisar"
         : "Contenido para Revisar"
-      : t.lang === "pt"
+      : language === "pt"
         ? "Conteúdo Revisado"
         : "Contenido Revisado"
 

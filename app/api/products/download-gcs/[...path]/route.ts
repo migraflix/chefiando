@@ -48,7 +48,7 @@ export async function GET(
     console.log(`✅ Archivo descargado: ${gcsPath} (${buffer.length} bytes, ${contentType})`);
 
     // Devolver archivo como respuesta
-    return new NextResponse(buffer, {
+    return new NextResponse(new Uint8Array(buffer), {
       status: 200,
       headers: {
         'Content-Type': contentType,

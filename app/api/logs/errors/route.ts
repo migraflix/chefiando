@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import * as Sentry from "@sentry/nextjs";
 
+type Recommendation = {
+  type: string;
+  message: string;
+  action: string;
+};
+
 /**
  * Endpoint para consultar logs de errores recientes
  * Útil para debugging y seguimiento de bugs reportados
@@ -37,7 +43,7 @@ export async function GET(request: NextRequest) {
         }
       },
       recentErrors: [],
-      recommendations: [],
+      recommendations: [] as Recommendation[],
       sentryInfo: null as any
     };
 

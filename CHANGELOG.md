@@ -24,9 +24,9 @@
 
 #### 🗑️ **Limpieza de código**
 - Eliminado `app/api/debug/upload-test/` (ruta completa)
-- Eliminado `app/debug/upload-test/` (página completa)
-- Eliminado `app/debug/upload-debug/` (página completa)
-- Removido código de debug innecesario
+- Eliminado `app/debug/` (carpeta completa de páginas de debug)
+- Removido todos los archivos de debug que causaban errores de TypeScript
+- Simplificación del codebase eliminando código de desarrollo innecesario
 
 ---
 

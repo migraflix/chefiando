@@ -35,12 +35,13 @@ export async function GET() {
         testUpload: process.env.TEST_UPLOAD
       });
     } catch (listError) {
-      console.log('⚠️ No se pudieron listar archivos:', listError.message);
+      const errorMessage = listError instanceof Error ? listError.message : 'Error desconocido';
+      console.log('⚠️ No se pudieron listar archivos:', errorMessage);
 
       return NextResponse.json({
         success: false,
         message: 'GCS inicializado pero no puede listar archivos',
-        error: listError.message
+        error: errorMessage
       });
     }
 
