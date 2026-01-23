@@ -227,10 +227,10 @@ export function ReviewContent({ recordId }: { recordId: string }) {
   }
 
   const imageUrl = noCacheUrl(record.fields["📥 Image"]?.[0]?.url, record.id)
-  // Para la foto original, usar el ID del aiPhoto o el ID del record como fallback
+  // Para la foto original, usar el lookup "Imagen (from Fotos AI)" del record principal
   const originalImageUrl = noCacheUrl(
-    record.aiPhoto?.fields["Imagen"]?.[0]?.url,
-    record.aiPhoto?.id || `orig-${record.id}`
+    record.fields["Imagen (from Fotos AI)"]?.[0]?.url,
+    `orig-${record.id}`
   )
 
   return (
@@ -261,10 +261,10 @@ export function ReviewContent({ recordId }: { recordId: string }) {
         <CardContent className="space-y-4">
           <div className="grid grid-cols-2 gap-4 mb-6">
             <div className="space-y-2">
-              <Label className="text-muted-foreground text-xs uppercase tracking-wider">Original</Label>
+              <Label className="text-muted-foreground text-xs uppercase tracking-wider">Migraflix</Label>
               {originalImageUrl ? (
                 <div className="relative aspect-square rounded-lg overflow-hidden bg-muted border">
-                  <img src={originalImageUrl || "/placeholder.svg"} alt="Original" className="w-full h-full object-cover" />
+                  <img src={originalImageUrl || "/placeholder.svg"} alt="Migraflix" className="w-full h-full object-cover" />
                 </div>
               ) : (
                 <div className="aspect-square rounded-lg bg-muted flex items-center justify-center border border-dashed">
