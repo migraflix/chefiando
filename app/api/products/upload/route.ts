@@ -8,6 +8,72 @@ const AIRTABLE_BASE_ID = process.env.AIRTABLE_BASE_ID;
 const PHOTOS_TABLE_NAME = "Fotos AI";
 const WEBHOOK_URL = process.env.PRODUCTOS_WEBHOOK || process.env.PRODUCTS_WEBHOOK_URL;
 
+/**
+ * Valida un payload de webhook antes de enviarlo
+ */
+function validateWebhookPayload(payload: any): { valid: boolean; errors: string[] } {
+  const errors: string[] = [];
+
+  if (!payload.marca) {
+    errors.push('Falta marca');
+  }
+
+  if (!payload.batch || !payload.totalBatches) {
+    errors.push('Faltan batch/totalBatches');
+  }
+
+  if (!payload.products || !Array.isArray(payload.products) || payload.products.length === 0) {
+    errors.push('Faltan productos o el array está vacío');
+  }
+
+  const product = payload.products[0];
+
+  if (!product.recordId) {
+    errors.push('Producto sin recordId');
+  }
+
+  if (!product.nombre) {
+    errors.push('Producto sin nombre');
+  }
+
+  if (!product.contentType) {
+    errors.push('Producto sin contentType');
+  }
+
+  if (!product.datosProducto) {
+    errors.push('Producto sin datosProducto');
+  }
+
+  // Validación específica por método
+  if (payload.uploadMethod === 'gcs') {
+    if (!product.gcsPath) {
+      errors.push('Método GCS pero falta gcsPath');
+    }
+    if (!product.gcsSignedUrl) {
+      errors.push('Método GCS pero falta gcsSignedUrl');
+    }
+    // GCS no debe tener base64 (para mantener payload pequeño)
+    if (product.base64 && product.base64.length > 0) {
+      errors.push('Método GCS no debe incluir base64');
+    }
+  } else if (payload.uploadMethod === 'base64') {
+    if (!product.base64 || product.base64.length === 0) {
+      errors.push('Método base64 pero falta base64 data');
+    }
+    // Base64 no debe tener datos de GCS
+    if (product.gcsPath) {
+      errors.push('Método base64 no debe incluir datos de GCS');
+    }
+  } else {
+    errors.push(`Método de subida desconocido: ${payload.uploadMethod}`);
+  }
+
+  return {
+    valid: errors.length === 0,
+    errors
+  };
+}
+
 // Constantes de optimización para 5 imágenes máximo
 const MAX_TOTAL_SIZE = 15 * 1024 * 1024; // 15MB total máximo (5MB x 3 promedio)
 const BATCH_SIZE = 1; // Procesar 1 imagen por vez para envío inmediato al webhook
@@ -291,9 +357,30 @@ async function handleSingleProductFromPayload(payload: any) {
     if (!product.contentType) {
       throw new Error(`Producto ${payload.batch} no tiene contentType`);
     }
-    if (!product.base64 || product.base64.length === 0) {
-      throw new Error(`Producto ${payload.batch} no tiene datos base64 válidos`);
+
+    // Validar datos según el método disponible
+    const hasGcsData = !!(product.gcsPath && product.gcsSignedUrl);
+    const hasBase64Data = !!(product.base64 && product.base64.length > 0);
+
+    console.log(`📊 Método de subida preferido: ${process.env.TEST_UPLOAD === 'true' ? 'GCS' : 'base64'}`);
+    console.log(`📦 Datos disponibles - GCS: ${hasGcsData ? '✅' : '❌'}, Base64: ${hasBase64Data ? '✅' : '❌'}`);
+
+    // Validar que tenga al menos un método de subida
+    if (!hasGcsData && !hasBase64Data) {
+      throw new Error(`Producto ${payload.batch} no tiene datos de imagen válidos (ni GCS ni base64)`);
     }
+
+    // Si TEST_UPLOAD=true pero no hay datos de GCS, es un error
+    if (process.env.TEST_UPLOAD === 'true' && !hasGcsData) {
+      throw new Error(`Producto ${payload.batch} debería usar GCS pero no tiene datos de GCS válidos`);
+    }
+
+    // Si TEST_UPLOAD=false pero no hay base64, es un error
+    if (process.env.TEST_UPLOAD !== 'true' && !hasBase64Data) {
+      throw new Error(`Producto ${payload.batch} debería usar base64 pero no tiene datos base64 válidos`);
+    }
+
+    console.log(`🎯 Se usará: ${hasGcsData ? 'GCS' : 'base64'}`);
 
     console.log(`✅ Validación de datos completada para producto ${payload.batch}`);
 
@@ -301,14 +388,27 @@ async function handleSingleProductFromPayload(payload: any) {
       throw new Error('Webhook URL no configurada');
     }
 
-    // 🚀 SUBIR IMAGEN A GOOGLE CLOUD STORAGE (solo si TEST_UPLOAD=true)
-    // Si TEST_UPLOAD=false o undefined, usa base64 (método actual)
+    // 🚀 SUBIR IMAGEN A GOOGLE CLOUD STORAGE (solo si TEST_UPLOAD=true y NO viene con GCS del frontend)
     let gcsFileInfo = null;
 
-    if (process.env.TEST_UPLOAD === 'true') {
-      console.log(`☁️ Subiendo imagen a Google Cloud Storage...`);
+    console.log(`🔍 Configuración GCS - TEST_UPLOAD: ${process.env.TEST_UPLOAD}`);
+    console.log(`📦 Viene con GCS del frontend: ${product.gcsPath ? '✅' : '❌'}`);
+
+    if (process.env.TEST_UPLOAD === 'true' && !product.gcsPath) {
+      // El frontend no subió a GCS, intentar aquí
+      console.log(`☁️ El frontend no subió a GCS, intentando subir aquí...`);
 
       try {
+        // Validar que el base64 esté disponible
+        if (!product.base64 || product.base64.length === 0) {
+          throw new Error('Base64 data is required for GCS upload');
+        }
+
+        // Validar que el contentType sea válido
+        if (!product.contentType || !product.contentType.startsWith('image/')) {
+          throw new Error(`Invalid content type: ${product.contentType}`);
+        }
+
         gcsFileInfo = await gcsService.uploadFromBase64(
           product.base64,
           product.nombre,
@@ -320,19 +420,38 @@ async function handleSingleProductFromPayload(payload: any) {
               recordId: product.recordId,
               batch: payload.batch,
               brandId: payload.marca,
+              uploadMethod: 'gcs'
             }
           }
         );
 
         console.log(`✅ Imagen subida a GCS: ${gcsFileInfo.gcsPath}`);
         console.log(`🔗 URL firmada: ${gcsFileInfo.signedUrl}`);
+        console.log(`📏 Tamaño del archivo: ${gcsFileInfo.size} bytes`);
       } catch (gcsError) {
         console.error('❌ Error subiendo a GCS:', gcsError);
-        console.warn('⚠️ GCS falló, usando base64 como fallback...');
-        gcsFileInfo = null;
+        console.error('❌ Detalles del error GCS:', {
+          message: gcsError instanceof Error ? gcsError.message : 'Unknown error',
+          stack: gcsError instanceof Error ? gcsError.stack : 'No stack trace',
+          base64Length: product.base64 ? product.base64.length : 0,
+          contentType: product.contentType,
+          productName: product.nombre
+        });
+        throw new Error(`GCS upload failed and no GCS data provided by frontend: ${gcsError instanceof Error ? gcsError.message : 'Unknown error'}`);
       }
+    } else if (product.gcsPath) {
+      // El frontend ya subió a GCS, usar esos datos
+      console.log(`✅ Usando datos de GCS del frontend: ${product.gcsPath}`);
+      gcsFileInfo = {
+        fileName: product.nombre,
+        gcsPath: product.gcsPath,
+        signedUrl: product.gcsSignedUrl,
+        publicUrl: product.gcsPublicUrl,
+        size: product.fileSize,
+        contentType: product.contentType
+      };
     } else {
-      console.log(`📦 Usando método base64 (TEST_UPLOAD=false o no definido)`);
+      console.log(`📦 Usando método base64 (TEST_UPLOAD=false o GCS no disponible)`);
     }
 
     // Generar cURL para debugging
@@ -352,6 +471,14 @@ async function handleSingleProductFromPayload(payload: any) {
     const sendToWebhook = async (webhookPayload: any, attempt: number = 1): Promise<{ ok: boolean; data?: WebhookResponse; error?: string; status?: number }> => {
       try {
         console.log(`📡 Enviando producto individual al webhook (intento ${attempt}/${RETRY_ATTEMPTS})`);
+        console.log(`🔗 URL del webhook: ${WEBHOOK_URL}`);
+        console.log(`📊 Método: ${webhookPayload.uploadMethod}`);
+        console.log(`📏 Tamaño del payload: ${JSON.stringify(webhookPayload).length} caracteres`);
+        if (webhookPayload.uploadMethod === 'gcs') {
+          console.log(`☁️ GCS Path: ${webhookPayload.products[0].gcsPath}`);
+        } else {
+          console.log(`📦 Base64 size: ${webhookPayload.products[0].base64?.length || 0} chars`);
+        }
 
         const response = await fetch(WEBHOOK_URL!, {
           method: "POST",
@@ -361,9 +488,22 @@ async function handleSingleProductFromPayload(payload: any) {
           body: JSON.stringify(webhookPayload),
         });
 
+        console.log(`📊 Respuesta del webhook - Status: ${response.status} ${response.statusText}`);
+        console.log(`📄 Headers de respuesta:`, Object.fromEntries(response.headers.entries()));
+
         if (!response.ok) {
           const errorText = await response.text();
-          console.warn(`⚠️ Webhook respondió ${response.status}: ${errorText}`);
+          console.error(`❌ Webhook falló con status ${response.status}`);
+          console.error(`❌ Respuesta del webhook:`, errorText.substring(0, 500));
+
+          // Log específico para errores comunes
+          if (response.status === 413) {
+            console.error(`💥 ERROR 413: Payload demasiado grande (${JSON.stringify(webhookPayload).length} chars)`);
+          } else if (response.status === 400) {
+            console.error(`💥 ERROR 400: Datos inválidos enviados al webhook`);
+          } else if (response.status === 500) {
+            console.error(`💥 ERROR 500: Error interno del servidor webhook`);
+          }
 
           if (attempt < RETRY_ATTEMPTS) {
             console.log(`⏳ Reintentando en ${attempt * 1500}ms...`);
@@ -454,27 +594,90 @@ async function handleSingleProductFromPayload(payload: any) {
       }
     };
 
-    // Preparar payload para webhook - ahora incluye GCS
-    const webhookPayload = {
-      ...payload,
-      // Indicar qué método de subida se usó (GCS o base64)
-      uploadMethod: gcsFileInfo ? 'gcs' : 'base64',
-      products: [{
-        ...product,
-        // Si tenemos GCS, enviar info de GCS en lugar de base64
-        ...(gcsFileInfo ? {
+    // Preparar payload para webhook - GCS o base64 según disponibilidad
+    let webhookPayload;
+
+    if (gcsFileInfo) {
+      console.log(`🎯 Preparando payload con método GCS`);
+      // Validar que GCS está disponible
+      if (!gcsFileInfo.gcsPath || !gcsFileInfo.signedUrl) {
+        throw new Error('GCS data is required but missing required fields');
+      }
+
+      webhookPayload = {
+        ...payload,
+        uploadMethod: 'gcs',
+        products: [{
+          ...product,
+          // SOLO datos de GCS (sin base64 para mantener payload pequeño)
           gcsPath: gcsFileInfo.gcsPath,
           gcsSignedUrl: gcsFileInfo.signedUrl,
           gcsPublicUrl: gcsFileInfo.publicUrl,
           fileSize: gcsFileInfo.size,
+          contentType: gcsFileInfo.contentType,
           // Remover base64 para reducir tamaño del payload
           base64: undefined,
-        } : {
-          // Fallback: mantener base64 si GCS falló
+        }],
+      };
+    } else {
+      console.log(`📦 Preparando payload con método base64`);
+      // Validar que tenemos base64 válido
+      if (!product.base64 || product.base64.length === 0) {
+        throw new Error('Base64 data is required but not available');
+      }
+
+      webhookPayload = {
+        ...payload,
+        uploadMethod: 'base64',
+        products: [{
+          ...product,
+          // Solo base64
           base64: product.base64,
-        }),
-      }],
-    };
+        }],
+      };
+    }
+
+    // Log detallado del payload que se va a enviar
+    console.log(`📤 Payload preparado para webhook:`);
+    console.log(`   📊 Método de subida: ${webhookPayload.uploadMethod}`);
+    console.log(`   🏷️  Marca: ${webhookPayload.marca}`);
+    console.log(`   🔢 Batch: ${webhookPayload.batch}/${webhookPayload.totalBatches}`);
+    console.log(`   📦 Productos en payload: ${webhookPayload.products.length}`);
+    console.log(`   📄 Datos del producto:`);
+    console.log(`      - RecordId: ${webhookPayload.products[0].recordId}`);
+    console.log(`      - Nombre: ${webhookPayload.products[0].nombre}`);
+    console.log(`      - ContentType: ${webhookPayload.products[0].contentType}`);
+    console.log(`      - Tiene base64: ${!!webhookPayload.products[0].base64}`);
+    console.log(`      - Tamaño base64: ${webhookPayload.products[0].base64 ? webhookPayload.products[0].base64.length : 0} chars`);
+    console.log(`      - Tiene GCS: ${!!webhookPayload.products[0].gcsPath}`);
+    console.log(`      - GCS Path: ${webhookPayload.products[0].gcsPath || 'N/A'}`);
+    console.log(`      - GCS Signed URL: ${webhookPayload.products[0].gcsSignedUrl ? '✅ Presente' : '❌ No presente'}`);
+    console.log(`      - Tamaño archivo: ${webhookPayload.products[0].fileSize || 'N/A'} bytes`);
+
+    // Validar payload antes de enviar
+    const validation = validateWebhookPayload(webhookPayload);
+    if (!validation.valid) {
+      console.error('❌ Payload inválido:', validation.errors);
+      throw new Error(`Payload validation failed: ${validation.errors.join(', ')}`);
+    }
+
+    const payloadSize = JSON.stringify(webhookPayload).length;
+    console.log(`📏 Tamaño total del payload: ${payloadSize} caracteres`);
+
+    if (payloadSize > 1000000) { // 1MB límite aproximado
+      console.warn(`⚠️ Payload muy grande (${payloadSize} chars). Considerar optimización.`);
+    }
+
+    // Log final de validación
+    console.log(`✅ Payload validado correctamente`);
+    console.log(`📊 Método: ${webhookPayload.uploadMethod}`);
+    if (webhookPayload.uploadMethod === 'gcs') {
+      console.log(`☁️ GCS Path: ${webhookPayload.products[0].gcsPath}`);
+      console.log(`🔗 Signed URL: ${webhookPayload.products[0].gcsSignedUrl ? '✅ Presente' : '❌ Faltante'}`);
+      console.log(`📏 Tamaño: ${webhookPayload.products[0].fileSize} bytes`);
+    } else {
+      console.log(`📦 Base64: ${webhookPayload.products[0].base64 ? `${webhookPayload.products[0].base64.length} chars` : '❌ Faltante'}`);
+    }
 
     // Enviar al webhook
     const webhookResult = await sendToWebhook(webhookPayload);

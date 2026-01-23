@@ -309,54 +309,51 @@ export function ProductUploadForm({ marca }: { marca: string }) {
       let contentType: string;
       let fileName: string;
       let imageData: any = {};
-      let base64Data: string | undefined;
 
-      // SIEMPRE convertir a base64 como respaldo (incluso si usamos GCS)
-      console.log(`🖼️ Preparando imagen: ${product.photo.size} bytes, tipo: ${product.photo.type}`);
-
-      let processedFile = product.photo;
-
-      if (product.photo.size > 4 * 1024 * 1024) {
-        console.log(`🗜️ Comprimiendo imagen ${index + 1}...`);
-        processedFile = await compressImage(product.photo);
-        console.log(`✅ Imagen comprimida: ${processedFile.size} bytes`);
-      }
-
-      // Convertir a base64 SIEMPRE (como respaldo)
-      console.log(`🔄 Convirtiendo imagen a base64...`);
-      const buffer = await processedFile.arrayBuffer();
-      console.log(`📏 Buffer creado: ${buffer.byteLength} bytes`);
-
-      base64Data = Buffer.from(buffer).toString("base64");
-      contentType = processedFile.type || "image/jpeg";
-      fileName = processedFile.name.replace(/[^a-zA-Z0-9._-]/g, '_');
-
-      console.log(`✅ Base64 generado: ${base64Data.length} caracteres, contentType: ${contentType}`);
-
-      // Determinar qué datos de imagen incluir
       if (methodConfig.TEST_UPLOAD === 'true' && product.photoGcsUrl) {
-        // Usar imagen desde GCS + base64 como respaldo
+        // ✅ GCS está habilitado y funcionó - usar SOLO GCS (sin base64 para evitar payload grande)
         console.log(`🖼️ Usando imagen desde GCS: ${product.photoGcsPath}`);
         console.log(`🔗 URL firmada: ${product.photoGcsUrl}`);
 
+        contentType = product.photo.type || "image/jpeg";
+        fileName = product.photo.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+
+        // Datos SOLO de GCS (sin base64 para mantener payload pequeño)
         imageData = {
           gcsPath: product.photoGcsPath,
           gcsSignedUrl: product.photoGcsUrl,
           gcsPublicUrl: product.photoGcsPublicUrl,
           fileSize: product.photo.size,
-          base64: base64Data, // Incluir base64 como respaldo
         };
 
-        console.log(`✅ Usando imagen de GCS con base64 respaldo: ${fileName}`);
+        console.log(`✅ Usando SOLO GCS: ${fileName} (${(product.photo.size / 1024).toFixed(1)}KB)`);
       } else {
-        // Usar método base64
-        console.log(`📦 Usando método base64`);
+        // 📦 GCS no disponible o deshabilitado - usar base64
+        console.log(`📦 GCS no disponible, usando base64: ${product.photo.size} bytes`);
 
+        let processedFile = product.photo;
+
+        if (product.photo.size > 4 * 1024 * 1024) {
+          console.log(`🗜️ Comprimiendo imagen ${index + 1}...`);
+          processedFile = await compressImage(product.photo);
+          console.log(`✅ Imagen comprimida: ${processedFile.size} bytes`);
+        }
+
+        // Convertir a base64
+        console.log(`🔄 Convirtiendo imagen a base64...`);
+        const buffer = await processedFile.arrayBuffer();
+        console.log(`📏 Buffer creado: ${buffer.byteLength} bytes`);
+
+        const base64Data = Buffer.from(buffer).toString("base64");
+        contentType = processedFile.type || "image/jpeg";
+        fileName = processedFile.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+
+        // Datos con base64
         imageData = {
           base64: base64Data,
         };
 
-        console.log(`✅ Usando base64: ${base64Data.length} caracteres`);
+        console.log(`✅ Base64 generado: ${base64Data.length} caracteres (${(base64Data.length / 1024 / 1024).toFixed(2)}MB)`);
       }
 
       // Preparar payload del webhook (arreglo de 1 producto, compatible con n8n)
