@@ -74,10 +74,47 @@ export async function GET(
       return NextResponse.redirect(new URL('/placeholder.svg', request.url));
     }
 
-    // Redirigir a la URL de la imagen
-    // Para attachments de Airtable, las URLs son directas y no deberían expirar
-    // Para GCS, usamos URLs firmadas que duran 1 hora
-    console.log(`✅ Sirviendo imagen desde ${imageUrl.includes('storage.googleapis.com') ? 'GCS' : 'Airtable'} para ${recordId}`);
+    // Para URLs de Airtable, hacer fetch y devolver la imagen directamente
+    // Esto evita problemas de cache y expiración de URLs
+    if (!imageUrl.includes('storage.googleapis.com')) {
+      console.log(`📥 Descargando imagen fresca desde Airtable para ${recordId}`);
+
+      try {
+        const imageResponse = await fetch(imageUrl, {
+          headers: {
+            'User-Agent': 'Migraflix/1.0',
+          },
+        });
+
+        if (!imageResponse.ok) {
+          console.warn(`⚠️ No se pudo descargar imagen de Airtable para ${recordId}: ${imageResponse.status}`);
+          return NextResponse.redirect(new URL('/placeholder.svg', request.url));
+        }
+
+        const imageBuffer = await imageResponse.arrayBuffer();
+        const contentType = imageResponse.headers.get('content-type') || 'image/jpeg';
+
+        console.log(`✅ Sirviendo imagen fresca de Airtable (${imageBuffer.byteLength} bytes) para ${recordId}`);
+
+        return new NextResponse(imageBuffer, {
+          status: 200,
+          headers: {
+            'Content-Type': contentType,
+            'Content-Length': imageBuffer.byteLength.toString(),
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache',
+            'Expires': '0',
+          },
+        });
+
+      } catch (fetchError) {
+        console.error(`❌ Error descargando imagen de Airtable para ${recordId}:`, fetchError);
+        return NextResponse.redirect(new URL('/placeholder.svg', request.url));
+      }
+    }
+
+    // Para URLs de GCS, redirigir (ya tienen expiración controlada)
+    console.log(`✅ Redirigiendo a imagen de GCS para ${recordId}`);
     return NextResponse.redirect(imageUrl);
 
   } catch (error) {

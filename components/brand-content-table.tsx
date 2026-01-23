@@ -38,7 +38,27 @@ export function BrandContentTable({ recordIdMarca }: { recordIdMarca: string }) 
   const [contentItems, setContentItems] = useState<ContentItem[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [refreshingImages, setRefreshingImages] = useState(false)
   const { t } = useLanguage()
+
+  const refreshAllImages = async () => {
+    setRefreshingImages(true)
+    try {
+      console.log('🔄 Refrescando todas las imágenes...')
+
+      // Forzar recarga agregando timestamp a todas las URLs
+      setContentItems(prev => prev.map(item => ({
+        ...item,
+        _refreshTimestamp: Date.now() // Forzar re-render
+      })))
+
+      console.log('✅ Todas las imágenes refrescadas')
+    } catch (error) {
+      console.error('❌ Error refrescando imágenes:', error)
+    } finally {
+      setRefreshingImages(false)
+    }
+  }
 
   useEffect(() => {
     async function fetchBrandAndContent() {
@@ -247,8 +267,30 @@ export function BrandContentTable({ recordIdMarca }: { recordIdMarca: string }) 
 
   return (
     <div className="space-y-8">
-      <div className="flex justify-end">
+      <div className="flex justify-end gap-4">
         <LanguageSelector />
+        <Button
+          onClick={refreshAllImages}
+          disabled={refreshingImages}
+          variant="outline"
+          className="bg-white hover:bg-gray-50"
+        >
+          {refreshingImages ? (
+            <>
+              <svg className="h-4 w-4 mr-2 animate-spin" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+              Refrescando...
+            </>
+          ) : (
+            <>
+              <svg className="h-4 w-4 mr-2" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
+              </svg>
+              Refrescar Imágenes
+            </>
+          )}
+        </Button>
       </div>
 
       {brandData && (
@@ -333,18 +375,40 @@ export function BrandContentTable({ recordIdMarca }: { recordIdMarca: string }) 
                     {hasImage ? (
                       <div className="relative w-32 h-32 rounded-lg overflow-hidden bg-gray-100 shadow-md">
                         <Image
-                          src={item.fields["📥 Image"]?.[0]?.url || `/api/content/image/${item.id}`}
+                          key={item._refreshTimestamp || item.id} // Forzar re-render cuando se refresca
+                          src={`${item.fields["📥 Image"]?.[0]?.url || `/api/content/image/${item.id}`}?t=${item._refreshTimestamp || Date.now()}`}
                           alt="Imagen del post"
                           fill
                           className="object-cover"
-                          onError={(e) => {
-                            // Si la URL de Airtable falla, intentar con el endpoint proxy
+                          onError={async (e) => {
                             const img = e.target as HTMLImageElement;
+
                             if (!img.src.includes('/api/content/image/')) {
-                              console.warn(`⚠️ URL de Airtable falló para ${item.id}, intentando proxy`);
-                              img.src = `/api/content/image/${item.id}`;
+                              // Primera falla: intentar refrescar URLs de Airtable
+                              console.warn(`🔄 Primera falla para ${item.id}, intentando refresh de URLs`);
+                              try {
+                                const refreshResponse = await fetch(`/api/content/refresh-image/${item.id}`, {
+                                  method: 'POST',
+                                });
+
+                                if (refreshResponse.ok) {
+                                  const refreshData = await refreshResponse.json();
+                                  if (refreshData.imageData?.airtableUrl) {
+                                    console.log(`✅ URLs refrescadas para ${item.id}, reintentando carga`);
+                                    img.src = `${refreshData.imageData.airtableUrl}?t=${Date.now()}`;
+                                    return;
+                                  }
+                                }
+                              } catch (refreshError) {
+                                console.warn(`⚠️ Error refrescando URLs para ${item.id}:`, refreshError);
+                              }
+
+                              // Si refresh falla, intentar con endpoint proxy
+                              console.warn(`⚠️ Refresh falló para ${item.id}, intentando proxy`);
+                              img.src = `/api/content/image/${item.id}?t=${Date.now()}`;
                             } else {
-                              console.warn(`⚠️ También falló el proxy para ${item.id}, usando placeholder`);
+                              // Proxy también falló, usar placeholder
+                              console.warn(`❌ Proxy también falló para ${item.id}, usando placeholder`);
                               img.src = "/placeholder.svg";
                             }
                           }}
@@ -426,18 +490,40 @@ export function BrandContentTable({ recordIdMarca }: { recordIdMarca: string }) 
                     {hasImage ? (
                       <div className="relative w-32 h-32 rounded-lg overflow-hidden bg-gray-100 shadow-md">
                         <Image
-                          src={item.fields["📥 Image"]?.[0]?.url || `/api/content/image/${item.id}`}
+                          key={item._refreshTimestamp || item.id} // Forzar re-render cuando se refresca
+                          src={`${item.fields["📥 Image"]?.[0]?.url || `/api/content/image/${item.id}`}?t=${item._refreshTimestamp || Date.now()}`}
                           alt="Imagen del post"
                           fill
                           className="object-cover"
-                          onError={(e) => {
-                            // Si la URL de Airtable falla, intentar con el endpoint proxy
+                          onError={async (e) => {
                             const img = e.target as HTMLImageElement;
+
                             if (!img.src.includes('/api/content/image/')) {
-                              console.warn(`⚠️ URL de Airtable falló para ${item.id}, intentando proxy`);
-                              img.src = `/api/content/image/${item.id}`;
+                              // Primera falla: intentar refrescar URLs de Airtable
+                              console.warn(`🔄 Primera falla para ${item.id}, intentando refresh de URLs`);
+                              try {
+                                const refreshResponse = await fetch(`/api/content/refresh-image/${item.id}`, {
+                                  method: 'POST',
+                                });
+
+                                if (refreshResponse.ok) {
+                                  const refreshData = await refreshResponse.json();
+                                  if (refreshData.imageData?.airtableUrl) {
+                                    console.log(`✅ URLs refrescadas para ${item.id}, reintentando carga`);
+                                    img.src = `${refreshData.imageData.airtableUrl}?t=${Date.now()}`;
+                                    return;
+                                  }
+                                }
+                              } catch (refreshError) {
+                                console.warn(`⚠️ Error refrescando URLs para ${item.id}:`, refreshError);
+                              }
+
+                              // Si refresh falla, intentar con endpoint proxy
+                              console.warn(`⚠️ Refresh falló para ${item.id}, intentando proxy`);
+                              img.src = `/api/content/image/${item.id}?t=${Date.now()}`;
                             } else {
-                              console.warn(`⚠️ También falló el proxy para ${item.id}, usando placeholder`);
+                              // Proxy también falló, usar placeholder
+                              console.warn(`❌ Proxy también falló para ${item.id}, usando placeholder`);
                               img.src = "/placeholder.svg";
                             }
                           }}
