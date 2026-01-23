@@ -4,9 +4,5 @@
       "maxDuration": 30
     }
   },
-  "regions": ["iad1"],
-  "maxLambdaSize": "50mb",
-  "buildCommand": "npm run build",
-  "devCommand": "npm run dev",
-  "installCommand": "npm install"
+  "regions": ["iad1"]
 }
