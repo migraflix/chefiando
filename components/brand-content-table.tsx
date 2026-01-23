@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { ExternalLink, Loader2, ImageIcon, FileText, CheckCircle2, Clock, AlertTriangle } from "lucide-react"
+import { ExternalLink, Loader2, Image, FileText, CheckCircle2, Clock, AlertTriangle } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
 import { useLanguage } from "@/contexts/language-context"
@@ -132,7 +132,7 @@ export function BrandContentTable({ recordIdMarca }: { recordIdMarca: string }) 
       return {
         label: t.brand.status.creatingImage,
         color: "bg-blue-100 text-blue-800",
-        icon: ImageIcon,
+        icon: Image,
         description: t.brand.status.creatingImageDescription,
         isProcessing: true,
       }
@@ -146,7 +146,7 @@ export function BrandContentTable({ recordIdMarca }: { recordIdMarca: string }) 
         return {
           label: t.brand.status.creatingImage,
           color: "bg-blue-100 text-blue-800",
-          icon: ImageIcon,
+          icon: Image,
           description: t.brand.status.creatingImageDescription,
           isProcessing: true,
         }

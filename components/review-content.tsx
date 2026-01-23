@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Spinner } from "@/components/ui/spinner"
 import { StarRating } from "@/components/star-rating"
-import { AlertTriangle, ImageIcon, Utensils } from 'lucide-react'
+import { AlertTriangle, Image, Utensils } from 'lucide-react'
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import confetti from "canvas-confetti"
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -328,7 +328,7 @@ export function ReviewContent({ recordId }: { recordId: string }) {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <ImageIcon className="h-5 w-5" />
+              <Image className="h-5 w-5" />
               {t.review.image.title}
             </CardTitle>
           </CardHeader>
