@@ -111,7 +111,12 @@ export function BrandContentTable({ recordIdMarca }: { recordIdMarca: string }) 
       return {
         label: t.brand.status.creating,
         color: "bg-blue-100 text-blue-800",
-        icon: Clock,
+        icon: () => (
+          <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="10" />
+            <polyline points="12,6 12,12 16,14" />
+          </svg>
+        ),
         description: t.brand.status.creatingDescription,
         isProcessing: true,
       }
@@ -169,7 +174,12 @@ export function BrandContentTable({ recordIdMarca }: { recordIdMarca: string }) 
       return {
         label: t.brand.status.creating,
         color: "bg-blue-100 text-blue-800",
-        icon: Clock,
+        icon: () => (
+          <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="10" />
+            <polyline points="12,6 12,12 16,14" />
+          </svg>
+        ),
         description: t.brand.status.creatingDescription,
         isProcessing: true,
       }
