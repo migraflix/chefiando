@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { CheckCircle2, XCircle, Loader2, AlertTriangle } from "lucide-react"
+import { CheckCircle2, XCircle, Loader2, TriangleAlert } from "lucide-react"
 
 export default function AirtableDebugPage() {
   const [testing, setTesting] = useState(false)
@@ -237,7 +237,7 @@ export default function AirtableDebugPage() {
                 {results.server && (
                   <div>
                     <h3 className="font-semibold mb-2 flex items-center gap-2">
-                      <AlertTriangle className="h-5 w-5 text-blue-500" />
+                      <TriangleAlert className="h-5 w-5 text-blue-500" />
                       Información del Servidor
                     </h3>
                     <div className="bg-muted p-4 rounded-lg space-y-2 text-sm font-mono">
@@ -252,7 +252,7 @@ export default function AirtableDebugPage() {
                 {results.tableTests && results.tableTests.length > 0 && (
                   <div>
                     <h3 className="font-semibold mb-2 flex items-center gap-2">
-                      <AlertTriangle className="h-5 w-5 text-blue-500" />
+                      <TriangleAlert className="h-5 w-5 text-blue-500" />
                       Pruebas con Diferentes Nombres de Tabla
                     </h3>
                     <div className="bg-muted p-4 rounded-lg space-y-2 text-sm">
@@ -299,7 +299,7 @@ export default function AirtableDebugPage() {
                 {results?.permissionsTest && (
                   <div>
                     <h3 className="font-semibold mb-2 flex items-center gap-2">
-                      <AlertTriangle className="h-5 w-5 text-blue-500" />
+                      <TriangleAlert className="h-5 w-5 text-blue-500" />
                       Prueba de Permisos Detallada
                     </h3>
                     <div className="bg-muted p-4 rounded-lg space-y-3 text-sm">
