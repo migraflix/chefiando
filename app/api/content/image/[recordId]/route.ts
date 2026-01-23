@@ -70,11 +70,14 @@ export async function GET(
 
     if (!imageUrl) {
       // No hay imagen, devolver placeholder
+      console.log(`❌ No se encontró imagen para record ${recordId}`);
       return NextResponse.redirect(new URL('/placeholder.svg', request.url));
     }
 
     // Redirigir a la URL de la imagen
-    // Esto permite que el navegador maneje el cache y evita problemas de CORS
+    // Para attachments de Airtable, las URLs son directas y no deberían expirar
+    // Para GCS, usamos URLs firmadas que duran 1 hora
+    console.log(`✅ Sirviendo imagen desde ${imageUrl.includes('storage.googleapis.com') ? 'GCS' : 'Airtable'} para ${recordId}`);
     return NextResponse.redirect(imageUrl);
 
   } catch (error) {

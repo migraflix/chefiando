@@ -333,10 +333,21 @@ export function BrandContentTable({ recordIdMarca }: { recordIdMarca: string }) 
                     {hasImage ? (
                       <div className="relative w-32 h-32 rounded-lg overflow-hidden bg-gray-100 shadow-md">
                         <Image
-                          src={`/api/content/image/${item.id}`}
+                          src={item.fields["📥 Image"]?.[0]?.url || `/api/content/image/${item.id}`}
                           alt="Imagen del post"
                           fill
                           className="object-cover"
+                          onError={(e) => {
+                            // Si la URL de Airtable falla, intentar con el endpoint proxy
+                            const img = e.target as HTMLImageElement;
+                            if (!img.src.includes('/api/content/image/')) {
+                              console.warn(`⚠️ URL de Airtable falló para ${item.id}, intentando proxy`);
+                              img.src = `/api/content/image/${item.id}`;
+                            } else {
+                              console.warn(`⚠️ También falló el proxy para ${item.id}, usando placeholder`);
+                              img.src = "/placeholder.svg";
+                            }
+                          }}
                         />
                       </div>
                         ) : isProcessing ? (
@@ -415,10 +426,21 @@ export function BrandContentTable({ recordIdMarca }: { recordIdMarca: string }) 
                     {hasImage ? (
                       <div className="relative w-32 h-32 rounded-lg overflow-hidden bg-gray-100 shadow-md">
                         <Image
-                          src={`/api/content/image/${item.id}`}
+                          src={item.fields["📥 Image"]?.[0]?.url || `/api/content/image/${item.id}`}
                           alt="Imagen del post"
                           fill
                           className="object-cover"
+                          onError={(e) => {
+                            // Si la URL de Airtable falla, intentar con el endpoint proxy
+                            const img = e.target as HTMLImageElement;
+                            if (!img.src.includes('/api/content/image/')) {
+                              console.warn(`⚠️ URL de Airtable falló para ${item.id}, intentando proxy`);
+                              img.src = `/api/content/image/${item.id}`;
+                            } else {
+                              console.warn(`⚠️ También falló el proxy para ${item.id}, usando placeholder`);
+                              img.src = "/placeholder.svg";
+                            }
+                          }}
                         />
                       </div>
                     ) : isProcessing ? (
