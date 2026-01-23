@@ -1,5 +1,12 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // API: aumentar límites para subir archivos grandes
+  api: {
+    bodyParser: {
+      sizeLimit: '25mb', // Aumentar límite a 25MB
+    },
+  },
+
   // TypeScript: validar errores en build para detectar problemas temprano
   typescript: {
     ignoreBuildErrors: false,
