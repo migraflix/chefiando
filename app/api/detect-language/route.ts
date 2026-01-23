@@ -14,10 +14,9 @@ export async function GET(request: NextRequest) {
     const vercelIp = request.headers.get("x-vercel-forwarded-for")
     const forwardedFor = request.headers.get("x-forwarded-for")
     const realIp = request.headers.get("x-real-ip")
-    const ip = vercelIp?.split(",")[0]?.trim() || 
-               forwardedFor?.split(",")[0]?.trim() || 
-               realIp || 
-               request.ip || 
+    const ip = vercelIp?.split(",")[0]?.trim() ||
+               forwardedFor?.split(",")[0]?.trim() ||
+               realIp ||
                ""
 
     // Detectar si es IP local
