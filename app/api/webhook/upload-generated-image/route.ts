@@ -17,6 +17,8 @@ export async function POST(request: NextRequest) {
     const recordId = formData.get('recordId') as string;
     const contentType = formData.get('contentType') as string || 'image/jpeg';
 
+    console.log(`🤖 Subiendo imagen generada para record ${recordId}, tamaño: ${imageFile.size} bytes`);
+
     if (!imageFile) {
       return NextResponse.json(
         { error: 'No image file provided' },
