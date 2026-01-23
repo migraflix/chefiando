@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { ExternalLink, Loader2, ImageIcon, FileText, CheckCircle2, Clock, AlertCircle } from "lucide-react"
+import { ExternalLink, Loader2, ImageIcon, FileText, CheckCircle2, Clock, AlertTriangle } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
 import { useLanguage } from "@/contexts/language-context"
@@ -176,7 +176,7 @@ export function BrandContentTable({ recordIdMarca }: { recordIdMarca: string }) 
       return {
         label: t.brand.status.pendingReview,
         color: "bg-yellow-100 text-yellow-800",
-        icon: AlertCircle,
+        icon: AlertTriangle,
         description: t.brand.status.pendingReviewDescription,
         isProcessing: false,
       }

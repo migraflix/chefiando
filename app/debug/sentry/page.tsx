@@ -1,7 +1,7 @@
 "use client";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { CheckCircle2, XCircle, AlertCircle, Info } from "lucide-react";
+import { CheckCircle2, XCircle, AlertTriangle, InfoIcon } from "lucide-react";
 import { useState, useEffect } from "react";
 import * as Sentry from "@sentry/nextjs";
 
@@ -65,7 +65,7 @@ export default function SentryDebugPage() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Info className="h-6 w-6" />
+            <InfoIcon className="h-6 w-6" />
             Debug de Sentry
           </CardTitle>
           <CardDescription>
