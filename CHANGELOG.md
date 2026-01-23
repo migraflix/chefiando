@@ -7,11 +7,17 @@
 #### 🐛 **Problemas corregidos**
 - **Conflicto de importaciones**: Eliminado conflicto entre `Image` de lucide-react y Next.js
 - **Íconos problemáticos**: Reemplazados todos los íconos inexistentes con SVGs inline
+- **Errores de TypeScript**: Corregidos errores de tipos en rutas de API
+- **Propiedad inexistente**: Removido `request.ip` que no existe en NextRequest
 - **Compilación en Vercel**: Build funciona correctamente en entorno de producción
 
 #### 📦 **Dependencias**
 - Removido import conflictuoso de `Image` en `brand-content-table.tsx`
 - Optimizado uso de SVGs inline para evitar dependencias externas
+
+#### 🔧 **Correcciones de código**
+- `app/api/debug/check-env/route.ts`: Cambiado `analysis.apiKey.startsWith()` por `apiKey.startsWith()`
+- `app/api/debug/permissions/route.ts`: Removido `request.ip` inexistente, usar solo headers
 
 ---
 
