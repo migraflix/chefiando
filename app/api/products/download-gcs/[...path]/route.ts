@@ -11,11 +11,14 @@ export async function GET(
 ) {
   try {
     // Verificar si GCS está habilitado
-    if (process.env.TEST_UPLOAD !== 'true') {
+    const isGcsEnabled = (process.env.NODE_ENV === 'production' && !!process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON) ||
+                        process.env.TEST_UPLOAD === 'true';
+
+    if (!isGcsEnabled) {
       return NextResponse.json(
         {
           error: "GCS is not enabled",
-          message: "Set TEST_UPLOAD=true to enable Google Cloud Storage downloads"
+          message: "Configure GOOGLE_APPLICATION_CREDENTIALS_JSON or set TEST_UPLOAD=true to enable Google Cloud Storage downloads"
         },
         { status: 400 }
       );

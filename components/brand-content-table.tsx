@@ -330,15 +330,15 @@ export function BrandContentTable({ recordIdMarca }: { recordIdMarca: string }) 
                   <tr key={item.id} className="hover:bg-gray-50 transition-colors">
                     <td className="px-6 py-4">
                       <div className="space-y-3">
-                        {hasImage ? (
-                          <div className="relative w-32 h-32 rounded-lg overflow-hidden bg-gray-100 shadow-md">
-                            <Image
-                              src={item.fields["📥 Image"]?.[0]?.url || "/placeholder.svg"}
-                              alt="Imagen del post"
-                              fill
-                              className="object-cover"
-                            />
-                          </div>
+                    {hasImage ? (
+                      <div className="relative w-32 h-32 rounded-lg overflow-hidden bg-gray-100 shadow-md">
+                        <Image
+                          src={`/api/content/image/${item.id}`}
+                          alt="Imagen del post"
+                          fill
+                          className="object-cover"
+                        />
+                      </div>
                         ) : isProcessing ? (
                           <div className="w-32 h-32 rounded-lg bg-gray-200 flex items-center justify-center shadow-md">
                             <svg className="h-6 w-6 text-blue-500 animate-spin" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
@@ -415,7 +415,7 @@ export function BrandContentTable({ recordIdMarca }: { recordIdMarca: string }) 
                     {hasImage ? (
                       <div className="relative w-32 h-32 rounded-lg overflow-hidden bg-gray-100 shadow-md">
                         <Image
-                          src={item.fields["📥 Image"]?.[0]?.url || "/placeholder.svg"}
+                          src={`/api/content/image/${item.id}`}
                           alt="Imagen del post"
                           fill
                           className="object-cover"

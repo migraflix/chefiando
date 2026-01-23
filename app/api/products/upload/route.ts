@@ -190,7 +190,7 @@ async function createPhotoRecordInAirtable(
 
   try {
     const encodedTableName = encodeURIComponent(PHOTOS_TABLE_NAME);
-    
+
     const fields: Record<string, any> = {
       Nombre: sanitizeString(productData.name),
       Ingredientes: sanitizeString(productData.description),
@@ -202,6 +202,20 @@ async function createPhotoRecordInAirtable(
       if (!isNaN(priceValue) && priceValue > 0) {
         fields["Precio"] = priceValue;
       }
+    }
+
+    // Agregar información de GCS si está disponible
+    if (productData.gcsPath) {
+      fields["GCS Path"] = productData.gcsPath;
+    }
+    if (productData.gcsSignedUrl) {
+      fields["GCS Signed URL"] = productData.gcsSignedUrl;
+    }
+    if (productData.gcsPublicUrl) {
+      fields["GCS Public URL"] = productData.gcsPublicUrl;
+    }
+    if (productData.fileSize) {
+      fields["File Size"] = productData.fileSize;
     }
 
     fields["Brand"] = [marca];
