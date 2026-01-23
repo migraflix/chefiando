@@ -74,11 +74,11 @@ function validateWebhookPayload(payload: any): { valid: boolean; errors: string[
   };
 }
 
-// Constantes de optimización para 5 imágenes máximo
-const MAX_TOTAL_SIZE = 25 * 1024 * 1024; // 25MB total máximo (5MB x 5 promedio)
+// Constantes de optimización para imágenes individuales (3-10MB cada una)
+const MAX_TOTAL_SIZE = 12 * 1024 * 1024; // 12MB máximo por imagen (margen de seguridad sobre 10MB)
 const BATCH_SIZE = 1; // Procesar 1 imagen por vez para envío inmediato al webhook
 const COMPRESSION_QUALITY = 0.8; // 80% calidad para reducir tamaño
-const MAX_PROCESSING_TIME = 25000; // 25 segundos máximo total
+const MAX_PROCESSING_TIME = 30000; // 30 segundos máximo por imagen
 const RETRY_ATTEMPTS = 3; // Reintentos para fallos temporales (3 intentos total)
 const SEND_IMMEDIATE = true; // Enviar cada lote inmediatamente al webhook
 
