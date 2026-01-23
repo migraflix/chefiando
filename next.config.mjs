@@ -1,9 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // API: aumentar límites para subir archivos grandes
+  // API: límite de archivos (Vercel Hobby = 4.5MB)
   api: {
     bodyParser: {
-      sizeLimit: '30mb', // Límite de 30MB (margen sobre 25MB)
+      sizeLimit: '5mb', // Límite de 5MB (margen sobre 4.5MB)
     },
   },
 

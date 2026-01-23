@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { MAX_PRODUCTS, MAX_FILE_SIZE, ALLOWED_TYPES, MAX_DESCRIPTION_LENGTH, MAX_NAME_LENGTH } from "@/lib/constants";
+import { MAX_PRODUCTS, MAX_FILE_SIZE, ALLOWED_TYPES, MAX_DESCRIPTION_LENGTH, MAX_NAME_LENGTH, COMPRESS_THRESHOLD } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -615,16 +615,98 @@ export function ProductUploadForm({ marca }: { marca: string }) {
     );
   };
 
-  // Función auxiliar para comprimir imagen (extraída para reutilizar)
-  const compressImage = async (file: File): Promise<File> => {
-    // Implementación básica de compresión (puedes mejorar esto)
-    if (file.type === 'image/jpeg' && file.size > 3 * 1024 * 1024) {
-      console.log(`🗜️ Aplicando compresión básica a JPEG grande`);
-      // Por ahora devolvemos el archivo original
-      // En producción implementarías compresión real
+  // Función para comprimir imagen usando Canvas API (sin dependencias externas)
+  const compressImage = async (file: File, maxSizeMB: number = 4): Promise<File> => {
+    // Si el archivo ya es pequeño, no comprimir
+    if (file.size <= COMPRESS_THRESHOLD) {
+      console.log(`✅ Archivo pequeño (${(file.size / 1024 / 1024).toFixed(2)}MB), no necesita compresión`);
       return file;
     }
-    return file;
+
+    console.log(`🗜️ Comprimiendo imagen: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB)`);
+
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+
+      img.onload = () => {
+        try {
+          // Calcular nuevas dimensiones si la imagen es muy grande
+          let { width, height } = img;
+          const maxDimension = 2048; // Máximo 2048px en cualquier lado
+
+          if (width > maxDimension || height > maxDimension) {
+            if (width > height) {
+              height = Math.round((height * maxDimension) / width);
+              width = maxDimension;
+            } else {
+              width = Math.round((width * maxDimension) / height);
+              height = maxDimension;
+            }
+            console.log(`📐 Redimensionando: ${img.width}x${img.height} → ${width}x${height}`);
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+
+          // Dibujar imagen en canvas
+          ctx?.drawImage(img, 0, 0, width, height);
+
+          // Intentar diferentes niveles de calidad hasta lograr el tamaño deseado
+          const targetSize = maxSizeMB * 1024 * 1024;
+          let quality = 0.85;
+          let blob: Blob | null = null;
+
+          const tryCompress = () => {
+            canvas.toBlob(
+              (result) => {
+                if (!result) {
+                  reject(new Error('Error al comprimir imagen'));
+                  return;
+                }
+
+                blob = result;
+                console.log(`   Calidad ${(quality * 100).toFixed(0)}%: ${(blob.size / 1024 / 1024).toFixed(2)}MB`);
+
+                // Si aún es muy grande y podemos bajar más la calidad
+                if (blob.size > targetSize && quality > 0.3) {
+                  quality -= 0.15;
+                  tryCompress();
+                } else {
+                  // Crear nuevo File con el blob comprimido
+                  const compressedFile = new File(
+                    [blob],
+                    file.name.replace(/\.[^/.]+$/, '.jpg'), // Cambiar extensión a .jpg
+                    { type: 'image/jpeg' }
+                  );
+
+                  const reduction = ((1 - compressedFile.size / file.size) * 100).toFixed(1);
+                  console.log(`✅ Compresión completada: ${(file.size / 1024 / 1024).toFixed(2)}MB → ${(compressedFile.size / 1024 / 1024).toFixed(2)}MB (-${reduction}%)`);
+
+                  resolve(compressedFile);
+                }
+              },
+              'image/jpeg',
+              quality
+            );
+          };
+
+          tryCompress();
+        } catch (error) {
+          console.error('Error en compresión:', error);
+          resolve(file); // En caso de error, devolver original
+        }
+      };
+
+      img.onerror = () => {
+        console.error('Error cargando imagen para compresión');
+        resolve(file); // En caso de error, devolver original
+      };
+
+      // Cargar imagen desde File
+      img.src = URL.createObjectURL(file);
+    });
   };
 
   // En el sistema de páginas, no necesitamos eliminar productos
@@ -636,33 +718,33 @@ export function ProductUploadForm({ marca }: { marca: string }) {
     setProduct(prevProduct => ({ ...prevProduct, ...updates }));
   };
 
-  const handlePhotoChange = (
+  const handlePhotoChange = async (
     id: string,
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
-    const file = event.target.files?.[0];
-    if (!file) {
+    const originalFile = event.target.files?.[0];
+    if (!originalFile) {
       logFormWarning("No se seleccionó archivo", "photo-upload", "file_selection_empty", { productId: id });
       return;
     }
 
     logFormSuccess("Archivo seleccionado", "photo-upload", "file_selected", {
       productId: id,
-      fileName: file.name,
-      fileSize: file.size,
-      fileType: file.type
+      fileName: originalFile.name,
+      fileSize: originalFile.size,
+      fileType: originalFile.type
     });
 
     // Validar tipo
-    if (!ALLOWED_TYPES.includes(file.type as any)) {
+    if (!ALLOWED_TYPES.includes(originalFile.type as any)) {
       logFormError(
-        `Tipo de archivo no válido: ${file.type}`,
+        `Tipo de archivo no válido: ${originalFile.type}`,
         "photo-upload",
         "file_type_invalid",
         {
           productId: id,
-          fileName: file.name,
-          fileType: file.type,
+          fileName: originalFile.name,
+          fileType: originalFile.type,
           allowedTypes: ALLOWED_TYPES
         }
       );
@@ -674,22 +756,50 @@ export function ProductUploadForm({ marca }: { marca: string }) {
       return;
     }
 
-    // Validar tamaño
+    // Si el archivo es grande, comprimir automáticamente
+    let file = originalFile;
+    if (originalFile.size > COMPRESS_THRESHOLD) {
+      toast({
+        title: "Comprimiendo imagen...",
+        description: `Archivo grande (${(originalFile.size / 1024 / 1024).toFixed(1)}MB), optimizando...`,
+      });
+
+      try {
+        file = await compressImage(originalFile, 4); // Comprimir a máximo 4MB
+
+        if (file.size < originalFile.size) {
+          toast({
+            title: "Imagen optimizada",
+            description: `${(originalFile.size / 1024 / 1024).toFixed(1)}MB → ${(file.size / 1024 / 1024).toFixed(1)}MB`,
+          });
+        }
+      } catch (error) {
+        console.error('Error comprimiendo:', error);
+        // Continuar con archivo original si falla la compresión
+      }
+    }
+
+    // Validar tamaño después de compresión
     if (file.size > MAX_FILE_SIZE) {
+      const sizeMB = (file.size / 1024 / 1024).toFixed(1);
+      const maxMB = (MAX_FILE_SIZE / 1024 / 1024).toFixed(1);
+
       logFormError(
-        `Archivo demasiado grande: ${Math.round(file.size / 1024 / 1024)}MB (máx: ${Math.round(MAX_FILE_SIZE / 1024 / 1024)}MB)`,
+        `Archivo demasiado grande: ${sizeMB}MB (máx: ${maxMB}MB)`,
         "photo-upload",
         "file_size_too_large",
         {
           productId: id,
           fileName: file.name,
           fileSize: file.size,
+          originalSize: originalFile.size,
           maxSize: MAX_FILE_SIZE
         }
       );
 
       toast({
-        title: t.products.validation.photoSize,
+        title: "Imagen demasiado grande",
+        description: `El archivo pesa ${sizeMB}MB. El límite es ${maxMB}MB. Por favor usa una imagen más pequeña o de menor resolución.`,
         variant: "destructive",
       });
       return;
@@ -697,7 +807,9 @@ export function ProductUploadForm({ marca }: { marca: string }) {
 
     logFormSuccess("Validaciones de archivo pasadas", "photo-upload", "file_validation_success", {
       productId: id,
-      fileName: file.name
+      fileName: file.name,
+      finalSize: file.size,
+      wasCompressed: file !== originalFile
     });
 
     // Crear preview y subir automáticamente a GCS

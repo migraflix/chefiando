@@ -3,7 +3,10 @@
 
 // Configuración de productos
 export const MAX_PRODUCTS = 5;
-export const MAX_FILE_SIZE = 25 * 1024 * 1024; // 25MB
+export const MAX_FILE_SIZE = 4.5 * 1024 * 1024; // 4.5MB (limite de Vercel Hobby)
+
+// Tamaño a partir del cual se comprime automáticamente
+export const COMPRESS_THRESHOLD = 2 * 1024 * 1024; // 2MB
 export const MAX_NAME_LENGTH = 100;
 export const MAX_DESCRIPTION_LENGTH = 500;
 
