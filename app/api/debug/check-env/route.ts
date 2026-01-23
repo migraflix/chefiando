@@ -55,11 +55,11 @@ export async function GET() {
       analysis.recommendations.push("⚠️ El Base ID tiene espacios al inicio o final. Elimínalos.")
     }
 
-    if (!analysis.apiKey.startsWith("pat") && !analysis.apiKey.startsWith("key")) {
+    if (!apiKey.startsWith("pat") && !apiKey.startsWith("key")) {
       analysis.recommendations.push("⚠️ El API Key no tiene el formato esperado (debería empezar con 'pat' o 'key')")
     }
 
-    if (!analysis.baseId.startsWith("app") || analysis.baseId.length !== 17) {
+    if (!baseId.startsWith("app") || baseId.length !== 17) {
       analysis.recommendations.push("⚠️ El Base ID no tiene el formato esperado (debería empezar con 'app' y tener 17 caracteres)")
     }
 
