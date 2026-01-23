@@ -22,17 +22,7 @@ const nextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'dl.airtableusercontent.com',
-        pathname: '**',
-      },
-      {
-        protocol: 'https',
-        hostname: 'v5.airtableusercontent.com',
-        pathname: '**',
-      },
-      {
-        protocol: 'https',
-        hostname: 'v3.airtableusercontent.com',
+        hostname: '*.airtableusercontent.com',
         pathname: '**',
       },
     ],

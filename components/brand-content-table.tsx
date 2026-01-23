@@ -341,14 +341,6 @@ export function BrandContentTable({ recordIdMarca }: { recordIdMarca: string }) 
                             className="object-cover"
                           />
                         </div>
-                        <a
-                          href={item.fields["📥 Image"]?.[0]?.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-xs text-blue-600 hover:text-blue-800 underline break-all block max-w-32"
-                        >
-                          📥 Image url
-                        </a>
                       </div>
                         ) : isProcessing ? (
                           <div className="w-32 h-32 rounded-lg bg-gray-200 flex items-center justify-center shadow-md">
@@ -433,14 +425,6 @@ export function BrandContentTable({ recordIdMarca }: { recordIdMarca: string }) 
                             className="object-cover"
                           />
                         </div>
-                        <a
-                          href={item.fields["📥 Image"]?.[0]?.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-xs text-blue-600 hover:text-blue-800 underline break-all text-center max-w-48"
-                        >
-                          📥 Image url
-                        </a>
                       </div>
                     ) : isProcessing ? (
                       <div className="w-32 h-32 rounded-lg bg-gray-200 flex items-center justify-center shadow-md">
