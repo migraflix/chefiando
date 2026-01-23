@@ -14,6 +14,7 @@ import confetti from "canvas-confetti"
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useToast } from "@/hooks/use-toast"
 import { useLanguage } from "@/contexts/language-context"
+import { noCacheUrl } from "@/lib/utils"
 
 interface AirtableRecord {
   id: string
@@ -225,8 +226,12 @@ export function ReviewContent({ recordId }: { recordId: string }) {
     )
   }
 
-  const imageUrl = record.fields["📥 Image"]?.[0]?.url
-  const originalImageUrl = record.aiPhoto?.fields["Imagen"]?.[0]?.url
+  const imageUrl = noCacheUrl(record.fields["📥 Image"]?.[0]?.url, record.id)
+  // Para la foto original, usar el ID del aiPhoto o el ID del record como fallback
+  const originalImageUrl = noCacheUrl(
+    record.aiPhoto?.fields["Imagen"]?.[0]?.url,
+    record.aiPhoto?.id || `orig-${record.id}`
+  )
 
   return (
     <div className="space-y-6">

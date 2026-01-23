@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import Image from "next/image"
 import { useLanguage } from "@/contexts/language-context"
+import { noCacheUrl } from "@/lib/utils"
 import { LanguageSelector } from "@/components/language-selector"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
@@ -212,7 +213,7 @@ export function AllContentTable({ status }: { status: "pending" | "reviewed" }) 
                         {item.fields["📥 Image"]?.[0]?.url ? (
                           <div className="relative w-20 h-20 rounded-lg overflow-hidden bg-gray-100">
                             <Image
-                              src={item.fields["📥 Image"][0].url || "/placeholder.svg"}
+                              src={noCacheUrl(item.fields["📥 Image"][0].url, item.id)}
                               alt="Imagen del post"
                               fill
                               className="object-cover"
@@ -269,7 +270,7 @@ export function AllContentTable({ status }: { status: "pending" | "reviewed" }) 
                         {item.fields["📥 Image"]?.[0]?.url ? (
                           <div className="relative w-24 h-24 rounded-lg overflow-hidden bg-gray-100">
                             <Image
-                              src={item.fields["📥 Image"][0].url || "/placeholder.svg"}
+                              src={noCacheUrl(item.fields["📥 Image"][0].url, item.id)}
                               alt="Imagen del post"
                               fill
                               className="object-cover"

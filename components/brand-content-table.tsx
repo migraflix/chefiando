@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import Image from "next/image"
 import { useLanguage } from "@/contexts/language-context"
+import { noCacheUrl } from "@/lib/utils"
 import { LanguageSelector } from "@/components/language-selector"
 
 interface ContentItem {
@@ -335,7 +336,7 @@ export function BrandContentTable({ recordIdMarca }: { recordIdMarca: string }) 
                       <div className="space-y-2">
                         <div className="relative w-32 h-32 rounded-lg overflow-hidden bg-gray-100 shadow-md">
                           <Image
-                            src={item.fields["📥 Image"]?.[0]?.url || "/placeholder.svg"}
+                            src={noCacheUrl(item.fields["📥 Image"]?.[0]?.url, item.id)}
                             alt="Imagen del post"
                             fill
                             className="object-cover"
@@ -419,7 +420,7 @@ export function BrandContentTable({ recordIdMarca }: { recordIdMarca: string }) 
                       <div className="space-y-2 flex flex-col items-center">
                         <div className="relative w-32 h-32 rounded-lg overflow-hidden bg-gray-100 shadow-md">
                           <Image
-                            src={item.fields["📥 Image"]?.[0]?.url || "/placeholder.svg"}
+                            src={noCacheUrl(item.fields["📥 Image"]?.[0]?.url, item.id)}
                             alt="Imagen del post"
                             fill
                             className="object-cover"
