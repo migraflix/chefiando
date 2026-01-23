@@ -64,6 +64,7 @@ export function LanguageSelector() {
         onClick={() => setLanguage("pt")}
         className="text-xs px-3 h-7"
         title="Alterar para português"
+        suppressHydrationWarning={true}
       >
         🇧🇷 PT
       </Button>
@@ -73,6 +74,7 @@ export function LanguageSelector() {
         onClick={() => setLanguage("es")}
         className="text-xs px-3 h-7"
         title="Cambiar a español"
+        suppressHydrationWarning={true}
       >
         🇪🇸 ES
       </Button>

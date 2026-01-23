@@ -1016,6 +1016,7 @@ export function ProductUploadForm({ marca }: { marca: string }) {
                 placeholder={t.products.fields.namePlaceholder}
                 className="h-12 text-base"
                 maxLength={MAX_NAME_LENGTH}
+                suppressHydrationWarning={true}
               />
               <div className="flex justify-end text-xs text-muted-foreground">
                 <span className={product.name.length > MAX_NAME_LENGTH ? "text-destructive" : ""}>
@@ -1059,6 +1060,7 @@ export function ProductUploadForm({ marca }: { marca: string }) {
                 onChange={(e) => updateProduct({ price: e.target.value })}
                 placeholder={t.products.fields.pricePlaceholder}
                 className="h-12 text-base"
+                suppressHydrationWarning={true}
               />
             </div>
 
@@ -1072,6 +1074,7 @@ export function ProductUploadForm({ marca }: { marca: string }) {
                       id={`tag-${currentStep}-${key}`}
                       checked={product.tags.includes(key)}
                       onCheckedChange={() => toggleTag(key)}
+                      suppressHydrationWarning={true}
                     />
                     <Label
                       htmlFor={`tag-${currentStep}-${key}`}
@@ -1098,6 +1101,7 @@ export function ProductUploadForm({ marca }: { marca: string }) {
             size="lg"
             className="flex-1 text-lg"
             variant="default"
+            suppressHydrationWarning={true}
           >
             {isProcessingProduct ? (
               <>
