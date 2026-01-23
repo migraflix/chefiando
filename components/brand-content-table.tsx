@@ -3,9 +3,7 @@
 import { useEffect, useState } from "react"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { ExternalLink, FileText, CheckCircle2 } from "lucide-react"
-// Using inline SVGs for clock and loader icons
-// Using inline SVG for alert icon
+// All icons replaced with inline SVGs - no lucide-react dependency
 import Link from "next/link"
 import Image from "next/image"
 import { useLanguage } from "@/contexts/language-context"
@@ -130,7 +128,11 @@ export function BrandContentTable({ recordIdMarca }: { recordIdMarca: string }) 
       return {
         label: t.brand.status.creatingPost,
         color: "bg-purple-100 text-purple-800",
-        icon: FileText,
+        icon: () => (
+          <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+        ),
         description: t.brand.status.creatingPostDescription,
         isProcessing: true,
       }
@@ -166,7 +168,11 @@ export function BrandContentTable({ recordIdMarca }: { recordIdMarca: string }) 
         return {
           label: t.brand.status.creatingPost,
           color: "bg-purple-100 text-purple-800",
-          icon: FileText,
+          icon: () => (
+          <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+        ),
           description: t.brand.status.creatingPostDescription,
           isProcessing: true,
         }
@@ -205,7 +211,11 @@ export function BrandContentTable({ recordIdMarca }: { recordIdMarca: string }) 
       return {
         label: t.brand.status.reviewed,
         color: "bg-green-100 text-green-800",
-        icon: CheckCircle2,
+        icon: () => (
+          <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        ),
         description: t.brand.status.reviewedDescription,
         isProcessing: false,
       }
@@ -339,7 +349,9 @@ export function BrandContentTable({ recordIdMarca }: { recordIdMarca: string }) 
                         {hasPost ? (
                           <Link href={`/review/${item.id}?brandId=${recordIdMarca}`}>
                             <Button size="sm" className="w-full bg-orange-500 hover:bg-orange-600 text-white">
-                              <ExternalLink className="h-4 w-4 mr-2" />
+                              <svg className="h-4 w-4 mr-2" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                            </svg>
                               {t.brand.table.rate}
                             </Button>
                           </Link>

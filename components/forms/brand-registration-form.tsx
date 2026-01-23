@@ -19,8 +19,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/language-context";
 import { useErrorLogger } from "@/lib/error-logger";
-import { ArrowRight } from "lucide-react";
-// Using inline SVGs for camera, sparkles and loader icons
+// Using inline SVGs for camera, sparkles, loader and arrow icons
 
 const COUNTRIES = [
   "Argentina",
@@ -634,7 +633,9 @@ export function BrandRegistrationForm() {
                 ) : (
                   <>
                     Continuar
-                    <ArrowRight className="ml-2 h-4 w-4" />
+                    <svg className="ml-2 h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                    </svg>
                   </>
                 )}
               </Button>
@@ -666,7 +667,9 @@ export function BrandRegistrationForm() {
                   ) : (
                     <>
                       Continuar
-                      <ArrowRight className="ml-2 h-4 w-4" />
+                      <svg className="ml-2 h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                    </svg>
                     </>
                   )}
                 </Button>

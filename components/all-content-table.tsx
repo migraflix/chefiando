@@ -284,7 +284,9 @@ export function AllContentTable({ status }: { status: "pending" | "reviewed" }) 
                       <div className="flex-1 min-w-0">
                         <Link href={`/review/${item.id}?brandId=${item.brandId}`} className="block">
                           <Button size="lg" className="w-full bg-orange-500 hover:bg-orange-600 text-white">
-                            <ExternalLink className="h-5 w-5 mr-2" />
+                            <svg className="h-5 w-5 mr-2" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                            </svg>
                             {status === "pending" ? t.brand.table.rate : language === "pt" ? "Ver" : "Ver"}
                           </Button>
                         </Link>
