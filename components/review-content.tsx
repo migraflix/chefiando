@@ -14,7 +14,6 @@ import confetti from "canvas-confetti"
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useToast } from "@/hooks/use-toast"
 import { useLanguage } from "@/contexts/language-context"
-import { LanguageSelector } from "@/components/language-selector"
 
 interface AirtableRecord {
   id: string
@@ -226,14 +225,11 @@ export function ReviewContent({ recordId }: { recordId: string }) {
     )
   }
 
-  const imageUrl = record.fields["📥 Image"]?.[0]?.url
-  const originalImageUrl = record.aiPhoto?.fields["Imagen"]?.[0]?.url
+  const imageUrl = record.fields["📥 Image"]?.[0]?.url ? `/api/content/image/${record.id}` : null
+  const originalImageUrl = record.aiPhoto?.id ? `/api/content/image/${record.aiPhoto.id}` : null
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-end">
-        <LanguageSelector />
-      </div>
 
       {error && (
         <Alert variant="destructive">
@@ -263,7 +259,7 @@ export function ReviewContent({ recordId }: { recordId: string }) {
               <Label className="text-muted-foreground text-xs uppercase tracking-wider">Original</Label>
               {originalImageUrl ? (
                 <div className="relative aspect-square rounded-lg overflow-hidden bg-muted border">
-                  <img src={originalImageUrl || "/placeholder.svg"} alt="Original" className="w-full h-full object-cover" />
+                  <img src={`${originalImageUrl}?t=${Date.now()}`} alt="Original" className="w-full h-full object-cover" />
                 </div>
               ) : (
                 <div className="aspect-square rounded-lg bg-muted flex items-center justify-center border border-dashed">
@@ -275,7 +271,7 @@ export function ReviewContent({ recordId }: { recordId: string }) {
               <Label className="text-muted-foreground text-xs uppercase tracking-wider">AI Generated</Label>
               {imageUrl ? (
                 <div className="relative aspect-square rounded-lg overflow-hidden bg-muted border">
-                  <img src={imageUrl || "/placeholder.svg"} alt="AI Generated" className="w-full h-full object-cover" />
+                  <img src={`${imageUrl}?t=${Date.now()}`} alt="AI Generated" className="w-full h-full object-cover" />
                 </div>
               ) : (
                 <div className="aspect-square rounded-lg bg-muted flex items-center justify-center border border-dashed">
@@ -335,10 +331,10 @@ export function ReviewContent({ recordId }: { recordId: string }) {
           <CardContent className="space-y-4">
             {imageUrl ? (
               <div className="relative aspect-square rounded-lg overflow-hidden bg-muted border mb-4">
-                <img 
-                  src={imageUrl || "/placeholder.svg"} 
-                  alt="AI Generated to Rate" 
-                  className="w-full h-full object-cover" 
+                <img
+                  src={`${imageUrl}?t=${Date.now()}`}
+                  alt="AI Generated to Rate"
+                  className="w-full h-full object-cover"
                 />
               </div>
             ) : (
