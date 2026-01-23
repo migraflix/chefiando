@@ -84,10 +84,10 @@ export function AllContentTable({ status }: { status: "pending" | "reviewed" }) 
 
   const pageSubtitle =
     status === "pending"
-      ? t.lang === "pt"
+      ? language === "pt"
         ? "Publicações pendentes de revisão manual"
         : "Publicaciones pendientes de revisión manual"
-      : t.lang === "pt"
+      : language === "pt"
         ? "Publicações já revisadas ou aprovadas"
         : "Publicaciones ya revisadas o aprobadas"
 
@@ -147,14 +147,14 @@ export function AllContentTable({ status }: { status: "pending" | "reviewed" }) 
             <Filter className="h-5 w-5 text-gray-500" />
             <div className="flex-1">
               <label className="text-sm font-medium text-gray-700 mb-2 block">
-                {t.lang === "pt" ? "Filtrar por marca" : "Filtrar por marca"}
+                {language === "pt" ? "Filtrar por marca" : "Filtrar por marca"}
               </label>
               <Select value={selectedBrand} onValueChange={setSelectedBrand}>
                 <SelectTrigger className="w-full max-w-xs">
-                  <SelectValue placeholder={t.lang === "pt" ? "Todas as marcas" : "Todas las marcas"} />
+                  <SelectValue placeholder={language === "pt" ? "Todas as marcas" : "Todas las marcas"} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">{t.lang === "pt" ? "Todas as marcas" : "Todas las marcas"}</SelectItem>
+                  <SelectItem value="all">{language === "pt" ? "Todas as marcas" : "Todas las marcas"}</SelectItem>
                   {brands.map((brand) => (
                     <SelectItem key={brand.id} value={brand.id}>
                       {brand.name}
@@ -180,12 +180,12 @@ export function AllContentTable({ status }: { status: "pending" | "reviewed" }) 
                 <thead className="bg-gray-50 border-b border-gray-200">
                   <tr>
                     <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
-                      {t.lang === "pt" ? "Marca" : "Marca"}
+                      {language === "pt" ? "Marca" : "Marca"}
                     </th>
                     <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">{t.brand.table.image}</th>
                     <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">{t.brand.table.post}</th>
                     <th className="px-6 py-4 text-center text-sm font-semibold text-gray-900">
-                      {t.lang === "pt" ? "Ações" : "Acciones"}
+                      {language === "pt" ? "Ações" : "Acciones"}
                     </th>
                     <th className="px-6 py-4 text-center text-sm font-semibold text-gray-900">
                       {t.brand.table.status}
@@ -228,7 +228,7 @@ export function AllContentTable({ status }: { status: "pending" | "reviewed" }) 
                         <Link href={`/review/${item.id}?brandId=${item.brandId}`}>
                           <Button size="sm" className="bg-orange-500 hover:bg-orange-600 text-white">
                             <ExternalLink className="h-4 w-4 mr-2" />
-                            {status === "pending" ? t.brand.table.rate : t.lang === "pt" ? "Ver" : "Ver"}
+                            {status === "pending" ? t.brand.table.rate : language === "pt" ? "Ver" : "Ver"}
                           </Button>
                         </Link>
                       </td>
@@ -278,7 +278,7 @@ export function AllContentTable({ status }: { status: "pending" | "reviewed" }) 
                         <Link href={`/review/${item.id}?brandId=${item.brandId}`} className="block">
                           <Button size="lg" className="w-full bg-orange-500 hover:bg-orange-600 text-white">
                             <ExternalLink className="h-5 w-5 mr-2" />
-                            {status === "pending" ? t.brand.table.rate : t.lang === "pt" ? "Ver" : "Ver"}
+                            {status === "pending" ? t.brand.table.rate : language === "pt" ? "Ver" : "Ver"}
                           </Button>
                         </Link>
                       </div>
