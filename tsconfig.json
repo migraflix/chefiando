@@ -17,6 +17,10 @@
     "isolatedModules": true,
     "jsx": "react-jsx",
     "incremental": true,
+    // Optimizaciones de velocidad
+    "tsBuildInfoFile": ".next/cache/tsconfig.tsbuildinfo",
+    "disableReferencedProjectLoad": true,
+    "disableSolutionSearching": true,
     "plugins": [
       {
         "name": "next"

@@ -3,10 +3,16 @@
   "version": "1.1.0",
   "private": true,
   "scripts": {
-    "build": "next build",
-    "dev": "next dev",
+    "build": "npm run clean && next build --webpack",
+    "build:turbo": "npm run clean && next build --turbo",
+    "build:analyze": "npm run clean && ANALYZE=true next build --webpack",
+    "build:quick": "next build --webpack",
+    "dev": "next dev --turbo",
+    "dev:legacy": "next dev",
     "lint": "next lint",
+    "lint:fix": "next lint --fix",
     "start": "next start",
+    "clean": "rmdir /s /q .next 2>nul || true",
     "check-env": "node scripts/check-env.js"
   },
   "dependencies": {
