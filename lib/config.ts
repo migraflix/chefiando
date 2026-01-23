@@ -12,7 +12,9 @@ export const GCS_CONFIG = {
   // Limpieza automática después de 24 horas
   cleanupAfterHours: 24,
   // Bandera para habilitar/deshabilitar GCS
-  enabled: process.env.TEST_UPLOAD === 'true',
+  // En producción siempre habilitado si hay credenciales, en desarrollo requiere TEST_UPLOAD=true
+  enabled: (process.env.NODE_ENV === 'production' && !!process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON) ||
+           process.env.TEST_UPLOAD === 'true',
 };
 
 // Inicializar cliente de GCS
