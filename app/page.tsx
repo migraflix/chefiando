@@ -115,7 +115,10 @@ export default function HomePage() {
             {t.landing.features.list.map((feature, index) => (
               <div key={index} className="flex items-start gap-3 p-4 rounded-lg bg-card">
                 <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <Check className="w-4 h-4 text-primary" />
+                  {/* Replace Check with a built-in SVG check icon to fix "Cannot find name 'Check'" error */}
+                  <svg className="w-4 h-4 text-primary" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                  </svg>
                 </div>
                 <span className="text-lg">{feature}</span>
               </div>
