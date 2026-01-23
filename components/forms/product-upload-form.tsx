@@ -11,7 +11,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useLanguage } from "@/contexts/language-context";
 import { useToast } from "@/hooks/use-toast";
 import { useErrorLogger } from "@/lib/error-logger";
-import { Upload, X, Loader2, CheckCircle } from "lucide-react";
+import { Loader2 } from "lucide-react";
+// Using inline SVGs for upload and close icons
 import { Checkbox } from "@/components/ui/checkbox";
 
 interface Product {
@@ -952,12 +953,16 @@ export function ProductUploadForm({ marca }: { marca: string }) {
                         </>
                       ) : product.photoUploaded ? (
                         <>
-                          <CheckCircle className="h-4 w-4 text-green-500" />
+                          <svg className="h-4 w-4 text-green-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
                           <span>{methodConfig.TEST_UPLOAD === 'true' ? 'Imagen en la nube' : 'Imagen lista'}</span>
                         </>
                       ) : (
                         <>
-                          <Upload className="h-4 w-4" />
+                          <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                          </svg>
                           <span>{product.photo ? product.photo.name : t.products.validation.uploadPhoto}</span>
                         </>
                       )}
@@ -978,7 +983,9 @@ export function ProductUploadForm({ marca }: { marca: string }) {
                     )}
                     {product.photoUploaded && (
                       <div className="absolute top-1 right-1 bg-green-500 rounded-full p-1">
-                        <CheckCircle className="h-3 w-3 text-white" />
+                        <svg className="h-3 w-3 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
                       </div>
                     )}
                   </div>

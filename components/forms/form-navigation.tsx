@@ -1,7 +1,8 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, ArrowRight, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
+// Using inline SVGs for arrow icons
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/contexts/language-context";
 
@@ -37,7 +38,9 @@ export function FormNavigation({
           disabled={isSubmitting}
           className="flex-1 sm:flex-initial"
         >
-          <ArrowLeft className="h-4 w-4" />
+          <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+          </svg>
           {t.registration.buttons.back}
         </Button>
       )}
@@ -58,7 +61,9 @@ export function FormNavigation({
         ) : (
           <>
             {buttonLabel}
-            {!isLastStep && <ArrowRight className="h-4 w-4" />}
+            {!isLastStep && <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+            </svg>}
           </>
         )}
       </Button>
