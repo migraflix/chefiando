@@ -67,3 +67,6 @@ Thumbs.db
 *.tmp
 *.temp
 .cache/
+
+.gemini/
+gha-creds-*.json

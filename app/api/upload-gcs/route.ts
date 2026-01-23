@@ -3,6 +3,17 @@ import { gcsService } from "@/lib/gcs-service";
 
 export async function POST(request: NextRequest) {
   try {
+    // Verificar si GCS está habilitado
+    if (process.env.TEST_UPLOAD !== 'true') {
+      return NextResponse.json(
+        {
+          error: "GCS is not enabled",
+          message: "Set TEST_UPLOAD=true to enable Google Cloud Storage uploads"
+        },
+        { status: 400 }
+      );
+    }
+
     const formData = await request.formData();
     const file = formData.get('file') as File;
     const productId = formData.get('productId') as string;

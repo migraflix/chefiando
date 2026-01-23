@@ -10,6 +10,17 @@ export async function GET(
   { params }: { params: { path: string[] } }
 ) {
   try {
+    // Verificar si GCS está habilitado
+    if (process.env.TEST_UPLOAD !== 'true') {
+      return NextResponse.json(
+        {
+          error: "GCS is not enabled",
+          message: "Set TEST_UPLOAD=true to enable Google Cloud Storage downloads"
+        },
+        { status: 400 }
+      );
+    }
+
     const gcsPath = params.path.join('/');
 
     if (!gcsPath) {

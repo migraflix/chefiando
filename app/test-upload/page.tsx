@@ -343,6 +343,7 @@ export default function TestUploadPage() {
                     <div className="font-medium text-blue-800 flex items-center gap-2">
                       <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
                       {t.testUpload.base64Method}
+
                     </div>
                     <div className="text-sm text-blue-700 mt-1">
                       <div>Imagen procesada directamente</div>

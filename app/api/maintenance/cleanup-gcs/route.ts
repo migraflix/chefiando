@@ -8,6 +8,17 @@ import * as Sentry from "@sentry/nextjs";
  */
 export async function POST(request: NextRequest) {
   try {
+    // Verificar si GCS está habilitado
+    if (process.env.TEST_UPLOAD !== 'true') {
+      return NextResponse.json(
+        {
+          error: "GCS is not enabled",
+          message: "Set TEST_UPLOAD=true to enable Google Cloud Storage cleanup"
+        },
+        { status: 400 }
+      );
+    }
+
     // Verificar autenticación básica (puedes cambiar por JWT o API key)
     const authHeader = request.headers.get('authorization');
     const expectedToken = process.env.CLEANUP_API_TOKEN || 'migraflix-cleanup-2024';
@@ -79,6 +90,16 @@ export async function POST(request: NextRequest) {
  */
 export async function GET() {
   try {
+    // Verificar si GCS está habilitado
+    if (process.env.TEST_UPLOAD !== 'true') {
+      return NextResponse.json({
+        status: 'disabled',
+        message: 'GCS is not enabled. Set TEST_UPLOAD=true to enable Google Cloud Storage.',
+        gcsConfigured: false,
+        timestamp: new Date().toISOString(),
+      });
+    }
+
     // Verificar que GCS esté configurado y funcionando
     const tempFiles = await gcsService.listFiles('temp/');
     const allFiles = await gcsService.listFiles(''); // Todos los archivos en root

@@ -10,6 +10,15 @@ export async function GET() {
     console.log('GCP_PROJECT_ID:', process.env.GCP_PROJECT_ID);
     console.log('GCS_BUCKET_NAME:', process.env.GCS_BUCKET_NAME);
 
+    // Verificar si GCS está habilitado
+    if (process.env.TEST_UPLOAD !== 'true') {
+      return NextResponse.json({
+        success: false,
+        message: 'GCS is not enabled. Set TEST_UPLOAD=true to test Google Cloud Storage.',
+        testUpload: process.env.TEST_UPLOAD
+      });
+    }
+
     // Verificar que podemos acceder al bucket
     const bucket = await gcsService.getFileMetadata('test.txt').catch(() => null);
 
