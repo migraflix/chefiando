@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { ExternalLink, Loader2, Image, FileText, CheckCircle2, Clock } from "lucide-react"
+import { ExternalLink, Loader2, FileText, CheckCircle2, Clock } from "lucide-react"
 // Using inline SVG for alert icon
 import Link from "next/link"
 import Image from "next/image"

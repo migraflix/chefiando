@@ -1,6 +1,21 @@
 # Changelog - Migraflix
 
-## V1.2.0 (Actual) - 2025-01-22
+## V1.2.1 (Actual) - 2025-01-23
+
+### 🔧 **Hotfix: Compatibilidad con Vercel**
+
+#### 🐛 **Problemas corregidos**
+- **Conflicto de importaciones**: Eliminado conflicto entre `Image` de lucide-react y Next.js
+- **Íconos problemáticos**: Reemplazados todos los íconos inexistentes con SVGs inline
+- **Compilación en Vercel**: Build funciona correctamente en entorno de producción
+
+#### 📦 **Dependencias**
+- Removido import conflictuoso de `Image` en `brand-content-table.tsx`
+- Optimizado uso de SVGs inline para evitar dependencias externas
+
+---
+
+## V1.2.0 - 2025-01-22
 
 ### 🔄 **Webhook con Confirmación y Polling**
 
