@@ -12,7 +12,7 @@
     "lint": "next lint",
     "lint:fix": "next lint --fix",
     "start": "next start",
-    "clean": "rmdir /s /q .next 2>nul || true",
+    "clean": "if exist .next rmdir /s /q .next",
     "check-env": "node scripts/check-env.js"
   },
   "dependencies": {

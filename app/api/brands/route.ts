@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server"
 import * as Sentry from "@sentry/nextjs"
+import { z } from "zod"
 import { createBrand } from "@/lib/airtable/brands"
-import { brandRegistrationSchema } from "@/lib/validation/brand-schema"
+import { brandRegistrationSchema, type BrandFormData } from "@/lib/validation/brand-schema"
 
 export async function GET() {
   try {
@@ -120,7 +121,16 @@ export async function POST(request: NextRequest) {
       body.emprendedor = "";
     }
 
-    // Validar datos con Zod (solo los campos de la sección 1)
+    // Validar datos con Zod (campos requeridos de la sección 1)
+    const section1Schema = z.object({
+      negocio: brandRegistrationSchema.shape.negocio,
+      whatsapp: brandRegistrationSchema.shape.whatsapp,
+      emprendedor: brandRegistrationSchema.shape.emprendedor.optional(),
+      correo: brandRegistrationSchema.shape.correo.optional(),
+      ciudad: brandRegistrationSchema.shape.ciudad.optional(),
+      pais: brandRegistrationSchema.shape.pais.optional(),
+    })
+
     const section1Fields = {
       emprendedor: body.emprendedor,
       negocio: body.negocio,
@@ -130,7 +140,7 @@ export async function POST(request: NextRequest) {
       whatsapp: body.whatsapp,
     }
 
-    const validationResult = brandRegistrationSchema.partial().safeParse(section1Fields)
+    const validationResult = section1Schema.safeParse(section1Fields)
 
     if (!validationResult.success) {
       return NextResponse.json(
@@ -144,7 +154,8 @@ export async function POST(request: NextRequest) {
 
     // Crear registro en Airtable con Status "Basic Register"
     const status = body.status || "Basic Register"
-    const result = await createBrand(validationResult.data, status)
+    // Type assertion seguro porque el schema ya validó que negocio y whatsapp están presentes
+    const result = await createBrand(validationResult.data as BrandFormData, status)
 
     return NextResponse.json({
       success: true,

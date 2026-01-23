@@ -7,7 +7,7 @@ import { gcsService } from "@/lib/gcs-service";
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { path: string[] } }
+  { params }: { params: Promise<{ path: string[] }> }
 ) {
   try {
     // Verificar si GCS está habilitado
@@ -21,7 +21,8 @@ export async function GET(
       );
     }
 
-    const gcsPath = params.path.join('/');
+    const { path } = await params;
+    const gcsPath = path.join('/');
 
     if (!gcsPath) {
       return NextResponse.json(
