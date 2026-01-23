@@ -13,8 +13,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Copy } from "lucide-react";
-import { CheckIcon } from "lucide-react";
-import { SearchIcon } from "lucide-react";
+// Using inline SVG for check icon
+// Using inline SVG for search icon
 import { useToast } from "@/hooks/use-toast";
 import { LanguageSelector } from "@/components/language-selector";
 
@@ -218,7 +218,9 @@ export function BrandsListClient() {
         {/* Filtros de búsqueda, país e idioma*/}
         <div className="mb-6 flex flex-col gap-4 sm:flex-row">
           <div className="relative flex-1">
-            <SearchIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <svg className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
             <Input
               type="text"
               placeholder="Buscar marcas..."
@@ -304,7 +306,9 @@ export function BrandsListClient() {
                             >
                               {copiedId === brand.id ? (
                                 <>
-                                  <CheckIcon className="h-4 w-4" />
+                                  <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                  </svg>
                                   {t.brands.table.copied}
                                 </>
                               ) : (

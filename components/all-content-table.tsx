@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { ExternalLink, Loader2, FilterIcon } from "lucide-react"
+import { ExternalLink, Loader2 } from "lucide-react"
+// Using inline SVG for filter icon
 import Link from "next/link"
 import Image from "next/image"
 import { useLanguage } from "@/contexts/language-context"
@@ -144,7 +145,9 @@ export function AllContentTable({ status }: { status: "pending" | "reviewed" }) 
         {/* Brand Filter */}
         <Card className="p-6">
           <div className="flex items-center gap-4">
-            <FilterIcon className="h-5 w-5 text-gray-500" />
+            <svg className="h-5 w-5 text-gray-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+            </svg>
             <div className="flex-1">
               <label className="text-sm font-medium text-gray-700 mb-2 block">
                 {language === "pt" ? "Filtrar por marca" : "Filtrar por marca"}
