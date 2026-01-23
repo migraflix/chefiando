@@ -20,6 +20,21 @@ const nextConfig = {
         hostname: 'storage.googleapis.com',
         pathname: '**',
       },
+      {
+        protocol: 'https',
+        hostname: 'dl.airtableusercontent.com',
+        pathname: '**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'v5.airtableusercontent.com',
+        pathname: '**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'v3.airtableusercontent.com',
+        pathname: '**',
+      },
     ],
     unoptimized: false, // Habilitar optimización en producción
   },
