@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useLanguage } from "@/contexts/language-context";
 import { Button } from "@/components/ui/button";
-import { Languages } from "lucide-react";
+import { LanguagesIcon } from "lucide-react";
 
 export function LanguageSelector() {
   const { language, setLanguage } = useLanguage();
@@ -52,7 +52,7 @@ export function LanguageSelector() {
           : 'Base64 activado'
       }></div>
 
-      <Languages className="h-4 w-4 text-muted-foreground" />
+      <LanguagesIcon className="h-4 w-4 text-muted-foreground" />
       <span className="text-xs font-medium mr-2">
         {displayLanguage === "pt" ? "Português" : "Español"}
       </span>
