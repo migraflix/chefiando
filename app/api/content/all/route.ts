@@ -13,7 +13,7 @@ export async function GET(request: Request) {
     // Use view ID for reviewed status - this view has all 22 records pre-filtered
     const contentUrl = `https://api.airtable.com/v0/${baseId}/Content?view=viwyLBbj3M1yTQ6w9`
 
-    let allRecords = []
+    let allRecords: any[] = []
     let offset = ""
 
     do {
