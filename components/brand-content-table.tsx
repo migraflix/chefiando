@@ -332,13 +332,23 @@ export function BrandContentTable({ recordIdMarca }: { recordIdMarca: string }) 
                     <td className="px-6 py-4">
                       <div className="space-y-3">
                     {hasImage ? (
-                      <div className="relative w-32 h-32 rounded-lg overflow-hidden bg-gray-100 shadow-md">
-                        <Image
-                          src={item.fields["📥 Image"]?.[0]?.url || "/placeholder.svg"}
-                          alt="Imagen del post"
-                          fill
-                          className="object-cover"
-                        />
+                      <div className="space-y-2">
+                        <div className="relative w-32 h-32 rounded-lg overflow-hidden bg-gray-100 shadow-md">
+                          <Image
+                            src={item.fields["📥 Image"]?.[0]?.url || "/placeholder.svg"}
+                            alt="Imagen del post"
+                            fill
+                            className="object-cover"
+                          />
+                        </div>
+                        <a
+                          href={item.fields["📥 Image"]?.[0]?.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-xs text-blue-600 hover:text-blue-800 underline break-all block max-w-32"
+                        >
+                          📥 Image url
+                        </a>
                       </div>
                         ) : isProcessing ? (
                           <div className="w-32 h-32 rounded-lg bg-gray-200 flex items-center justify-center shadow-md">
@@ -412,15 +422,25 @@ export function BrandContentTable({ recordIdMarca }: { recordIdMarca: string }) 
               return (
                 <div key={item.id} className="p-4 space-y-4">
                   {/* Foto - Primero en móvil */}
-                  <div className="flex justify-center">
+                  <div className="flex flex-col items-center">
                     {hasImage ? (
-                      <div className="relative w-32 h-32 rounded-lg overflow-hidden bg-gray-100 shadow-md">
-                        <Image
-                          src={item.fields["📥 Image"]?.[0]?.url || "/placeholder.svg"}
-                          alt="Imagen del post"
-                          fill
-                          className="object-cover"
-                        />
+                      <div className="space-y-2 flex flex-col items-center">
+                        <div className="relative w-32 h-32 rounded-lg overflow-hidden bg-gray-100 shadow-md">
+                          <Image
+                            src={item.fields["📥 Image"]?.[0]?.url || "/placeholder.svg"}
+                            alt="Imagen del post"
+                            fill
+                            className="object-cover"
+                          />
+                        </div>
+                        <a
+                          href={item.fields["📥 Image"]?.[0]?.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-xs text-blue-600 hover:text-blue-800 underline break-all text-center max-w-48"
+                        >
+                          📥 Image url
+                        </a>
                       </div>
                     ) : isProcessing ? (
                       <div className="w-32 h-32 rounded-lg bg-gray-200 flex items-center justify-center shadow-md">
