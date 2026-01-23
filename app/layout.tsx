@@ -10,8 +10,8 @@ import { LanguageProvider } from "@/contexts/language-context"
 import { SentryInit } from "@/components/sentry-init"
 
 export const metadata: Metadata = {
-  title: "Migraflix IA",
-  description: "Created with v0",
+  title: "ChefIAndo IA",
+  description: "Creado por Migraflix por Gabriel",
   generator: "v0.app",
 }
 
