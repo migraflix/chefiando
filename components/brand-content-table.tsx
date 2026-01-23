@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { ExternalLink, Loader2, Image, FileText, CheckCircle2, Clock, AlertTriangle } from "lucide-react"
+import { ExternalLink, Loader2, Image, FileText, CheckCircle2, Clock } from "lucide-react"
+// Using inline SVG for alert icon
 import Link from "next/link"
 import Image from "next/image"
 import { useLanguage } from "@/contexts/language-context"
@@ -176,7 +177,11 @@ export function BrandContentTable({ recordIdMarca }: { recordIdMarca: string }) 
       return {
         label: t.brand.status.pendingReview,
         color: "bg-yellow-100 text-yellow-800",
-        icon: AlertTriangle,
+        icon: () => (
+          <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.268 16.5c-.77.833.192 2.5 1.732 2.5z" />
+          </svg>
+        ),
         description: t.brand.status.pendingReviewDescription,
         isProcessing: false,
       }

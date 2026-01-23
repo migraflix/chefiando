@@ -4,7 +4,8 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2, CheckCircle, XCircle, AlertTriangle } from "lucide-react";
+import { Loader2, CheckCircle, XCircle } from "lucide-react";
+// Using inline SVG for alert icon
 
 interface TestResult {
   success: boolean;

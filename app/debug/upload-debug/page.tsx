@@ -6,7 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2, Upload, AlertTriangle, CheckCircle, XCircle } from "lucide-react";
+import { Loader2, Upload, CheckCircle, XCircle } from "lucide-react";
+// Using inline SVG for alert icon
 import { useToast } from "@/hooks/use-toast";
 
 interface LogEntry {

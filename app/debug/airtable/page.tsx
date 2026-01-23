@@ -3,7 +3,8 @@
 import { useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { CheckCircle2, XCircle, Loader2, AlertTriangle } from "lucide-react"
+import { CheckCircle2, XCircle, Loader2 } from "lucide-react"
+// Using inline SVG for alert icon
 
 export default function AirtableDebugPage() {
   const [testing, setTesting] = useState(false)
@@ -237,7 +238,9 @@ export default function AirtableDebugPage() {
                 {results.server && (
                   <div>
                     <h3 className="font-semibold mb-2 flex items-center gap-2">
-                      <AlertTriangle className="h-5 w-5 text-blue-500" />
+                      <svg className="h-5 w-5 text-blue-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.268 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                      </svg>
                       Información del Servidor
                     </h3>
                     <div className="bg-muted p-4 rounded-lg space-y-2 text-sm font-mono">
@@ -252,7 +255,9 @@ export default function AirtableDebugPage() {
                 {results.tableTests && results.tableTests.length > 0 && (
                   <div>
                     <h3 className="font-semibold mb-2 flex items-center gap-2">
-                      <AlertTriangle className="h-5 w-5 text-blue-500" />
+                      <svg className="h-5 w-5 text-blue-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.268 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                      </svg>
                       Pruebas con Diferentes Nombres de Tabla
                     </h3>
                     <div className="bg-muted p-4 rounded-lg space-y-2 text-sm">
@@ -299,7 +304,9 @@ export default function AirtableDebugPage() {
                 {results?.permissionsTest && (
                   <div>
                     <h3 className="font-semibold mb-2 flex items-center gap-2">
-                      <AlertTriangle className="h-5 w-5 text-blue-500" />
+                      <svg className="h-5 w-5 text-blue-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.268 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                      </svg>
                       Prueba de Permisos Detallada
                     </h3>
                     <div className="bg-muted p-4 rounded-lg space-y-3 text-sm">

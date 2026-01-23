@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useLanguage } from "@/contexts/language-context";
 import { Button } from "@/components/ui/button";
-import { Languages } from "lucide-react";
+// Using inline SVG for language icon
 
 export function LanguageSelector() {
   const { language, setLanguage } = useLanguage();
@@ -52,7 +52,9 @@ export function LanguageSelector() {
           : 'Base64 activado'
       }></div>
 
-      <Languages className="h-4 w-4 text-muted-foreground" />
+      <svg className="h-4 w-4 text-muted-foreground" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M3 5h12M9 3v2m1.048 9.5A18.02 18.02 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
+      </svg>
       <span className="text-xs font-medium mr-2">
         {displayLanguage === "pt" ? "Português" : "Español"}
       </span>

@@ -4,7 +4,7 @@ import * as Sentry from "@sentry/nextjs";
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { AlertTriangle } from "lucide-react";
+// Using inline SVG for alert icon to avoid lucide-react version issues
 import { useLanguage } from "@/contexts/language-context";
 
 export default function Error({
@@ -38,7 +38,9 @@ export default function Error({
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-red-600">
-            <AlertTriangle className="h-6 w-6" />
+            <svg className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.268 16.5c-.77.833.192 2.5 1.732 2.5z" />
+            </svg>
             {isChunkError ? t.errorPage.chunkError.title : t.errorPage.general.title}
           </CardTitle>
           <CardDescription>
