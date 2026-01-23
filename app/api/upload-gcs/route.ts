@@ -34,10 +34,10 @@ export async function POST(request: NextRequest) {
       size: file.size
     };
 
-    // Generar nombre único
+    // Generar nombre único (subir directamente al root)
     const timestamp = Date.now();
     const randomId = Math.random().toString(36).substring(2, 15);
-    const fileName = `products/${timestamp}_${randomId}_${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
+    const fileName = `${timestamp}_${randomId}_${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
 
     // Subir a GCS
     const result = await gcsService.uploadFromBuffer(

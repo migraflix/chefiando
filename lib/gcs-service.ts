@@ -30,7 +30,8 @@ export class GCSService {
     } = {}
   ): Promise<GCSFileInfo> {
     try {
-      const { prefix = GCS_CONFIG.tempPrefix, makePublic = false, metadata = {} } = options;
+      // Por defecto subir al root, no a carpeta temp
+      const { prefix = '', makePublic = false, metadata = {} } = options;
 
       // Decodificar base64
       const buffer = Buffer.from(base64Data, 'base64');
@@ -96,7 +97,8 @@ export class GCSService {
     } = {}
   ): Promise<GCSFileInfo> {
     try {
-      const { prefix = GCS_CONFIG.tempPrefix, makePublic = false, metadata = {} } = options;
+      // Por defecto subir al root, no a carpeta temp
+      const { prefix = '', makePublic = false, metadata = {} } = options;
 
       // Generar nombre único para el archivo
       const timestamp = Date.now();

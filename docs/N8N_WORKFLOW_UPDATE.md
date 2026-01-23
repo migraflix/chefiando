@@ -36,7 +36,7 @@ Con la nueva integración de GCS, el webhook ya no recibe `base64` directamente,
       "recordId": "temp_1769116529067_0",
       "nombre": "IMG_9113.jpeg",
       "contentType": "image/jpeg",
-      "gcsPath": "products/1703123456789_abc123_IMG_9113.jpeg",
+      "gcsPath": "1703123456789_abc123_IMG_9113.jpeg",
       "gcsSignedUrl": "https://storage.googleapis.com/...",
       "fileSize": 2048576
     }

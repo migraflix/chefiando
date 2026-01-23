@@ -314,7 +314,7 @@ async function handleSingleProductFromPayload(payload: any) {
           product.nombre,
           product.contentType,
           {
-            prefix: 'products/',
+            prefix: '', // Subir directamente al root del bucket
             metadata: {
               productName: product.nombre,
               recordId: product.recordId,

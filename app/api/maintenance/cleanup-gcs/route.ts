@@ -81,13 +81,13 @@ export async function GET() {
   try {
     // Verificar que GCS esté configurado y funcionando
     const tempFiles = await gcsService.listFiles('temp/');
-    const productsFiles = await gcsService.listFiles('products/');
+    const allFiles = await gcsService.listFiles(''); // Todos los archivos en root
 
     return NextResponse.json({
       status: 'healthy',
       gcsConfigured: true,
       tempFilesCount: tempFiles.length,
-      productsFilesCount: productsFiles.length,
+      allFilesCount: allFiles.length,
       timestamp: new Date().toISOString(),
     });
 
