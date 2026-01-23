@@ -37,7 +37,8 @@ export async function GET(request: NextRequest) {
         }
       },
       recentErrors: [],
-      recommendations: []
+      recommendations: [],
+      sentryInfo: null as any
     };
 
     // Intentar obtener información de Sentry (si está disponible)
