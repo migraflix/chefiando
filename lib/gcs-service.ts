@@ -14,7 +14,18 @@ export interface GCSFileInfo {
  * Servicio para manejar archivos en Google Cloud Storage
  */
 export class GCSService {
-  private bucket = getGCSBucket();
+  private _bucket: ReturnType<typeof getGCSBucket> | null = null;
+
+  /**
+   * Obtiene el bucket de GCS de manera lazy (solo cuando se necesita)
+   * Esto evita errores durante el build de Next.js
+   */
+  private get bucket() {
+    if (!this._bucket) {
+      this._bucket = getGCSBucket();
+    }
+    return this._bucket;
+  }
 
   /**
    * Sube un archivo desde base64 a GCS
