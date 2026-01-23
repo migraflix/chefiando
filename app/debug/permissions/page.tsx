@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2, CheckCircle, XCircle, TriangleAlert, RefreshCw } from "lucide-react";
+import { Loader2, CheckCircle, XCircle, CircleAlert, RefreshCw } from "lucide-react";
 
 interface PermissionCheck {
   success: boolean;

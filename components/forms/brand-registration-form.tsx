@@ -19,7 +19,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/language-context";
 import { useErrorLogger } from "@/lib/error-logger";
-import { Loader2, ArrowRight, Camera, Sparkles } from "lucide-react";
+import { Loader2, ArrowRight, Camera, Sparkle } from "lucide-react";
 
 const COUNTRIES = [
   "Argentina",
@@ -591,7 +591,7 @@ export function BrandRegistrationForm() {
                 </div>
                 <div className="space-y-3">
                   <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
-                    <Sparkles className="w-4 h-4 animate-pulse" />
+                    <Sparkle className="w-4 h-4 animate-pulse" />
                     <span>{t.registration.photosSection.analyzing}</span>
                   </div>
                   <div>

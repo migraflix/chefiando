@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Spinner } from "@/components/ui/spinner"
 import { StarRating } from "@/components/star-rating"
-import { TriangleAlert, Image, Utensils } from 'lucide-react'
+import { CircleAlert, Image, Utensils } from 'lucide-react'
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import confetti from "canvas-confetti"
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -211,7 +211,7 @@ export function ReviewContent({ recordId }: { recordId: string }) {
   if (error && !record) {
     return (
       <Alert variant="destructive">
-        <TriangleAlert className="h-4 w-4" />
+        <CircleAlert className="h-4 w-4" />
         <AlertDescription>{error}</AlertDescription>
       </Alert>
     )
@@ -220,7 +220,7 @@ export function ReviewContent({ recordId }: { recordId: string }) {
   if (!record) {
     return (
       <Alert>
-        <TriangleAlert className="h-4 w-4" />
+        <CircleAlert className="h-4 w-4" />
         <AlertDescription>{t.review.notFound}</AlertDescription>
       </Alert>
     )
@@ -237,7 +237,7 @@ export function ReviewContent({ recordId }: { recordId: string }) {
 
       {error && (
         <Alert variant="destructive">
-          <TriangleAlert className="h-4 w-4" />
+          <CircleAlert className="h-4 w-4" />
           <AlertDescription>{error}</AlertDescription>
         </Alert>
       )}

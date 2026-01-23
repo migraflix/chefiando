@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { Check, Sparkles, TrendingUp, Users } from "lucide-react"
+import { Check, Sparkle, TrendingUp, Users } from "lucide-react"
 import Link from "next/link"
 import { useLanguage } from "@/contexts/language-context"
 import { LanguageSelector } from "@/components/language-selector"
@@ -73,7 +73,7 @@ export default function HomePage() {
             <Card className="border-2 hover:border-primary transition-colors">
               <CardContent className="pt-8 space-y-4">
                 <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
-                  <Sparkles className="w-6 h-6 text-primary" />
+                  <Sparkle className="w-6 h-6 text-primary" />
                 </div>
                 <h3 className="text-2xl font-bold">{t.landing.benefits.professional.title}</h3>
                 <p className="text-muted-foreground leading-relaxed">{t.landing.benefits.professional.description}</p>
