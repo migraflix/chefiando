@@ -3,7 +3,7 @@
   "version": "1.2.1",
   "private": true,
   "scripts": {
-    "build": "npm run clean && next build --webpack",
+    "build": "npm run clean && npx next build --webpack",
     "build:turbo": "npm run clean && next build --turbo",
     "build:analyze": "npm run clean && ANALYZE=true next build --webpack",
     "build:quick": "next build --webpack",

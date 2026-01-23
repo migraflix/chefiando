@@ -36,11 +36,9 @@ const nextConfig = {
     },
   },
 
-  // Configuración de API para manejar archivos grandes
-  api: {
-    bodyParser: {
-      sizeLimit: '50mb',
-    },
+  // Configuración de Turbopack para resolver problemas de root
+  turbopack: {
+    root: './',
   },
 
   // Configuración de build
