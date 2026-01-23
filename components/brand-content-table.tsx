@@ -224,7 +224,12 @@ export function BrandContentTable({ recordIdMarca }: { recordIdMarca: string }) 
     return {
       label: status,
       color: "bg-gray-100 text-gray-800",
-      icon: Clock,
+      icon: () => (
+        <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="10" />
+          <polyline points="12,6 12,12 16,14" />
+        </svg>
+      ),
       description: status,
       isProcessing: false,
     }
@@ -367,7 +372,7 @@ export function BrandContentTable({ recordIdMarca }: { recordIdMarca: string }) 
                         <p className="text-gray-600 text-sm line-clamp-3">{item.fields.Post}</p>
                       ) : (
                         <div className="flex items-center gap-2 text-gray-400 text-sm">
-                          <StatusIcon className="h-4 w-4" />
+                          <StatusIcon />
                           <span>{statusInfo.description}</span>
                         </div>
                       )}
@@ -378,7 +383,7 @@ export function BrandContentTable({ recordIdMarca }: { recordIdMarca: string }) 
                           {isProcessing && <svg className="h-3 w-3 animate-spin" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                           </svg>}
-                          {!isProcessing && <StatusIcon className="h-3 w-3" />}
+                          {!isProcessing && <StatusIcon />}
                           {statusInfo.label}
                         </span>
                         {item.fields.Status && item.fields.Status !== statusInfo.label && (
@@ -434,7 +439,9 @@ export function BrandContentTable({ recordIdMarca }: { recordIdMarca: string }) 
                     {hasPost ? (
                       <Link href={`/review/${item.id}?brandId=${recordIdMarca}`} className="block">
                         <Button size="lg" className="w-full bg-orange-500 hover:bg-orange-600 text-white">
-                          <ExternalLink className="h-5 w-5 mr-2" />
+                          <svg className="h-5 w-5 mr-2" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                          </svg>
                           {t.brand.table.rate}
                         </Button>
                       </Link>
@@ -454,12 +461,14 @@ export function BrandContentTable({ recordIdMarca }: { recordIdMarca: string }) 
                     )}
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2 text-gray-400 text-sm">
-                        <StatusIcon className="h-4 w-4" />
+                        <StatusIcon />
                         <span>{statusInfo.description}</span>
                       </div>
                       <span className={`inline-flex items-center gap-1.5 px-3 py-1 ${statusInfo.color} text-xs font-medium rounded-full`}>
-                        {isProcessing && <Loader2 className="h-3 w-3 animate-spin" />}
-                        {!isProcessing && <StatusIcon className="h-3 w-3" />}
+                        {isProcessing && <svg className="h-3 w-3 animate-spin" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                        </svg>}
+                        {!isProcessing && <StatusIcon />}
                         {statusInfo.label}
                       </span>
                     </div>

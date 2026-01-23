@@ -309,50 +309,54 @@ export function ProductUploadForm({ marca }: { marca: string }) {
       let contentType: string;
       let fileName: string;
       let imageData: any = {};
+      let base64Data: string | undefined;
 
+      // SIEMPRE convertir a base64 como respaldo (incluso si usamos GCS)
+      console.log(`🖼️ Preparando imagen: ${product.photo.size} bytes, tipo: ${product.photo.type}`);
+
+      let processedFile = product.photo;
+
+      if (product.photo.size > 4 * 1024 * 1024) {
+        console.log(`🗜️ Comprimiendo imagen ${index + 1}...`);
+        processedFile = await compressImage(product.photo);
+        console.log(`✅ Imagen comprimida: ${processedFile.size} bytes`);
+      }
+
+      // Convertir a base64 SIEMPRE (como respaldo)
+      console.log(`🔄 Convirtiendo imagen a base64...`);
+      const buffer = await processedFile.arrayBuffer();
+      console.log(`📏 Buffer creado: ${buffer.byteLength} bytes`);
+
+      base64Data = Buffer.from(buffer).toString("base64");
+      contentType = processedFile.type || "image/jpeg";
+      fileName = processedFile.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+
+      console.log(`✅ Base64 generado: ${base64Data.length} caracteres, contentType: ${contentType}`);
+
+      // Determinar qué datos de imagen incluir
       if (methodConfig.TEST_UPLOAD === 'true' && product.photoGcsUrl) {
-        // Usar imagen desde GCS
+        // Usar imagen desde GCS + base64 como respaldo
         console.log(`🖼️ Usando imagen desde GCS: ${product.photoGcsPath}`);
         console.log(`🔗 URL firmada: ${product.photoGcsUrl}`);
 
-        contentType = product.photo.type || "image/jpeg";
-        fileName = product.photo.name.replace(/[^a-zA-Z0-9._-]/g, '_');
-
-        // Incluir información de GCS en el payload
         imageData = {
           gcsPath: product.photoGcsPath,
           gcsSignedUrl: product.photoGcsUrl,
+          gcsPublicUrl: product.photoGcsPublicUrl,
           fileSize: product.photo.size,
+          base64: base64Data, // Incluir base64 como respaldo
         };
 
-        console.log(`✅ Usando imagen de GCS: ${fileName}, contentType: ${contentType}`);
+        console.log(`✅ Usando imagen de GCS con base64 respaldo: ${fileName}`);
       } else {
-        // Usar método base64 (TEST_UPLOAD=false o fallback)
-        console.log(`🖼️ Procesando imagen para base64: ${product.photo.size} bytes, tipo: ${product.photo.type}`);
+        // Usar método base64
+        console.log(`📦 Usando método base64`);
 
-        let processedFile = product.photo;
-
-        if (product.photo.size > 4 * 1024 * 1024) {
-          console.log(`🗜️ Comprimiendo imagen ${index + 1}...`);
-          processedFile = await compressImage(product.photo);
-          console.log(`✅ Imagen comprimida: ${processedFile.size} bytes`);
-        }
-
-        // Convertir a base64
-        console.log(`🔄 Convirtiendo imagen a base64...`);
-        const buffer = await processedFile.arrayBuffer();
-        console.log(`📏 Buffer creado: ${buffer.byteLength} bytes`);
-
-        const base64Data = Buffer.from(buffer).toString("base64");
-        contentType = processedFile.type || "image/jpeg";
-        fileName = processedFile.name.replace(/[^a-zA-Z0-9._-]/g, '_');
-
-        // Incluir base64 en el payload
         imageData = {
           base64: base64Data,
         };
 
-        console.log(`✅ Base64 generado: ${base64Data.length} caracteres, contentType: ${contentType}`);
+        console.log(`✅ Usando base64: ${base64Data.length} caracteres`);
       }
 
       // Preparar payload del webhook (arreglo de 1 producto, compatible con n8n)
@@ -1130,7 +1134,9 @@ export function ProductUploadForm({ marca }: { marca: string }) {
         >
           {isProcessingProduct ? (
             <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              <svg className="mr-2 h-4 w-4 animate-spin" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
               {t.products.buttons.processing}
             </>
           ) : (
