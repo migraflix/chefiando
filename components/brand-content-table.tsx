@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { ExternalLink, Loader2, FileText, CheckCircle2, Clock } from "lucide-react"
+import { ExternalLink, FileText, CheckCircle2 } from "lucide-react"
+// Using inline SVGs for clock and loader icons
 // Using inline SVG for alert icon
 import Link from "next/link"
 import Image from "next/image"
@@ -84,7 +85,9 @@ export function BrandContentTable({ recordIdMarca }: { recordIdMarca: string }) 
     return (
       <Card className="p-12">
         <div className="flex flex-col items-center justify-center gap-4">
-          <Loader2 className="h-8 w-8 animate-spin text-orange-500" />
+          <svg className="h-8 w-8 animate-spin text-orange-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
           <p className="text-gray-600" suppressHydrationWarning>{t.brand.loading}</p>
         </div>
       </Card>
@@ -313,7 +316,9 @@ export function BrandContentTable({ recordIdMarca }: { recordIdMarca: string }) 
                           </div>
                         ) : isProcessing ? (
                           <div className="w-32 h-32 rounded-lg bg-gray-200 flex items-center justify-center shadow-md">
-                            <Loader2 className="h-6 w-6 text-blue-500 animate-spin" />
+                            <svg className="h-6 w-6 text-blue-500 animate-spin" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                            </svg>
                           </div>
                         ) : (
                           <div className="w-32 h-32 rounded-lg bg-gray-200 flex items-center justify-center shadow-md">
@@ -348,7 +353,9 @@ export function BrandContentTable({ recordIdMarca }: { recordIdMarca: string }) 
                     <td className="px-6 py-4 text-center">
                       <div className="flex flex-col items-center gap-1">
                         <span className={`inline-flex items-center gap-1.5 px-3 py-1 ${statusInfo.color} text-xs font-medium rounded-full`}>
-                          {isProcessing && <Loader2 className="h-3 w-3 animate-spin" />}
+                          {isProcessing && <svg className="h-3 w-3 animate-spin" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                          </svg>}
                           {!isProcessing && <StatusIcon className="h-3 w-3" />}
                           {statusInfo.label}
                         </span>
@@ -389,7 +396,9 @@ export function BrandContentTable({ recordIdMarca }: { recordIdMarca: string }) 
                       </div>
                     ) : isProcessing ? (
                       <div className="w-32 h-32 rounded-lg bg-gray-200 flex items-center justify-center shadow-md">
-                        <Loader2 className="h-8 w-8 text-blue-500 animate-spin" />
+                        <svg className="h-8 w-8 text-blue-500 animate-spin" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                        </svg>
                       </div>
                     ) : (
                       <div className="w-32 h-32 rounded-lg bg-gray-200 flex items-center justify-center shadow-md">

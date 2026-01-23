@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { ExternalLink, Loader2 } from "lucide-react"
+// Using inline SVGs for external link and loader icons
 // Using inline SVG for filter icon
 import Link from "next/link"
 import Image from "next/image"
@@ -97,7 +97,9 @@ export function AllContentTable({ status }: { status: "pending" | "reviewed" }) 
       <div className="min-h-screen bg-gradient-to-br from-orange-50 via-yellow-50 to-white p-8">
         <Card className="p-12 max-w-7xl mx-auto">
           <div className="flex flex-col items-center justify-center gap-4">
-            <Loader2 className="h-8 w-8 animate-spin text-orange-500" />
+            <svg className="h-8 w-8 animate-spin text-orange-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
             <p className="text-gray-600">{t.brand.loading}</p>
           </div>
         </Card>
@@ -230,7 +232,9 @@ export function AllContentTable({ status }: { status: "pending" | "reviewed" }) 
                       <td className="px-6 py-4 text-center">
                         <Link href={`/review/${item.id}?brandId=${item.brandId}`}>
                           <Button size="sm" className="bg-orange-500 hover:bg-orange-600 text-white">
-                            <ExternalLink className="h-4 w-4 mr-2" />
+                            <svg className="h-4 w-4 mr-2" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                            </svg>
                             {status === "pending" ? t.brand.table.rate : language === "pt" ? "Ver" : "Ver"}
                           </Button>
                         </Link>

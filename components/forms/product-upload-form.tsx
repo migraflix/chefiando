@@ -11,8 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useLanguage } from "@/contexts/language-context";
 import { useToast } from "@/hooks/use-toast";
 import { useErrorLogger } from "@/lib/error-logger";
-import { Loader2 } from "lucide-react";
-// Using inline SVGs for upload and close icons
+// Using inline SVGs for upload, close and loader icons
 import { Checkbox } from "@/components/ui/checkbox";
 
 interface Product {
@@ -906,7 +905,9 @@ export function ProductUploadForm({ marca }: { marca: string }) {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <Card className="max-w-md mx-4">
             <CardContent className="pt-8 pb-8 px-8 text-center">
-              <Loader2 className="h-12 w-12 animate-spin mx-auto mb-4 text-primary" />
+              <svg className="h-12 w-12 animate-spin mx-auto mb-4 text-primary" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
               <h3 className="text-xl font-semibold mb-2">{t.products.uploading.title}</h3>
               <p className="text-muted-foreground">{t.products.uploading.description}</p>
             </CardContent>
@@ -948,7 +949,9 @@ export function ProductUploadForm({ marca }: { marca: string }) {
                     <div className={`flex items-center gap-2 px-4 py-2 border rounded-md hover:bg-accent ${isUploadingToGcs ? 'opacity-50 cursor-not-allowed' : ''}`}>
                       {methodConfig.TEST_UPLOAD === 'true' && isUploadingToGcs ? (
                         <>
-                          <Loader2 className="h-4 w-4 animate-spin" />
+                          <svg className="h-4 w-4 animate-spin" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                          </svg>
                           <span>Subiendo a la nube...</span>
                         </>
                       ) : product.photoUploaded ? (
@@ -978,7 +981,9 @@ export function ProductUploadForm({ marca }: { marca: string }) {
                     />
                     {methodConfig.TEST_UPLOAD === 'true' && isUploadingToGcs && (
                       <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                        <Loader2 className="h-6 w-6 animate-spin text-white" />
+                        <svg className="h-6 w-6 animate-spin text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                        </svg>
                       </div>
                     )}
                     {product.photoUploaded && (
@@ -1096,7 +1101,9 @@ export function ProductUploadForm({ marca }: { marca: string }) {
           >
             {isProcessingProduct ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                <svg className="mr-2 h-4 w-4 animate-spin" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
                 {t.products.buttons.processing}
               </>
             ) : (

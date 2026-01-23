@@ -2,7 +2,7 @@
 
 import { BrandRegistrationForm } from "@/components/forms/brand-registration-form";
 import { LanguageSelector } from "@/components/language-selector";
-import { ArrowLeft } from "lucide-react";
+// Using inline SVG for arrow icon
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
@@ -18,7 +18,9 @@ export default function RegistroPage() {
       <div className="absolute top-0 left-0 right-0 z-40 flex items-center justify-start px-4 pt-4 pb-2 safe-area-top bg-background/95 backdrop-blur-sm">
         <Link href="/">
           <Button variant="ghost" size="icon-sm" className="h-8 w-8 -ml-2">
-            <ArrowLeft className="h-4 w-4" />
+            <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+            </svg>
           </Button>
         </Link>
       </div>

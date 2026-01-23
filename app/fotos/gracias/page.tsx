@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useLanguage } from "@/contexts/language-context";
 import { LanguageSelector } from "@/components/language-selector";
-import { CheckCircle2 } from "lucide-react";
+// Using inline SVG for check icon
 
 export default function GraciasPage() {
   const searchParams = useSearchParams();
@@ -38,7 +38,9 @@ export default function GraciasPage() {
           <CardContent className="pt-12 pb-12 px-8">
             <div className="flex justify-center mb-6">
               <div className="rounded-full bg-green-100 p-4">
-                <CheckCircle2 className="h-16 w-16 text-green-600" />
+                <svg className="h-16 w-16 text-green-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
               </div>
             </div>
             <h1 className="text-4xl font-bold mb-4">{t.products.thanks.title}</h1>
