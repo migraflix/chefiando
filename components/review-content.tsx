@@ -17,27 +17,28 @@ import { useLanguage } from "@/contexts/language-context"
 import { noCacheUrl } from "@/lib/utils"
 
 interface AirtableRecord {
-  id: string
+  id: string;
   fields: {
-    Title?: string
-    Post?: string
-    "📥 Image"?: Array<{ url: string }>
-    "Calificación Post"?: number
-    "Calificación Imagen"?: number
-    "Comentarios Post"?: string
-    "Comentario Imagen"?: string
-    Status?: string
-    "Fotos AI"?: Array<string>
-  }
+    Title?: string;
+    Post?: string;
+    "📥 Image"?: Array<{ url: string }>;
+    "Calificación Post"?: number;
+    "Calificación Imagen"?: number;
+    "Comentarios Post"?: string;
+    "Comentario Imagen"?: string;
+    Status?: string;
+    "Fotos AI"?: Array<string>;
+    "Imagen (from Fotos AI)"?: Array<{ url: string }>;
+  };
   aiPhoto?: {
-    id: string
+    id: string;
     fields: {
-      Nombre?: string
-      Precio?: number
-      Ingredientes?: string
-      Imagen?: Array<{ url: string }>
-    }
-  }
+      Nombre?: string;
+      Precio?: number;
+      Ingredientes?: string;
+      Imagen?: Array<{ url: string }>;
+    };
+  };
 }
 
 export function ReviewContent({ recordId }: { recordId: string }) {
