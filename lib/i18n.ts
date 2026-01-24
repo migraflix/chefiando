@@ -441,7 +441,7 @@ export const translations = {
       loading: "Cargando contenido...",
       notFound: "No se encontró el registro",
       aiPhoto: {
-        title: "Información de la Foto IA,
+        title: "Información de la Foto IA",
         name: "Nombre del Platillo",
         namePlaceholder: "Escribe el nombre del platillo...",
         price: "Precio (BRL)",
