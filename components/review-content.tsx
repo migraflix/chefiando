@@ -262,7 +262,7 @@ export function ReviewContent({ recordId }: { recordId: string }) {
         <CardContent className="space-y-4">
           <div className="grid grid-cols-2 gap-4 mb-6">
             <div className="space-y-2">
-              <Label className="text-muted-foreground text-xs uppercase tracking-wider">Subida</Label>
+              <Label className="text-muted-foreground text-xs uppercase tracking-wider">Imagen Original</Label>
               {originalImageUrl ? (
                 <div className="relative aspect-square rounded-lg overflow-hidden bg-muted border">
                   <img src={originalImageUrl || "/placeholder.svg"} alt="Migraflix" className="w-full h-full object-cover" />
