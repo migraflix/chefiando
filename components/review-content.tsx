@@ -229,10 +229,7 @@ export function ReviewContent({ recordId }: { recordId: string }) {
 
   const imageUrl = noCacheUrl(record.fields["📥 Image"]?.[0]?.url, record.id)
   // Para la foto original, usar el campo "Imagen Original" del record principal
-  const originalImageUrl = noCacheUrl(
-    record.fields["Imagen Original"]?.[0]?.url,
-    `orig-${record.id}`
-  )
+  const originalImageUrl = noCacheUrl(record.fields["Imagen Original"]?.[0]?.url,|${record.id})
 
   return (
     <div className="space-y-6">
