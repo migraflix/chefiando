@@ -28,7 +28,7 @@ interface AirtableRecord {
     "Comentario Imagen"?: string;
     Status?: string;
     "Fotos AI"?: Array<string>;
-    "Imagen (from Fotos AI)"?: Array<{ url: string }>;
+    "Imagen Original"?: Array<{ url: string }>;
   };
   aiPhoto?: {
     id: string;
@@ -228,9 +228,9 @@ export function ReviewContent({ recordId }: { recordId: string }) {
   }
 
   const imageUrl = noCacheUrl(record.fields["📥 Image"]?.[0]?.url, record.id)
-  // Para la foto original, usar el lookup "Imagen (from Fotos AI)" del record principal
+  // Para la foto original, usar el campo "Imagen Original" del record principal
   const originalImageUrl = noCacheUrl(
-    record.fields["Imagen (from Fotos AI)"]?.[0]?.url,
+    record.fields["Imagen Original"]?.[0]?.url,
     `orig-${record.id}`
   )
 
