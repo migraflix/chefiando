@@ -262,7 +262,7 @@ export function ReviewContent({ recordId }: { recordId: string }) {
         <CardContent className="space-y-4">
           <div className="grid grid-cols-2 gap-4 mb-6">
             <div className="space-y-2">
-              <Label className="text-muted-foreground text-xs uppercase tracking-wider">Migraflix</Label>
+              <Label className="text-muted-foreground text-xs uppercase tracking-wider">Original</Label>
               {originalImageUrl ? (
                 <div className="relative aspect-square rounded-lg overflow-hidden bg-muted border">
                   <img src={originalImageUrl || "/placeholder.svg"} alt="Migraflix" className="w-full h-full object-cover" />
@@ -274,7 +274,7 @@ export function ReviewContent({ recordId }: { recordId: string }) {
               )}
             </div>
             <div className="space-y-2">
-              <Label className="text-muted-foreground text-xs uppercase tracking-wider">AI Generated</Label>
+              <Label className="text-muted-foreground text-xs uppercase tracking-wider">ChefIAndo Generated</Label>
               {imageUrl ? (
                 <div className="relative aspect-square rounded-lg overflow-hidden bg-muted border">
                   <img src={imageUrl || "/placeholder.svg"} alt="AI Generated" className="w-full h-full object-cover" />
@@ -339,7 +339,7 @@ export function ReviewContent({ recordId }: { recordId: string }) {
               <div className="relative aspect-square rounded-lg overflow-hidden bg-muted border mb-4">
                 <img
                   src={imageUrl || "/placeholder.svg"}
-                  alt="AI Generated to Rate"
+                  alt={t.review.aiPhoto.title}
                   className="w-full h-full object-cover"
                 />
               </div>
