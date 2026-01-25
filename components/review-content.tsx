@@ -21,14 +21,14 @@ interface AirtableRecord {
   fields: {
     Title?: string;
     Post?: string;
-    "📥 Image"?: Array<{ url: string }>;
+    "📥 Image"?: Array<{ url: string; thumbnails?: { large?: { url: string } } }>;
     "Calificación Post"?: number;
     "Calificación Imagen"?: number;
     "Comentarios Post"?: string;
     "Comentario Imagen"?: string;
     Status?: string;
     "Fotos AI"?: Array<string>;
-    "Imagen Original"?: Array<{ url: string }>;
+    "Imagen Original"?: Array<{ url: string; thumbnails?: { large?: { url: string } } }>;
   };
   aiPhoto?: {
     id: string;
