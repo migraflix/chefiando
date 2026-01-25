@@ -228,8 +228,8 @@ export function ReviewContent({ recordId }: { recordId: string }) {
   }
 
   const imageUrl = noCacheUrl(record.fields["📥 Image"]?.[0]?.url, record.id)
-  // Para la foto original, usar la URL directa sin cache buster
-  const originalImageUrl = record.fields["Imagen Original"]?.[0]?.url || "/placeholder.svg"
+  // Para la foto original, usar exactamente el mismo tratamiento que imageUrl
+  const originalImageUrl = noCacheUrl(record.fields["Imagen Original"]?.[0]?.url, record.id)
 
   // Debug logs - ver todos los campos que llegan de Airtable
   console.log("=== DEBUG AIRTABLE ===")
@@ -247,10 +247,10 @@ export function ReviewContent({ recordId }: { recordId: string }) {
       {/* DEBUG - BORRAR DESPUÉS */}
       <div className="bg-yellow-100 p-4 rounded text-xs text-black overflow-auto">
         <p><strong>Record ID:</strong> {record.id}</p>
-        <p><strong>Campos disponibles:</strong> {Object.keys(record.fields).join(", ")}</p>
         <p><strong>Imagen Original existe:</strong> {record.fields["Imagen Original"] ? "SI" : "NO"}</p>
         <p><strong>📥 Image existe:</strong> {record.fields["📥 Image"] ? "SI" : "NO"}</p>
-        <p><strong>originalImageUrl:</strong> {originalImageUrl}</p>
+        <p><strong>imageUrl (funciona):</strong> {imageUrl?.substring(0, 80)}...</p>
+        <p><strong>originalImageUrl:</strong> {originalImageUrl?.substring(0, 80)}...</p>
       </div>
 
       {error && (
@@ -279,9 +279,19 @@ export function ReviewContent({ recordId }: { recordId: string }) {
           <div className="grid grid-cols-2 gap-4 mb-6">
             <div className="space-y-2">
               <Label className="text-muted-foreground text-xs uppercase tracking-wider">Imagen Original</Label>
-              {originalImageUrl ? (
+              {originalImageUrl && originalImageUrl !== "/placeholder.svg" ? (
                 <div className="relative aspect-square rounded-lg overflow-hidden bg-muted border">
-                  <img src={originalImageUrl || "/placeholder.svg"} alt="Migraflix" className="w-full h-full object-cover" />
+                  <img
+                    src={originalImageUrl}
+                    alt="Imagen Original"
+                    className="w-full h-full object-cover"
+                    referrerPolicy="no-referrer"
+                    onError={(e) => {
+                      console.error("Error cargando imagen original:", e)
+                      const target = e.target as HTMLImageElement
+                      target.src = "/placeholder.svg"
+                    }}
+                  />
                 </div>
               ) : (
                 <div className="aspect-square rounded-lg bg-muted flex items-center justify-center border border-dashed">
