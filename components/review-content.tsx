@@ -227,9 +227,9 @@ export function ReviewContent({ recordId }: { recordId: string }) {
     )
   }
 
-  const imageUrl = noCacheUrl(record.fields["📥 Image"]?.[0]?.url, record.id)
-  // Para la foto original, usar exactamente el mismo tratamiento que imageUrl
-  const originalImageUrl = noCacheUrl(record.fields["Imagen Original"]?.[0]?.url, record.id)
+  // PRUEBA: intercambiamos las URLs para ver cuál es el problema
+  const imageUrl = noCacheUrl(record.fields["Imagen Original"]?.[0]?.url, record.id)  // Antes era 📥 Image
+  const originalImageUrl = noCacheUrl(record.fields["📥 Image"]?.[0]?.url, record.id)  // Antes era Imagen Original
 
   // Debug logs - ver todos los campos que llegan de Airtable
   console.log("=== DEBUG AIRTABLE ===")
