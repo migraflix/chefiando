@@ -28,7 +28,7 @@ interface AirtableRecord {
     "Comentario Imagen"?: string;
     Status?: string;
     "Fotos AI"?: Array<string>;
-    "Image Original"?: Array<{ url: string }>;
+    "Imagen Original"?: Array<{ url: string }>;
   };
   aiPhoto?: {
     id: string;
@@ -229,13 +229,17 @@ export function ReviewContent({ recordId }: { recordId: string }) {
 
   const imageUrl = noCacheUrl(record.fields["📥 Image"]?.[0]?.url, record.id)
   // Para la foto original, usar la URL directa sin cache buster
-  const originalImageUrl = record.fields["Image Original"]?.[0]?.url || "/placeholder.svg"
+  const originalImageUrl = record.fields["Imagen Original"]?.[0]?.url || "/placeholder.svg"
 
-  // Debug logs
+  // Debug logs - ver todos los campos que llegan de Airtable
+  console.log("=== DEBUG AIRTABLE ===")
+  console.log("Record ID:", record.id)
+  console.log("Todos los campos:", Object.keys(record.fields))
   console.log("📥 Image field:", record.fields["📥 Image"])
-  console.log("Image Original field:", record.fields["Image Original"])
+  console.log("Imagen Original field:", record.fields["Imagen Original"])
   console.log("imageUrl:", imageUrl)
   console.log("originalImageUrl (directo):", originalImageUrl)
+  console.log("======================")
 
   return (
     <div className="space-y-6">
