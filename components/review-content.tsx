@@ -246,11 +246,8 @@ export function ReviewContent({ recordId }: { recordId: string }) {
 
       {/* DEBUG - BORRAR DESPUÉS */}
       <div className="bg-yellow-100 p-4 rounded text-xs text-black overflow-auto">
-        <p><strong>Record ID:</strong> {record.id}</p>
-        <p><strong>Imagen Original existe:</strong> {record.fields["Imagen Original"] ? "SI" : "NO"}</p>
-        <p><strong>📥 Image existe:</strong> {record.fields["📥 Image"] ? "SI" : "NO"}</p>
-        <p><strong>imageUrl (funciona):</strong> {imageUrl?.substring(0, 80)}...</p>
-        <p><strong>originalImageUrl:</strong> {originalImageUrl?.substring(0, 80)}...</p>
+        <p><strong>📥 Image RAW:</strong> {JSON.stringify(record.fields["📥 Image"]?.[0])}</p>
+        <p><strong>Imagen Original RAW:</strong> {JSON.stringify(record.fields["Imagen Original"]?.[0])}</p>
       </div>
 
       {error && (
