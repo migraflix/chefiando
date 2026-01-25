@@ -244,6 +244,15 @@ export function ReviewContent({ recordId }: { recordId: string }) {
   return (
     <div className="space-y-6">
 
+      {/* DEBUG - BORRAR DESPUÉS */}
+      <div className="bg-yellow-100 p-4 rounded text-xs text-black overflow-auto">
+        <p><strong>Record ID:</strong> {record.id}</p>
+        <p><strong>Campos disponibles:</strong> {Object.keys(record.fields).join(", ")}</p>
+        <p><strong>Imagen Original existe:</strong> {record.fields["Imagen Original"] ? "SI" : "NO"}</p>
+        <p><strong>📥 Image existe:</strong> {record.fields["📥 Image"] ? "SI" : "NO"}</p>
+        <p><strong>originalImageUrl:</strong> {originalImageUrl}</p>
+      </div>
+
       {error && (
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
