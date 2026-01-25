@@ -28,7 +28,7 @@ interface AirtableRecord {
     "Comentario Imagen"?: string;
     Status?: string;
     "Fotos AI"?: Array<string>;
-    "Imagen Original"?: Array<{ url: string }>;
+    "Image Original"?: Array<{ url: string }>;
   };
   aiPhoto?: {
     id: string;
@@ -227,9 +227,15 @@ export function ReviewContent({ recordId }: { recordId: string }) {
     )
   }
 
-  const imageUrl = noCacheUrl(record.fields["Imagen Original"]?.[0]?.url, record.id)
-  // Para la foto original, usar el campo "Imagen Original" del record principal "📥 Image"
-  const originalImageUrl = noCacheUrl(record.fields["📥 Image"]?.[0]?.url, record.id)
+  const imageUrl = noCacheUrl(record.fields["📥 Image"]?.[0]?.url, record.id)
+  // Para la foto original, usar la URL directa sin cache buster
+  const originalImageUrl = record.fields["Image Original"]?.[0]?.url || "/placeholder.svg"
+
+  // Debug logs
+  console.log("📥 Image field:", record.fields["📥 Image"])
+  console.log("Image Original field:", record.fields["Image Original"])
+  console.log("imageUrl:", imageUrl)
+  console.log("originalImageUrl (directo):", originalImageUrl)
 
   return (
     <div className="space-y-6">
