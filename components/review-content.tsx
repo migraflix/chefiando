@@ -234,24 +234,8 @@ export function ReviewContent({ recordId }: { recordId: string }) {
     record.id
   )
 
-  // Debug logs - ver todos los campos que llegan de Airtable
-  console.log("=== DEBUG AIRTABLE ===")
-  console.log("Record ID:", record.id)
-  console.log("Todos los campos:", Object.keys(record.fields))
-  console.log("📥 Image field:", record.fields["📥 Image"])
-  console.log("Imagen Original field:", record.fields["Imagen Original"])
-  console.log("imageUrl:", imageUrl)
-  console.log("originalImageUrl (directo):", originalImageUrl)
-  console.log("======================")
-
   return (
     <div className="space-y-6">
-
-      {/* DEBUG - BORRAR DESPUÉS */}
-      <div className="bg-yellow-100 p-4 rounded text-xs text-black overflow-auto">
-        <p><strong>📥 Image RAW:</strong> {JSON.stringify(record.fields["📥 Image"]?.[0])}</p>
-        <p><strong>Imagen Original RAW:</strong> {JSON.stringify(record.fields["Imagen Original"]?.[0])}</p>
-      </div>
 
       {error && (
         <Alert variant="destructive">
@@ -279,19 +263,9 @@ export function ReviewContent({ recordId }: { recordId: string }) {
           <div className="grid grid-cols-2 gap-4 mb-6">
             <div className="space-y-2">
               <Label className="text-muted-foreground text-xs uppercase tracking-wider">Imagen Original</Label>
-              {originalImageUrl && originalImageUrl !== "/placeholder.svg" ? (
+              {originalImageUrl ? (
                 <div className="relative aspect-square rounded-lg overflow-hidden bg-muted border">
-                  <img
-                    src={originalImageUrl}
-                    alt="Imagen Original"
-                    className="w-full h-full object-cover"
-                    referrerPolicy="no-referrer"
-                    onError={(e) => {
-                      console.error("Error cargando imagen original:", e)
-                      const target = e.target as HTMLImageElement
-                      target.src = "/placeholder.svg"
-                    }}
-                  />
+                  <img src={originalImageUrl || "/placeholder.svg"} alt="Imagen Original" className="w-full h-full object-cover" />
                 </div>
               ) : (
                 <div className="aspect-square rounded-lg bg-muted flex items-center justify-center border border-dashed">
