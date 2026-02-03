@@ -122,6 +122,24 @@ export const translations = {
         title: "Obrigado pelo seu feedback",
         description: "As avaliações foram salvas com sucesso",
       },
+      video: {
+        title: "Vídeo",
+        generate: "Gerar Vídeo",
+        instructions: "Instruções para o vídeo",
+        instructionsPlaceholder: "Descreva como você quer que o vídeo seja gerado...",
+        sending: "Enviando...",
+        send: "Enviar",
+        cancel: "Cancelar",
+        success: {
+          title: "Solicitação enviada",
+          description: "Sua solicitação de vídeo foi enviada com sucesso",
+        },
+        error: {
+          title: "Erro",
+          description: "Erro ao enviar a solicitação",
+        },
+        noVideo: "Sem vídeo",
+      },
     },
     // Thank You Page
     thankYou: {
@@ -468,6 +486,24 @@ export const translations = {
       success: {
         title: "Gracias por tu feedback",
         description: "Las calificaciones se han guardado exitosamente",
+      },
+      video: {
+        title: "Video",
+        generate: "Generar Video",
+        instructions: "Instrucciones para el video",
+        instructionsPlaceholder: "Describe cómo quieres que se genere el video...",
+        sending: "Enviando...",
+        send: "Enviar",
+        cancel: "Cancelar",
+        success: {
+          title: "Solicitud enviada",
+          description: "Tu solicitud de video ha sido enviada exitosamente",
+        },
+        error: {
+          title: "Error",
+          description: "Error al enviar la solicitud",
+        },
+        noVideo: "Sin video",
       },
     },
     // Thank You Page

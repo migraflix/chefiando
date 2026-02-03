@@ -8,8 +8,16 @@ import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Spinner } from "@/components/ui/spinner"
 import { StarRating } from "@/components/star-rating"
-import { AlertCircle, Image, Utensils } from 'lucide-react'
+import { AlertCircle, Image, Utensils, Video } from 'lucide-react'
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 import confetti from "canvas-confetti"
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useToast } from "@/hooks/use-toast"
@@ -22,6 +30,7 @@ interface AirtableRecord {
     Title?: string;
     Post?: string;
     "📥 Image"?: Array<{ url: string; thumbnails?: { large?: { url: string } } }>;
+    "📥 Video"?: Array<{ url: string }>;
     "Calificación Post"?: number;
     "Calificación Imagen"?: number;
     "Comentarios Post"?: string;
@@ -57,6 +66,11 @@ export function ReviewContent({ recordId }: { recordId: string }) {
   const [dishName, setDishName] = useState("")
   const [dishPrice, setDishPrice] = useState("")
   const [dishIngredients, setDishIngredients] = useState("")
+
+  // Video generation modal state
+  const [videoModalOpen, setVideoModalOpen] = useState(false)
+  const [videoInstructions, setVideoInstructions] = useState("")
+  const [sendingVideo, setSendingVideo] = useState(false)
 
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -198,6 +212,51 @@ export function ReviewContent({ recordId }: { recordId: string }) {
     }
   }
 
+  // ============================================
+  // WEBHOOK VIDEO GENERATION
+  // URL: https://n8n.migraflix.com/webhook/cceb22a2-cfe8-4cf5-a705-ed31de1854b7
+  // ============================================
+  const handleGenerateVideo = async () => {
+    try {
+      setSendingVideo(true)
+      setError(null)
+
+      const response = await fetch(
+        "https://n8n.migraflix.com/webhook/cceb22a2-cfe8-4cf5-a705-ed31de1854b7",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            recordId: recordId,
+            instructions: videoInstructions,
+          }),
+        }
+      )
+
+      if (!response.ok) {
+        throw new Error("Error al enviar la solicitud")
+      }
+
+      toast({
+        title: t.review.video.success.title,
+        description: t.review.video.success.description,
+      })
+
+      setVideoModalOpen(false)
+      setVideoInstructions("")
+    } catch (err) {
+      toast({
+        title: t.review.video.error.title,
+        description: t.review.video.error.description,
+        variant: "destructive",
+      })
+    } finally {
+      setSendingVideo(false)
+    }
+  }
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -233,6 +292,8 @@ export function ReviewContent({ recordId }: { recordId: string }) {
     record.fields["Imagen Original"]?.[0]?.thumbnails?.large?.url || record.fields["Imagen Original"]?.[0]?.url,
     record.id
   )
+  // Video URL
+  const videoUrl = record.fields["📥 Video"]?.[0]?.url
 
   return (
     <div className="space-y-6">
@@ -326,6 +387,27 @@ export function ReviewContent({ recordId }: { recordId: string }) {
         </CardContent>
       </Card>
 
+      {/* Video Card - only show if video exists */}
+      {videoUrl && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Video className="h-5 w-5" />
+              {t.review.video.title}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="relative aspect-video rounded-lg overflow-hidden bg-muted border">
+              <video
+                src={videoUrl}
+                controls
+                className="w-full h-full object-contain"
+              />
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       <div className="grid md:grid-cols-2 gap-6">
         <Card>
           <CardHeader>
@@ -399,7 +481,19 @@ export function ReviewContent({ recordId }: { recordId: string }) {
         </Card>
       </div>
 
-      <div className="flex justify-end">
+      <div className="flex justify-end gap-3">
+        {/* Only show Generate Video button if no video exists */}
+        {!videoUrl && (
+          <Button
+            size="lg"
+            variant="outline"
+            onClick={() => setVideoModalOpen(true)}
+            className="min-w-[200px] border-blue-500 text-blue-500 hover:bg-blue-50 hover:text-blue-600"
+          >
+            <Video className="mr-2 h-4 w-4" />
+            {t.review.video.generate}
+          </Button>
+        )}
         <Button size="lg" onClick={handleSave} disabled={saving} className="min-w-[200px]">
           {saving ? (
             <>
@@ -411,6 +505,53 @@ export function ReviewContent({ recordId }: { recordId: string }) {
           )}
         </Button>
       </div>
+
+      {/* Video Generation Modal */}
+      <Dialog open={videoModalOpen} onOpenChange={setVideoModalOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Video className="h-5 w-5" />
+              {t.review.video.generate}
+            </DialogTitle>
+            <DialogDescription>
+              {t.review.video.instructions}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            <Textarea
+              placeholder={t.review.video.instructionsPlaceholder}
+              value={videoInstructions}
+              onChange={(e) => setVideoInstructions(e.target.value)}
+              rows={5}
+              className="resize-none"
+            />
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setVideoModalOpen(false)}
+              disabled={sendingVideo}
+            >
+              {t.review.video.cancel}
+            </Button>
+            <Button
+              onClick={handleGenerateVideo}
+              disabled={sendingVideo || !videoInstructions.trim()}
+              className="bg-blue-500 hover:bg-blue-600"
+            >
+              {sendingVideo ? (
+                <>
+                  <Spinner className="mr-2 h-4 w-4" />
+                  {t.review.video.sending}
+                </>
+              ) : (
+                t.review.video.send
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
