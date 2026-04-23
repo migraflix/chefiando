@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Spinner } from "@/components/ui/spinner"
 import { StarRating } from "@/components/star-rating"
-import { AlertCircle, Image, Utensils, Video } from 'lucide-react'
+import { AlertCircle, Image, Utensils, Video, Download } from 'lucide-react'
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import {
   Dialog,
@@ -312,6 +312,27 @@ export function ReviewContent({ recordId }: { recordId: string }) {
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>{error}</AlertDescription>
         </Alert>
+      )}
+
+      {record.fields.Status === "Approved" && (
+        <Card className="border-green-500/40 bg-green-50">
+          <CardContent className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 py-4">
+            <div className="flex items-center gap-2 text-green-800">
+              <Download className="h-5 w-5" />
+              <span className="font-medium">{t.review.downloadReady}</span>
+            </div>
+            <Button
+              asChild
+              variant="outline"
+              className="border-green-600 text-green-700 hover:bg-green-100 hover:text-green-800"
+            >
+              <a href={`/review/d?rec=${record.id}`}>
+                <Download className="mr-2 h-4 w-4" />
+                {t.review.downloadButton}
+              </a>
+            </Button>
+          </CardContent>
+        </Card>
       )}
 
       {record.fields.Title && (

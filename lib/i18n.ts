@@ -120,6 +120,8 @@ export const translations = {
       saving: "Salvando...",
       approve: "Aprovar",
       approving: "Aprovando...",
+      downloadReady: "Conteúdo aprovado e pronto para baixar",
+      downloadButton: "Baixar conteúdo",
       success: {
         title: "Obrigado pelo seu feedback",
         description: "As avaliações foram salvas com sucesso",
@@ -491,6 +493,8 @@ export const translations = {
       saving: "Guardando...",
       approve: "Aprobar",
       approving: "Aprobando...",
+      downloadReady: "Contenido aprobado y listo para descargar",
+      downloadButton: "Descargar contenido",
       success: {
         title: "Gracias por tu feedback",
         description: "Las calificaciones se han guardado exitosamente",
