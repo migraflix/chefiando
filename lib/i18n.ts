@@ -118,9 +118,15 @@ export const translations = {
       },
       save: "Salvar Avaliações",
       saving: "Salvando...",
+      approve: "Aprovar",
+      approving: "Aprovando...",
       success: {
         title: "Obrigado pelo seu feedback",
         description: "As avaliações foram salvas com sucesso",
+      },
+      approveSuccess: {
+        title: "Conteúdo aprovado",
+        description: "O conteúdo foi marcado como aprovado",
       },
       video: {
         title: "Vídeo",
@@ -483,9 +489,15 @@ export const translations = {
       },
       save: "Guardar Calificaciones",
       saving: "Guardando...",
+      approve: "Aprobar",
+      approving: "Aprobando...",
       success: {
         title: "Gracias por tu feedback",
         description: "Las calificaciones se han guardado exitosamente",
+      },
+      approveSuccess: {
+        title: "Contenido aprobado",
+        description: "El contenido se marcó como aprobado",
       },
       video: {
         title: "Video",

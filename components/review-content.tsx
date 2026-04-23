@@ -56,6 +56,7 @@ export function ReviewContent({ recordId }: { recordId: string }) {
   const [record, setRecord] = useState<AirtableRecord | null>(null)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+  const [approving, setApproving] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   const [postRating, setPostRating] = useState(0)
@@ -112,9 +113,14 @@ export function ReviewContent({ recordId }: { recordId: string }) {
     }
   }
 
-  const handleSave = async () => {
+  const handleSave = async (statusOverride?: string) => {
+    const isApprove = statusOverride === "Approved"
     try {
-      setSaving(true)
+      if (isApprove) {
+        setApproving(true)
+      } else {
+        setSaving(true)
+      }
       setError(null)
 
       const updateData: Record<string, any> = {
@@ -122,7 +128,7 @@ export function ReviewContent({ recordId }: { recordId: string }) {
         "Calificación Imagen": imageRating,
         "Comentarios Post": postComment,
         "Comentario Imagen": imageComment,
-        Status: "Revisado",
+        Status: statusOverride ?? "Revisado",
       }
 
       if (dishName.trim()) {
@@ -153,8 +159,8 @@ export function ReviewContent({ recordId }: { recordId: string }) {
       }
 
       toast({
-        title: t.review.success.title,
-        description: t.review.success.description,
+        title: isApprove ? t.review.approveSuccess.title : t.review.success.title,
+        description: isApprove ? t.review.approveSuccess.description : t.review.success.description,
       })
 
       // Brazilian confetti colors (green, yellow, blue)
@@ -209,8 +215,11 @@ export function ReviewContent({ recordId }: { recordId: string }) {
       setError(err instanceof Error ? err.message : "Error al guardar")
     } finally {
       setSaving(false)
+      setApproving(false)
     }
   }
+
+  const handleApprove = () => handleSave("Approved")
 
   // ============================================
   // WEBHOOK VIDEO GENERATION
@@ -494,7 +503,7 @@ export function ReviewContent({ recordId }: { recordId: string }) {
             {t.review.video.generate}
           </Button>
         )}
-        <Button size="lg" onClick={handleSave} disabled={saving} className="min-w-[200px]">
+        <Button size="lg" onClick={() => handleSave()} disabled={saving || approving} className="min-w-[200px]">
           {saving ? (
             <>
               <Spinner className="mr-2 h-4 w-4" />
@@ -502,6 +511,21 @@ export function ReviewContent({ recordId }: { recordId: string }) {
             </>
           ) : (
             t.review.save
+          )}
+        </Button>
+        <Button
+          size="lg"
+          onClick={handleApprove}
+          disabled={saving || approving}
+          className="min-w-[200px] bg-green-600 hover:bg-green-700 text-white"
+        >
+          {approving ? (
+            <>
+              <Spinner className="mr-2 h-4 w-4" />
+              {t.review.approving}
+            </>
+          ) : (
+            t.review.approve
           )}
         </Button>
       </div>
