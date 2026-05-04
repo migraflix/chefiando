@@ -511,20 +511,26 @@ export function ReviewContent({ recordId }: { recordId: string }) {
         </Card>
       </div>
 
-      <div className="flex justify-end gap-3">
+      <div className="flex flex-col sm:flex-row sm:justify-end gap-3">
         {/* Only show Generate Video button if no video exists */}
         {!videoUrl && (
           <Button
             size="lg"
             variant="outline"
             onClick={() => setVideoModalOpen(true)}
-            className="min-w-[200px] border-blue-500 text-blue-500 hover:bg-blue-50 hover:text-blue-600"
+            className="w-full sm:w-auto sm:min-w-[200px] border-blue-500 text-blue-500 hover:bg-blue-50 hover:text-blue-600"
           >
             <Video className="mr-2 h-4 w-4" />
             {t.review.video.generate}
           </Button>
         )}
-        <Button size="lg" onClick={() => handleSave()} disabled={saving || approving} className="min-w-[200px]">
+        <Button
+          size="lg"
+          variant="destructive"
+          onClick={() => handleSave()}
+          disabled={saving || approving}
+          className="w-full sm:w-auto sm:min-w-[200px]"
+        >
           {saving ? (
             <>
               <Spinner className="mr-2 h-4 w-4" />
@@ -538,7 +544,7 @@ export function ReviewContent({ recordId }: { recordId: string }) {
           size="lg"
           onClick={handleApprove}
           disabled={saving || approving}
-          className="min-w-[200px] bg-green-600 hover:bg-green-700 text-white"
+          className="w-full sm:w-auto sm:min-w-[200px] bg-green-600 hover:bg-green-700 text-white"
         >
           {approving ? (
             <>
