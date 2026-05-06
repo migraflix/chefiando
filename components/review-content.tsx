@@ -441,7 +441,7 @@ export function ReviewContent({ recordId }: { recordId: string }) {
                 onClick={async () => {
                   setWhatsappStatus("loading")
                   try {
-                    await fetch("https://n8n.migraflix.com/webhook-test/enviarVideoWhatsapp", {
+                    await fetch("https://n8n.migraflix.com/webhook/enviarVideoWhatsapp", {
                       method: "POST",
                       headers: { "Content-Type": "application/json" },
                       body: JSON.stringify({ recordId }),
