@@ -23,7 +23,7 @@ export default function AdminLogin() {
     setLoading(false)
 
     if (res.ok) {
-      router.push('/admin')
+      window.location.href = '/admin'
     } else {
       const data = await res.json()
       setError(data.error || 'Error al ingresar')
