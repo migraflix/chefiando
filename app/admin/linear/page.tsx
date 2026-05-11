@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import Link from 'next/link'
 
 interface Issue {
   id: string
@@ -33,20 +34,22 @@ const STATE_ORDER = ['triage', 'backlog', 'unstarted', 'started', 'completed', '
 
 function IssueCard({ issue }: { issue: Issue }) {
   return (
-    <div className="bg-gray-900 border border-gray-800 rounded-lg p-3 space-y-2 hover:border-gray-700 transition-colors">
-      <div className="flex items-start justify-between gap-2">
-        <p className="text-sm text-white leading-snug">{issue.title}</p>
-        <span className={`text-xs flex-shrink-0 ${PRIORITY_COLOR[issue.priority]}`}>
-          {PRIORITY_LABEL[issue.priority]}
-        </span>
+    <Link href={`/admin/linear/${issue.id}`}>
+      <div className="bg-gray-900 border border-gray-800 rounded-lg p-3 space-y-2 hover:border-orange-500/50 hover:bg-gray-900/80 transition-colors cursor-pointer">
+        <div className="flex items-start justify-between gap-2">
+          <p className="text-sm text-white leading-snug">{issue.title}</p>
+          <span className={`text-xs flex-shrink-0 ${PRIORITY_COLOR[issue.priority]}`}>
+            {PRIORITY_LABEL[issue.priority]}
+          </span>
+        </div>
+        {issue.description && (
+          <p className="text-xs text-gray-500 line-clamp-2">{issue.description}</p>
+        )}
+        {issue.assignee && (
+          <p className="text-xs text-gray-600">{issue.assignee.name}</p>
+        )}
       </div>
-      {issue.description && (
-        <p className="text-xs text-gray-500 line-clamp-2">{issue.description}</p>
-      )}
-      {issue.assignee && (
-        <p className="text-xs text-gray-600">{issue.assignee.name}</p>
-      )}
-    </div>
+    </Link>
   )
 }
 

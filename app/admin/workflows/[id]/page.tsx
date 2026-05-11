@@ -23,141 +23,109 @@ interface Workflow {
   tags?: { id: string; name: string }[]
 }
 
-// Map n8n node types to readable labels and colors
+const N8N_URL = 'https://n8n.migraflix.com'
+
 function nodeStyle(type: string): { color: string; bg: string; icon: string; label: string } {
   const map: Record<string, { color: string; bg: string; icon: string; label: string }> = {
-    'n8n-nodes-base.webhook': { color: '#f97316', bg: '#431407', icon: '⚡', label: 'Webhook' },
-    'n8n-nodes-base.httpRequest': { color: '#3b82f6', bg: '#1e3a8a', icon: '🌐', label: 'HTTP' },
-    'n8n-nodes-base.airtable': { color: '#10b981', bg: '#064e3b', icon: '📋', label: 'Airtable' },
-    'n8n-nodes-base.code': { color: '#a855f7', bg: '#3b0764', icon: '{}', label: 'Code' },
-    'n8n-nodes-base.set': { color: '#6b7280', bg: '#1f2937', icon: '✏️', label: 'Set' },
-    'n8n-nodes-base.if': { color: '#eab308', bg: '#422006', icon: '?', label: 'If' },
-    'n8n-nodes-base.openAi': { color: '#10b981', bg: '#064e3b', icon: '🤖', label: 'OpenAI' },
-    'n8n-nodes-base.executeWorkflowTrigger': { color: '#f97316', bg: '#431407', icon: '▶', label: 'Trigger' },
-    'n8n-nodes-base.scheduleTrigger': { color: '#f97316', bg: '#431407', icon: '⏰', label: 'Schedule' },
-    'n8n-nodes-base.googleDrive': { color: '#3b82f6', bg: '#1e3a8a', icon: '📁', label: 'Drive' },
-    'n8n-nodes-base.googleSheets': { color: '#10b981', bg: '#064e3b', icon: '📊', label: 'Sheets' },
-    'n8n-nodes-base.slack': { color: '#a855f7', bg: '#3b0764', icon: '💬', label: 'Slack' },
-    'n8n-nodes-base.sendEmail': { color: '#3b82f6', bg: '#1e3a8a', icon: '📧', label: 'Email' },
-    'n8n-nodes-base.whatsApp': { color: '#10b981', bg: '#064e3b', icon: '📱', label: 'WhatsApp' },
-    '@n8n/n8n-nodes-langchain.openAi': { color: '#10b981', bg: '#064e3b', icon: '🤖', label: 'OpenAI' },
+    'webhook': { color: '#f97316', bg: '#431407', icon: '⚡', label: 'Webhook' },
+    'httprequest': { color: '#3b82f6', bg: '#1e3a8a', icon: '🌐', label: 'HTTP' },
+    'airtable': { color: '#10b981', bg: '#064e3b', icon: '📋', label: 'Airtable' },
+    'code': { color: '#a855f7', bg: '#3b0764', icon: '{}', label: 'Code' },
+    'set': { color: '#6b7280', bg: '#1f2937', icon: '✏️', label: 'Set' },
+    'if': { color: '#eab308', bg: '#422006', icon: '?', label: 'If' },
+    'openai': { color: '#10b981', bg: '#064e3b', icon: '🤖', label: 'OpenAI' },
+    'executeworkflowtrigger': { color: '#f97316', bg: '#431407', icon: '▶', label: 'Trigger' },
+    'scheduletrigger': { color: '#f97316', bg: '#431407', icon: '⏰', label: 'Schedule' },
+    'googledrive': { color: '#3b82f6', bg: '#1e3a8a', icon: '📁', label: 'Drive' },
+    'googlesheets': { color: '#10b981', bg: '#064e3b', icon: '📊', label: 'Sheets' },
+    'slack': { color: '#a855f7', bg: '#3b0764', icon: '💬', label: 'Slack' },
+    'sendemail': { color: '#3b82f6', bg: '#1e3a8a', icon: '📧', label: 'Email' },
+    'whatsapp': { color: '#10b981', bg: '#064e3b', icon: '📱', label: 'WhatsApp' },
+    'fal': { color: '#f97316', bg: '#431407', icon: '🎨', label: 'Fal.ai' },
+    'telegram': { color: '#3b82f6', bg: '#1e3a8a', icon: '✈️', label: 'Telegram' },
   }
-  const key = Object.keys(map).find(k => type.toLowerCase().includes(k.split('.')[1]?.toLowerCase() || ''))
+  const typeLower = type.toLowerCase()
+  const key = Object.keys(map).find(k => typeLower.includes(k))
   return map[key || ''] || { color: '#6b7280', bg: '#1f2937', icon: '⬡', label: type.split('.').pop() || type }
 }
 
-function WorkflowDiagram({ nodes, connections }: { nodes: N8nNode[]; connections: Workflow['connections'] }) {
+function FlowChart({ nodes, connections }: { nodes: N8nNode[]; connections: Workflow['connections'] }) {
   if (!nodes.length) return <p className="text-gray-500 text-sm">Sin nodos</p>
 
-  const NODE_W = 140
-  const NODE_H = 56
-  const PAD = 40
+  // Sort nodes by x position to build columns
+  const sorted = [...nodes].sort((a, b) => a.position[0] - b.position[0])
 
-  const xs = nodes.map(n => n.position[0])
-  const ys = nodes.map(n => n.position[1])
-  const minX = Math.min(...xs) - PAD
-  const minY = Math.min(...ys) - PAD
-  const maxX = Math.max(...xs) + NODE_W + PAD
-  const maxY = Math.max(...ys) + NODE_H + PAD
-  const vw = maxX - minX
-  const vh = maxY - minY
-
-  // Build edges from connections
-  const edges: { x1: number; y1: number; x2: number; y2: number }[] = []
-  const nodeMap = Object.fromEntries(nodes.map(n => [n.name, n]))
-
+  // Build adjacency: fromName -> [toName, ...]
+  const nextMap: Record<string, string[]> = {}
   for (const [fromName, conns] of Object.entries(connections)) {
-    const from = nodeMap[fromName]
-    if (!from) continue
-    for (const outputs of conns.main || []) {
-      for (const conn of outputs) {
-        const to = nodeMap[conn.node]
-        if (!to) continue
-        edges.push({
-          x1: from.position[0] - minX + NODE_W,
-          y1: from.position[1] - minY + NODE_H / 2,
-          x2: to.position[0] - minX,
-          y2: to.position[1] - minY + NODE_H / 2,
-        })
-      }
+    const targets = (conns.main || []).flatMap(outputs => outputs.map(c => c.node))
+    if (targets.length) nextMap[fromName] = targets
+  }
+
+  // Determine which nodes are roots (no incoming edges)
+  const hasIncoming = new Set<string>()
+  for (const targets of Object.values(nextMap)) {
+    for (const t of targets) hasIncoming.add(t)
+  }
+  const roots = sorted.filter(n => !hasIncoming.has(n.name))
+  if (!roots.length) roots.push(sorted[0])
+
+  // BFS to build ordered steps
+  const visited = new Set<string>()
+  const steps: N8nNode[][] = []
+
+  let queue = roots
+  while (queue.length) {
+    const layer: N8nNode[] = []
+    const nextQueue: N8nNode[] = []
+    for (const node of queue) {
+      if (visited.has(node.name)) continue
+      visited.add(node.name)
+      layer.push(node)
+      const nexts = (nextMap[node.name] || []).map(name => nodes.find(n => n.name === name)!).filter(Boolean)
+      nextQueue.push(...nexts)
     }
+    if (layer.length) steps.push(layer)
+    queue = nextQueue
   }
 
-  return (
-    <div className="w-full overflow-x-auto rounded-xl bg-gray-950 border border-gray-800 p-2">
-      <svg
-        viewBox={`0 0 ${vw} ${vh}`}
-        width="100%"
-        style={{ minWidth: Math.min(vw, 320), maxHeight: 420 }}
-      >
-        <defs>
-          <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
-            <path d="M0,0 L0,6 L8,3 z" fill="#4b5563" />
-          </marker>
-        </defs>
-
-        {/* Edges */}
-        {edges.map((e, i) => {
-          const mx = (e.x1 + e.x2) / 2
-          return (
-            <path
-              key={i}
-              d={`M${e.x1},${e.y1} C${mx},${e.y1} ${mx},${e.y2} ${e.x2},${e.y2}`}
-              fill="none"
-              stroke="#4b5563"
-              strokeWidth="1.5"
-              markerEnd="url(#arrow)"
-            />
-          )
-        })}
-
-        {/* Nodes */}
-        {nodes.map(node => {
-          const s = nodeStyle(node.type)
-          const x = node.position[0] - minX
-          const y = node.position[1] - minY
-          const label = node.name.length > 18 ? node.name.slice(0, 16) + '…' : node.name
-          return (
-            <g key={node.id}>
-              <rect
-                x={x} y={y}
-                width={NODE_W} height={NODE_H}
-                rx="8"
-                fill={s.bg}
-                stroke={s.color}
-                strokeWidth="1.5"
-              />
-              <text x={x + 10} y={y + 22} fill={s.color} fontSize="14" fontWeight="bold">{s.icon}</text>
-              <text x={x + 28} y={y + 22} fill={s.color} fontSize="9" fontWeight="600">{s.label}</text>
-              <text x={x + 8} y={y + 40} fill="#e5e7eb" fontSize="9.5">{label}</text>
-            </g>
-          )
-        })}
-      </svg>
-    </div>
-  )
-}
-
-function NodeList({ nodes }: { nodes: N8nNode[] }) {
-  const grouped: Record<string, N8nNode[]> = {}
-  for (const n of nodes) {
-    const s = nodeStyle(n.type)
-    if (!grouped[s.label]) grouped[s.label] = []
-    grouped[s.label].push(n)
-  }
+  // Add any unvisited nodes at the end
+  const unvisited = nodes.filter(n => !visited.has(n.name))
+  if (unvisited.length) steps.push(unvisited)
 
   return (
-    <div className="space-y-2">
-      {Object.entries(grouped).map(([label, ns]) => (
-        <div key={label} className="flex items-start gap-3 bg-gray-900 border border-gray-800 rounded-lg px-3 py-2">
-          <span className="text-xs font-semibold text-gray-400 w-20 flex-shrink-0 mt-0.5">{label}</span>
-          <div className="flex flex-wrap gap-1">
-            {ns.map(n => (
-              <span key={n.id} className="text-xs text-gray-300 bg-gray-800 rounded px-2 py-0.5">{n.name}</span>
-            ))}
+    <div className="w-full overflow-x-auto">
+      <div className="flex items-start gap-0 min-w-fit py-2">
+        {steps.map((layer, li) => (
+          <div key={li} className="flex items-center">
+            {/* Layer of nodes */}
+            <div className="flex flex-col gap-2">
+              {layer.map(node => {
+                const s = nodeStyle(node.type)
+                return (
+                  <div
+                    key={node.id}
+                    className="rounded-lg border px-3 py-2 w-36 flex-shrink-0"
+                    style={{ borderColor: s.color, backgroundColor: s.bg }}
+                  >
+                    <div className="flex items-center gap-1.5 mb-0.5">
+                      <span className="text-sm">{s.icon}</span>
+                      <span className="text-xs font-semibold" style={{ color: s.color }}>{s.label}</span>
+                    </div>
+                    <p className="text-xs text-gray-200 leading-tight truncate" title={node.name}>{node.name}</p>
+                  </div>
+                )
+              })}
+            </div>
+            {/* Arrow between layers */}
+            {li < steps.length - 1 && (
+              <div className="flex items-center justify-center w-8 flex-shrink-0 self-center">
+                <span className="text-gray-600 text-lg">→</span>
+              </div>
+            )}
           </div>
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
   )
 }
@@ -173,7 +141,6 @@ export default function WorkflowDetail() {
       .then(r => r.json())
       .then(data => {
         if (data.error) { setLoading(false); return }
-        // Ensure nodes and connections always exist
         data.nodes = data.nodes || []
         data.connections = data.connections || {}
         setWf(data)
@@ -195,12 +162,11 @@ export default function WorkflowDetail() {
     </div>
   )
 
-  // Summarize what this workflow does
   const nodeTypes = [...new Set(wf.nodes.map(n => nodeStyle(n.type).label))]
   const triggerNode = wf.nodes.find(n =>
-    n.type.includes('Trigger') || n.type.includes('trigger') || n.type.includes('webhook')
+    n.type.toLowerCase().includes('trigger') || n.type.toLowerCase().includes('webhook')
   )
-  const integrations = nodeTypes.filter(t => !['Trigger', 'Code', 'Set', 'If'].includes(t))
+  const integrations = nodeTypes.filter(t => !['Code', 'Set', 'If'].includes(t))
 
   return (
     <div className="space-y-6 max-w-2xl mx-auto">
@@ -209,14 +175,24 @@ export default function WorkflowDetail() {
         <Link href="/admin/workflows" className="text-sm text-gray-500 hover:text-orange-400 transition-colors">
           ← Workflows
         </Link>
-        <div className="mt-3 flex items-start gap-3">
-          <div className={`w-2.5 h-2.5 rounded-full mt-1.5 flex-shrink-0 ${wf.active ? 'bg-green-400' : 'bg-gray-600'}`} />
-          <div>
-            <h1 className="text-xl font-bold text-white leading-tight">{wf.name}</h1>
-            <p className="text-gray-500 text-xs mt-1">
-              {wf.active ? 'Activo' : 'Inactivo'} · Actualizado {new Date(wf.updatedAt).toLocaleDateString('es', { day: '2-digit', month: 'short', year: 'numeric' })}
-            </p>
+        <div className="mt-3 flex items-start justify-between gap-3">
+          <div className="flex items-start gap-3">
+            <div className={`w-2.5 h-2.5 rounded-full mt-1.5 flex-shrink-0 ${wf.active ? 'bg-green-400' : 'bg-gray-600'}`} />
+            <div>
+              <h1 className="text-xl font-bold text-white leading-tight">{wf.name}</h1>
+              <p className="text-gray-500 text-xs mt-1">
+                {wf.active ? 'Activo' : 'Inactivo'} · Actualizado {new Date(wf.updatedAt).toLocaleDateString('es', { day: '2-digit', month: 'short', year: 'numeric' })}
+              </p>
+            </div>
           </div>
+          <a
+            href={`${N8N_URL}/workflow/${id}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex-shrink-0 text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white border border-gray-700 rounded-lg px-3 py-1.5 transition-colors"
+          >
+            Abrir en n8n ↗
+          </a>
         </div>
       </div>
 
@@ -255,16 +231,32 @@ export default function WorkflowDetail() {
         )}
       </div>
 
-      {/* Diagrama */}
+      {/* Diagrama de flujo */}
       <div>
-        <h2 className="text-sm font-semibold text-gray-300 mb-3">Diagrama</h2>
-        <WorkflowDiagram nodes={wf.nodes} connections={wf.connections} />
+        <h2 className="text-sm font-semibold text-gray-300 mb-3">Flujo</h2>
+        <div className="bg-gray-950 border border-gray-800 rounded-xl p-4 overflow-x-auto">
+          <FlowChart nodes={wf.nodes} connections={wf.connections} />
+        </div>
       </div>
 
-      {/* Nodos por tipo */}
+      {/* Tabla de nodos */}
       <div>
         <h2 className="text-sm font-semibold text-gray-300 mb-3">Nodos ({wf.nodes.length})</h2>
-        <NodeList nodes={wf.nodes} />
+        <div className="space-y-1.5">
+          {wf.nodes.map((node, i) => {
+            const s = nodeStyle(node.type)
+            return (
+              <div key={node.id} className="flex items-center gap-3 bg-gray-900 border border-gray-800 rounded-lg px-3 py-2">
+                <span className="text-gray-600 text-xs w-5 flex-shrink-0">{i + 1}</span>
+                <span className="text-base flex-shrink-0">{s.icon}</span>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm text-white truncate">{node.name}</p>
+                  <p className="text-xs text-gray-500">{s.label}</p>
+                </div>
+              </div>
+            )
+          })}
+        </div>
       </div>
     </div>
   )

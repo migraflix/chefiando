@@ -14,6 +14,7 @@ export default function AdminNav({ email }: { email?: string }) {
 
   const links = [
     { href: '/admin', label: 'Dashboard' },
+    { href: '/admin/airtable', label: 'Base de datos' },
     { href: '/admin/linear', label: 'Kanban' },
     { href: '/admin/workflows', label: 'Workflows' },
   ]
@@ -28,7 +29,7 @@ export default function AdminNav({ email }: { email?: string }) {
               key={link.href}
               href={link.href}
               className={`text-sm transition-colors ${
-                pathname === link.href
+                (link.href === '/admin' ? pathname === '/admin' : pathname.startsWith(link.href))
                   ? 'text-white font-medium'
                   : 'text-gray-400 hover:text-white'
               }`}
