@@ -43,21 +43,9 @@ function IssueCard({ issue }: { issue: Issue }) {
       {issue.description && (
         <p className="text-xs text-gray-500 line-clamp-2">{issue.description}</p>
       )}
-      <div className="flex items-center justify-between">
-        {issue.assignee ? (
-          <span className="text-xs text-gray-500">{issue.assignee.name}</span>
-        ) : (
-          <span className="text-xs text-gray-700">Sin asignar</span>
-        )}
-        <a
-          href={issue.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-xs text-orange-400 hover:text-orange-300 transition-colors"
-        >
-          Ver →
-        </a>
-      </div>
+      {issue.assignee && (
+        <p className="text-xs text-gray-600">{issue.assignee.name}</p>
+      )}
     </div>
   )
 }
