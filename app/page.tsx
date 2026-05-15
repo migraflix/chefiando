@@ -48,15 +48,15 @@ export default function HomePage() {
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
             <div className="text-center space-y-2">
-              <div className="text-4xl md:text-5xl font-bold text-primary">500+</div>
+              <div className="text-4xl md:text-5xl font-bold text-primary">5 min</div>
               <div className="text-muted-foreground">{t.landing.stats.restaurants}</div>
             </div>
             <div className="text-center space-y-2">
-              <div className="text-4xl md:text-5xl font-bold text-secondary">10K+</div>
+              <div className="text-4xl md:text-5xl font-bold text-secondary">24/7</div>
               <div className="text-muted-foreground">{t.landing.stats.content}</div>
             </div>
             <div className="text-center space-y-2">
-              <div className="text-4xl md:text-5xl font-bold text-accent">85%</div>
+              <div className="text-4xl md:text-5xl font-bold text-accent">+80%</div>
               <div className="text-muted-foreground">{t.landing.stats.engagement}</div>
             </div>
           </div>
@@ -149,6 +149,28 @@ export default function HomePage() {
               </Button>
             </CardContent>
           </Card>
+        </div>
+      </section>
+
+      {/* FAQ Section */}
+      <section className="py-20 md:py-32">
+        <div className="container mx-auto px-4">
+          <div className="max-w-3xl mx-auto">
+            <h2 className="text-4xl md:text-5xl font-bold text-balance text-center mb-16">{t.landing.faq.title}</h2>
+            <div className="space-y-4">
+              {t.landing.faq.items.map((item, index) => (
+                <details key={index} className="group border rounded-lg bg-card">
+                  <summary className="flex items-center justify-between gap-4 p-6 cursor-pointer list-none font-semibold text-lg">
+                    {item.question}
+                    <svg className="w-5 h-5 flex-shrink-0 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </summary>
+                  <p className="px-6 pb-6 text-muted-foreground leading-relaxed">{item.answer}</p>
+                </details>
+              ))}
+            </div>
+          </div>
         </div>
       </section>
 

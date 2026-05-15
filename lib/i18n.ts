@@ -6,53 +6,84 @@ export const translations = {
     landing: {
       badge: "Conteúdo que vende",
       hero: {
-        title: "Conteúdo profissional para seu restaurante",
+        title: "Transforme seus pratos em conteúdo que vende. Em 5 minutos, pelo celular",
         description:
-          "ChefIAndo ajuda pequenos restaurantes na LATAM a criar conteúdo de qualidade que atrai mais clientes e aumenta vendas",
-        cta: "Testear gratis",
+          "ChefIAndo cria posts insuperáveis dos seus produtos para você conquistar novos clientes",
+        cta: "Experimentar grátis",
         benefits: "Ver benefícios",
       },
       stats: {
-        restaurants: "Restaurantes ativos",
-        content: "Conteúdos criados",
-        engagement: "Aumento em engagement",
+        restaurants: "Para criar conteúdo que traz vendas por toda a semana",
+        content: "Agente de IA disponível o tempo todo para gerar novos conteúdos",
+        engagement: "Os vídeos geram até 80% mais engajamento que fotos. Crie vídeos virais com IA",
       },
       benefits: {
-        title: "Por que escolher ChefIAndo",
-        subtitle: "Criamos conteúdo que conecta com sua audiência e gera resultados reais",
+        title: "Por que escolher ChefIAndo?",
+        subtitle: "Nós criamos o conteúdo. Você vê os resultados.",
         professional: {
-          title: "Conteúdo profissional",
-          description: "Fotos, vídeos e textos criados por especialistas que conhecem a indústria de restaurantes",
+          title: "Conteúdo Profissional",
+          description: "Fotos, vídeos e textos especializados para negócios gastronômicos, baseados no que já funciona no mercado.",
         },
         sales: {
-          title: "Aumente suas vendas",
-          description: "Conteúdo otimizado para redes sociais que converte seguidores em clientes",
+          title: "Pronto para WhatsApp, Instagram, Facebook e TikTok",
+          description: "Conteúdo otimizado que converte espectadores em clientes",
         },
         time: {
           title: "Economize tempo",
-          description: "Nós cuidamos do conteúdo enquanto você foca no seu restaurante",
+          description: "Você cozinha. ChefIAndo faz parecer (e vender) como deveria!",
         },
       },
       features: {
         title: "Tudo o que você precisa",
-        subtitle: "Um sistema completo de criação de conteúdo projetado para restaurantes",
+        subtitle: "Um sistema completo de comunicação que impulsiona suas vendas",
         list: [
-          "Fotografia profissional de pratos",
-          "Vídeos curtos para redes sociais",
-          "Textos otimizados para engagement",
-          "Calendário de publicações",
-          "Análise de desempenho",
-          "Suporte em português",
+          "Fotos profissionais dos seus próprios pratos",
+          "Textos otimizados para gerar novas vendas",
+          "Vídeos virais para WhatsApp, Reels e Stories",
+          "Onboarding personalizado",
         ],
       },
       cta: {
-        title: "Comece a criar conteúdo hoje",
-        subtitle: "Junte-se a centenas de restaurantes na LATAM que já estão crescendo com ChefIAndo",
-        button: "Testear gratis",
+        title: "Impulsione seu negócio agora mesmo",
+        subtitle: "Junte-se a outros empreendedores como você que já estão crescendo com ChefIAndo",
+        button: "Experimentar grátis",
       },
       footer: {
-        description: "Sistema de criação de conteúdo para restaurantes na LATAM",
+        description: "Sem cartão de crédito · Seus primeiros posts grátis · Cancele quando quiser",
         rights: "Todos os direitos reservados.",
+      },
+      faq: {
+        title: "Perguntas frequentes",
+        items: [
+          {
+            question: "O ChefIAndo é para o meu negócio? Vendo da minha cozinha / sou food truck / tenho um negócio pequeno.",
+            answer: "Sim. O ChefIAndo foi feito para microempreendimentos gastronômicos: cozinhas econômicas, lanchonetes, taquerias, bancas, dark kitchens, confeiteiras em casa, food trucks e cafeterias pequenas. Se você vende comida, é para você.",
+          },
+          {
+            question: "Preciso saber de design, câmera ou tecnologia?",
+            answer: "Não. Você sobe uma foto do seu prato pelo celular, escreve em uma linha os ingredientes e o ChefIAndo faz o resto. Se você sabe usar o WhatsApp, sabe usar o ChefIAndo.",
+          },
+          {
+            question: "O conteúdo vai parecer \"feito com IA\" ou genérico?",
+            answer: "Não. As fotos do ChefIAndo parecem uma sessão profissional do seu próprio prato porque melhoramos a sua própria foto. Os textos são escritos com o tom que seus clientes já estão acostumados a ler. Você aprova tudo antes de publicar.",
+          },
+          {
+            question: "Funciona para WhatsApp ou só para Instagram?",
+            answer: "Para os dois, e também para TikTok e Facebook. Geramos imagens, textos e vídeos curtos no formato que funciona no WhatsApp, histórias, reels e posts do feed.",
+          },
+          {
+            question: "Preciso de uma câmera boa ou de um estúdio fotográfico?",
+            answer: "Não. Uma foto pelo celular é suficiente, mesmo que tenha má iluminação ou fundo feio. O ChefIAndo melhora a iluminação, limpa o fundo e apresenta seu prato como se fosse de revista, sem que você precise comprar equipamento ou contratar ninguém.",
+          },
+          {
+            question: "Quanto custa?",
+            answer: "Você pode começar grátis e criar seus primeiros posts sem cartão. Depois ofereceremos planos acessíveis pensados para negócios pequenos, não para redes. Você verá o preço antes de pagar qualquer centavo e poderá cancelar quando quiser.",
+          },
+          {
+            question: "Quanto tempo leva para criar os primeiros posts?",
+            answer: "Menos de 5 minutos! Você pode deixar o conteúdo de toda a semana pronto enquanto espera o próximo pedido.",
+          },
+        ],
       },
     },
     // Brand Page
@@ -379,53 +410,84 @@ export const translations = {
     landing: {
       badge: "Contenido que vende",
       hero: {
-        title: "Contenido profesional para tu restaurante",
+        title: "Convertí tus platos en contenido que vende. En 5 minutos, desde tu celular",
         description:
-          "ChefIAndo ayuda a pequeños restaurantes en LATAM a crear contenido de calidad que atrae más clientes y aumenta ventas",
-        cta: "Testear gratis",
+          "ChefIAndo crea posts insuperables de tus productos para que te llenes de nuevos clientes",
+        cta: "Probar gratis",
         benefits: "Ver beneficios",
       },
       stats: {
-        restaurants: "Restaurantes activos",
-        content: "Contenidos creados",
-        engagement: "Aumento en engagement",
+        restaurants: "Para crear contenidos que traen ventas para toda la semana",
+        content: "Agente de IA disponible todo el tiempo para generar nuevos contenidos",
+        engagement: "Los videos generan hasta 80% más engagement que las fotos. Crea videos virales con IA",
       },
       benefits: {
-        title: "Por qué elegir ChefIAndo",
-        subtitle: "Creamos contenido que conecta con tu audiencia y genera resultados reales",
+        title: "¿Por qué elegir ChefIAndo?",
+        subtitle: "Nosotros creamos el contenido. Tú ves los resultados.",
         professional: {
-          title: "Contenido profesional",
-          description: "Fotos, videos y textos creados por expertos que conocen la industria restaurantera",
+          title: "Contenido Profesional",
+          description: "Fotos, videos y textos especializados para negocios gastronómicos, basados en lo que ya funciona en el mercado.",
         },
         sales: {
-          title: "Aumenta tus ventas",
-          description: "Contenido optimizado para redes sociales que convierte seguidores en clientes",
+          title: "Listo para WhatsApp, Instagram, Facebook y TikTok",
+          description: "Contenido optimizado que convierte espectadores en clientes",
         },
         time: {
           title: "Ahorra tiempo",
-          description: "Nosotros nos encargamos del contenido mientras tú te enfocas en tu restaurante",
+          description: "Tú cocinás. ChefIAndo hace que se vea (y se venda) como debería!",
         },
       },
       features: {
         title: "Todo lo que necesitas",
-        subtitle: "Un sistema completo de creación de contenido diseñado para restaurantes",
+        subtitle: "Un sistema completo de comunicación que impulsa tus ventas",
         list: [
-          "Fotografía profesional de platillos",
-          "Videos cortos para redes sociales",
-          "Textos optimizados para engagement",
-          "Calendario de publicaciones",
-          "Análisis de rendimiento",
-          "Soporte en español",
+          "Fotos profesionales de tus propios platos",
+          "Textos optimizados para generar nuevas ventas",
+          "Videos virales para WhatsApp, Reels y Stories",
+          "Onboarding personalizado",
         ],
       },
       cta: {
-        title: "Comienza a crear contenido hoy",
-        subtitle: "Únete a cientos de restaurantes en LATAM que ya están creciendo con ChefIAndo",
-        button: "Testear gratis",
+        title: "Impulsa tu negocio ahora mismo",
+        subtitle: "Juntate a otros emprendedores como tú que ya están creciendo con ChefIAndo",
+        button: "Probar gratis",
       },
       footer: {
-        description: "Sistema de creación de contenido para restaurantes en LATAM",
+        description: "Sin tarjeta de crédito · Tus primeros posts gratis · Cancelá cuando quieras",
         rights: "Todos los derechos reservados.",
+      },
+      faq: {
+        title: "Preguntas frecuentes",
+        items: [
+          {
+            question: "¿ChefIAndo es para mi negocio? Vendo desde mi cocina / soy food truck / tengo una fonda chica.",
+            answer: "Sí. ChefIAndo está hecho para microemprendimientos gastronómicos: cocinas económicas, fondas, taquerías, puestos, dark kitchens, reposteras desde casa, food trucks, loncherías y cafeterías chicas. Si vendes comida, es para ti.",
+          },
+          {
+            question: "¿Necesito saber de diseño, de cámara o de tecnología?",
+            answer: "No. Subís una foto de tu plato desde el celular, escribís en una línea sus ingredientes y ChefIAndo hace el resto. Si sabés usar WhatsApp, sabés usar ChefIAndo.",
+          },
+          {
+            question: "¿El contenido se va a ver "hecho con IA" o genérico?",
+            answer: "No. Las fotos de ChefIAndo se ven como una sesión profesional de tu propio platillo porque mejoramos tu propia foto. Los textos están escritos con el tono que tus clientes ya están acostumbrados a leer. Tú aprobás todo antes de publicar.",
+          },
+          {
+            question: "¿Sirve para WhatsApp o solo para Instagram?",
+            answer: "Para los dos, y también para TikTok y Facebook. Generamos imágenes, textos y videos cortos en el formato que funciona en WhatsApp, historias, reels y posts del feed.",
+          },
+          {
+            question: "¿Necesito una cámara buena o un estudio fotográfico?",
+            answer: "No. Una foto desde tu celular es suficiente, incluso si tiene mala luz o un fondo feo. ChefIAndo mejora la iluminación, limpia el fondo y presenta tu platillo como si fuera de revista, sin que tengas que comprar equipo ni contratar a nadie.",
+          },
+          {
+            question: "¿Cuánto cuesta?",
+            answer: "Podés empezar gratis y crear tus primeros posts sin tarjeta. Después ofreceremos planes accesibles pensados para negocios pequeños, no para cadenas. Vas a ver el precio antes de pagar cualquier peso y podrás cancelar cuando quieras.",
+          },
+          {
+            question: "¿Cuánto tiempo me toma crear los primeros posts?",
+            answer: "¡Menos de 5 minutos! Podés dejar listo el contenido de toda la semana mientras esperás el siguiente pedido.",
+          },
+        ],
       },
     },
     // Brand Page
