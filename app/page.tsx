@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-// Using inline SVGs to avoid lucide-react version compatibility issues
+import Image from "next/image"
 import Link from "next/link"
 import { useLanguage } from "@/contexts/language-context"
 import { LanguageSelector } from "@/components/language-selector"
@@ -156,7 +156,15 @@ export default function HomePage() {
       <footer className="border-t py-12 bg-card">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto text-center space-y-4">
-            <div className="text-2xl font-bold">ChefIAndo</div>
+            <div className="flex justify-center">
+              <Image
+                src="/chefiando.png"
+                alt="ChefIAndo"
+                width={200}
+                height={62}
+                className="h-12 w-auto"
+              />
+            </div>
             <span className="inline-block px-2 py-0.5 text-xs font-medium bg-primary/10 text-primary rounded-full">
               v{APP_VERSION}
             </span>

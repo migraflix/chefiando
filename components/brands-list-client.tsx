@@ -186,10 +186,7 @@ export function BrandsListClient() {
       <div className="min-h-screen bg-background p-8">
         <div className="mx-auto max-w-6xl">
           <div className="mb-8 flex items-center justify-between">
-            <div>
-              <h1 className="text-4xl font-bold">{t.brands.title}</h1>
-              <p className="mt-2 text-muted-foreground">{t.brands.subtitle}</p>
-            </div>
+            <p className="text-muted-foreground">{t.brands.subtitle}</p>
             <LanguageSelector />
           </div>
           <div className="text-center text-muted-foreground">
@@ -204,14 +201,7 @@ export function BrandsListClient() {
     <div className="min-h-screen bg-background p-8">
       <div className="mx-auto max-w-6xl">
         <div className="mb-8 flex items-center justify-between">
-          <div>
-            <h1 className="text-balance text-4xl font-bold">
-              {t.brands.title}
-            </h1>
-            <p className="mt-2 text-pretty text-muted-foreground">
-              {t.brands.subtitle}
-            </p>
-          </div>
+          <p className="text-pretty text-muted-foreground">{t.brands.subtitle}</p>
           <LanguageSelector />
         </div>
 
