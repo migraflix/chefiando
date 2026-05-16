@@ -468,7 +468,7 @@ export const translations = {
             answer: "No. Subís una foto de tu plato desde el celular, escribís en una línea sus ingredientes y ChefIAndo hace el resto. Si sabés usar WhatsApp, sabés usar ChefIAndo.",
           },
           {
-            question: "¿El contenido se va a ver "hecho con IA" o genérico?",
+            question: "¿El contenido se va a ver 'hecho con IA' o genérico?",
             answer: "No. Las fotos de ChefIAndo se ven como una sesión profesional de tu propio platillo porque mejoramos tu propia foto. Los textos están escritos con el tono que tus clientes ya están acostumbrados a leer. Tú aprobás todo antes de publicar.",
           },
           {
