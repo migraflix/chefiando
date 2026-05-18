@@ -91,7 +91,12 @@ export function BrandsListClient() {
           hasRecords: !!(data.records && data.records.length > 0),
         });
 
-        setBrands(data.records || []);
+        const sorted = (data.records || []).sort((a: Brand, b: Brand) => {
+          const dateA = a.fields.Creada ? new Date(a.fields.Creada).getTime() : 0;
+          const dateB = b.fields.Creada ? new Date(b.fields.Creada).getTime() : 0;
+          return dateB - dateA;
+        });
+        setBrands(sorted);
       } catch (error) {
         console.error("❌ [CLIENT] Error fetching brands:", error);
         toast({
