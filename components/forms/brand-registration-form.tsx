@@ -395,7 +395,7 @@ export function BrandRegistrationForm() {
   const isOtherCountry = selectedCountry === "Otro";
 
   return (
-    <form className="h-full w-full flex flex-col">
+    <form className="h-full w-full flex flex-col" translate="no">
       {/* Header */}
       <div className="flex-shrink-0 px-4 pt-2 pb-3 bg-background">
         <div className="flex items-center gap-2 mb-4">
@@ -522,9 +522,9 @@ export function BrandRegistrationForm() {
                   <SelectTrigger id="pais" className="h-11 text-base">
                     <SelectValue placeholder={t.registration.placeholders.country} />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent translate="no">
                     {COUNTRIES.map((country) => (
-                      <SelectItem key={country} value={country}>
+                      <SelectItem key={country} value={country} translate="no">
                         {country}
                       </SelectItem>
                     ))}
