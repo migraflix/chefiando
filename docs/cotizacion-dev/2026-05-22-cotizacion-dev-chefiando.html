@@ -1,0 +1,1321 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Cotización Desarrollador — Migraflix / Chefiando</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Lora:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --brand-50:  #f0f4ff;
+    --brand-100: #e0e9ff;
+    --brand-400: #3b5bdb;
+    --brand-600: #2f4ac8;
+    --brand-700: #2340b5;
+    --gray-50:   #f9fafb;
+    --gray-100:  #f3f4f6;
+    --gray-200:  #e5e7eb;
+    --gray-300:  #d1d5db;
+    --gray-400:  #9ca3af;
+    --gray-500:  #6b7280;
+    --gray-600:  #4b5563;
+    --gray-700:  #374151;
+    --gray-900:  #111827;
+    --accent-orange: #FF6B35;
+    --accent-red:    #E63946;
+    --accent-yellow: #FFD23F;
+  }
+
+  @page {
+    size: letter;
+    margin: 0.75in 0.7in 0.85in 0.7in;
+    @bottom-left {
+      content: "GNB Labs · Migraflix / Chefiando";
+      font-family: 'Inter', sans-serif;
+      font-size: 8.5pt;
+      color: var(--gray-400);
+    }
+    @bottom-center {
+      content: "Página " counter(page) " de " counter(pages);
+      font-family: 'Inter', sans-serif;
+      font-size: 8.5pt;
+      color: var(--gray-400);
+    }
+    @bottom-right {
+      content: "Cotización · 2026-05-22";
+      font-family: 'Inter', sans-serif;
+      font-size: 8.5pt;
+      color: var(--gray-400);
+    }
+  }
+
+  @page :first {
+    margin: 0;
+    @bottom-left { content: ""; }
+    @bottom-center { content: ""; }
+    @bottom-right { content: ""; }
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-size: 10.5pt;
+    line-height: 1.55;
+    color: var(--gray-900);
+    background: white;
+  }
+
+  /* ============ COVER ============ */
+  .cover {
+    page-break-after: always;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: linear-gradient(135deg, #ffffff 0%, var(--brand-50) 100%);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cover::before {
+    content: "";
+    position: absolute;
+    top: -150px;
+    right: -150px;
+    width: 500px;
+    height: 500px;
+    background: var(--brand-600);
+    border-radius: 50%;
+    opacity: 0.08;
+  }
+
+  .cover::after {
+    content: "";
+    position: absolute;
+    bottom: -200px;
+    left: -200px;
+    width: 600px;
+    height: 600px;
+    background: var(--brand-400);
+    border-radius: 50%;
+    opacity: 0.06;
+  }
+
+  .cover-header {
+    padding: 1.2in 0.9in 0;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    z-index: 2;
+  }
+
+  .cover-logo {
+    width: 56px;
+    height: 56px;
+    background: var(--gray-900);
+    color: white;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 22pt;
+    letter-spacing: -1px;
+    box-shadow: 0 8px 24px rgba(47, 74, 200, 0.18);
+  }
+
+  .cover-logo-text {
+    font-weight: 700;
+    font-size: 13pt;
+    letter-spacing: -0.3px;
+    color: var(--gray-900);
+  }
+
+  .cover-logo-text small {
+    display: block;
+    font-weight: 400;
+    font-size: 9pt;
+    color: var(--gray-500);
+    letter-spacing: 0;
+  }
+
+  .cover-body {
+    flex: 1;
+    padding: 0 0.9in;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    z-index: 2;
+  }
+
+  .cover-eyebrow {
+    text-transform: uppercase;
+    letter-spacing: 2.5px;
+    font-size: 9pt;
+    font-weight: 600;
+    color: var(--brand-600);
+    margin-bottom: 16px;
+  }
+
+  .cover-title {
+    font-family: 'Lora', Georgia, serif;
+    font-size: 38pt;
+    font-weight: 700;
+    line-height: 1.08;
+    letter-spacing: -1px;
+    color: var(--gray-900);
+    margin-bottom: 18px;
+    max-width: 5.5in;
+  }
+
+  .cover-subtitle {
+    font-size: 13.5pt;
+    font-weight: 400;
+    line-height: 1.45;
+    color: var(--gray-600);
+    max-width: 5in;
+    margin-bottom: 50px;
+  }
+
+  .cover-meta {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 24px;
+    max-width: 5in;
+    padding: 24px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(17, 24, 39, 0.06);
+    border: 1px solid var(--gray-200);
+  }
+
+  .cover-meta-item {
+    border-left: 2px solid var(--brand-600);
+    padding-left: 12px;
+  }
+
+  .cover-meta-label {
+    text-transform: uppercase;
+    letter-spacing: 1.3px;
+    font-size: 7.5pt;
+    font-weight: 600;
+    color: var(--gray-500);
+    margin-bottom: 4px;
+  }
+
+  .cover-meta-value {
+    font-size: 10pt;
+    font-weight: 600;
+    color: var(--gray-900);
+  }
+
+  .cover-footer {
+    padding: 0 0.9in 0.9in;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    z-index: 2;
+  }
+
+  .cover-footer img {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid white;
+    box-shadow: 0 0 0 2px var(--brand-400), 0 4px 12px rgba(0,0,0,0.1);
+  }
+
+  .cover-footer-text {
+    font-size: 9.5pt;
+    color: var(--gray-700);
+    line-height: 1.4;
+  }
+
+  .cover-footer-text strong {
+    color: var(--gray-900);
+    font-weight: 600;
+  }
+
+  /* ============ BODY ============ */
+  main { padding: 0; }
+
+  h1 {
+    font-family: 'Lora', Georgia, serif;
+    font-size: 22pt;
+    font-weight: 700;
+    color: var(--gray-900);
+    margin: 28pt 0 14pt;
+    line-height: 1.15;
+    letter-spacing: -0.5px;
+    page-break-before: always;
+    page-break-after: avoid;
+    border-bottom: 3px solid var(--brand-600);
+    padding-bottom: 12pt;
+  }
+
+  h1:first-of-type { page-break-before: avoid; }
+
+  h2 {
+    font-family: 'Inter', sans-serif;
+    font-size: 14pt;
+    font-weight: 700;
+    color: var(--gray-900);
+    margin: 22pt 0 10pt;
+    line-height: 1.25;
+    letter-spacing: -0.2px;
+    page-break-after: avoid;
+  }
+
+  h3 {
+    font-family: 'Inter', sans-serif;
+    font-size: 11.5pt;
+    font-weight: 600;
+    color: var(--brand-700);
+    margin: 16pt 0 8pt;
+    line-height: 1.3;
+    page-break-after: avoid;
+  }
+
+  h4 {
+    font-family: 'Inter', sans-serif;
+    font-size: 10pt;
+    font-weight: 600;
+    color: var(--gray-700);
+    margin: 12pt 0 6pt;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    page-break-after: avoid;
+  }
+
+  p { margin: 0 0 8pt; color: var(--gray-700); }
+  strong { color: var(--gray-900); font-weight: 600; }
+
+  ul, ol { margin: 0 0 10pt 0; padding-left: 20pt; }
+  li { margin-bottom: 3pt; color: var(--gray-700); }
+  li::marker { color: var(--brand-600); }
+
+  code {
+    font-family: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
+    font-size: 8.8pt;
+    background: var(--gray-100);
+    color: var(--brand-700);
+    padding: 1px 5px;
+    border-radius: 3px;
+  }
+
+  pre {
+    background: var(--gray-900);
+    color: #e5e7eb;
+    padding: 12pt 14pt;
+    border-radius: 6px;
+    overflow-x: auto;
+    font-family: 'JetBrains Mono', Consolas, monospace;
+    font-size: 8.5pt;
+    line-height: 1.5;
+    margin: 10pt 0;
+    page-break-inside: avoid;
+    border-left: 3px solid var(--brand-400);
+  }
+
+  pre code { background: transparent; color: inherit; padding: 0; }
+
+  /* ============ TABLES ============ */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 12pt 0;
+    font-size: 9pt;
+    page-break-inside: auto;
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+
+  thead { display: table-header-group; }
+
+  th {
+    background: var(--gray-900);
+    color: white;
+    text-align: left;
+    padding: 8pt 10pt;
+    font-weight: 600;
+    font-size: 8.5pt;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-right: 1px solid var(--gray-700);
+  }
+
+  th:last-child { border-right: none; }
+
+  td {
+    padding: 7pt 10pt;
+    border-bottom: 1px solid var(--gray-200);
+    color: var(--gray-700);
+    vertical-align: top;
+  }
+
+  tr:nth-child(even) td { background: var(--gray-50); }
+  tr:last-child td { border-bottom: none; }
+
+  tbody tr:last-child td {
+    background: var(--brand-50);
+    font-weight: 600;
+    color: var(--gray-900);
+    border-top: 2px solid var(--brand-600);
+  }
+
+  /* ============ CALLOUT BOXES ============ */
+  .callout {
+    border-left: 3px solid var(--brand-600);
+    background: var(--brand-50);
+    padding: 12pt 14pt;
+    margin: 12pt 0;
+    border-radius: 0 6px 6px 0;
+    font-size: 9.5pt;
+    page-break-inside: avoid;
+  }
+
+  .callout-warning {
+    border-left-color: var(--accent-orange);
+    background: #fff7ed;
+  }
+
+  .callout-danger {
+    border-left-color: var(--accent-red);
+    background: #fef2f2;
+  }
+
+  /* ============ FEATURE HEADER ============ */
+  .feature-header {
+    background: linear-gradient(135deg, var(--gray-900) 0%, var(--brand-700) 100%);
+    color: white;
+    padding: 24pt 22pt;
+    border-radius: 10pt;
+    margin: 0 0 18pt;
+    page-break-after: avoid;
+    page-break-inside: avoid;
+  }
+
+  .feature-tag {
+    display: inline-block;
+    background: rgba(255,255,255,0.15);
+    color: white;
+    padding: 4pt 10pt;
+    border-radius: 20pt;
+    font-size: 8pt;
+    font-weight: 600;
+    letter-spacing: 1px;
+    margin-bottom: 10pt;
+  }
+
+  .feature-title {
+    font-family: 'Lora', Georgia, serif;
+    font-size: 19pt;
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 14pt;
+    color: white;
+    border: none;
+    padding: 0;
+  }
+
+  .feature-meta {
+    display: flex;
+    gap: 28pt;
+    flex-wrap: wrap;
+  }
+
+  .feature-meta-item { font-size: 9pt; }
+
+  .feature-meta-item .label {
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 7.5pt;
+    color: rgba(255,255,255,0.65);
+    margin-bottom: 3pt;
+  }
+
+  .feature-meta-item .value {
+    font-weight: 700;
+    font-size: 11pt;
+    color: white;
+  }
+
+  /* ============ TOC ============ */
+  .toc { page-break-after: always; padding-top: 12pt; }
+
+  .toc h1 {
+    page-break-before: avoid;
+    border-bottom: 3px solid var(--brand-600);
+  }
+
+  .toc-list {
+    list-style: none;
+    padding: 0;
+    margin: 20pt 0 0;
+  }
+
+  .toc-list li {
+    padding: 10pt 0;
+    border-bottom: 1px dotted var(--gray-300);
+    display: flex;
+    align-items: baseline;
+  }
+
+  .toc-list .toc-num {
+    color: var(--brand-600);
+    font-weight: 700;
+    font-size: 10pt;
+    width: 35pt;
+    flex-shrink: 0;
+  }
+
+  .toc-list .toc-title {
+    flex: 1;
+    color: var(--gray-900);
+    font-weight: 500;
+    font-size: 10.5pt;
+  }
+
+  .toc-list .toc-page {
+    color: var(--gray-400);
+    font-size: 9pt;
+    font-weight: 500;
+  }
+
+  /* ============ SIGNATURE BLOCK ============ */
+  .signature-block {
+    border: 2px solid var(--gray-900);
+    border-radius: 10pt;
+    padding: 20pt;
+    margin-top: 24pt;
+    background: var(--gray-50);
+    page-break-inside: avoid;
+  }
+
+  .signature-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16pt 30pt;
+    margin-top: 16pt;
+  }
+
+  .signature-field {
+    border-bottom: 1.5px solid var(--gray-900);
+    padding-bottom: 6pt;
+    min-height: 30pt;
+  }
+
+  .signature-field-label {
+    font-size: 7.5pt;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: var(--gray-500);
+    margin-top: 4pt;
+    font-weight: 600;
+  }
+
+  /* ============ INFO CARDS ============ */
+  .info-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12pt;
+    margin: 14pt 0;
+  }
+
+  .info-card {
+    border: 1px solid var(--gray-200);
+    border-radius: 8pt;
+    padding: 12pt 14pt;
+    background: white;
+    page-break-inside: avoid;
+  }
+
+  .info-card-icon {
+    width: 28pt;
+    height: 28pt;
+    background: var(--brand-50);
+    color: var(--brand-600);
+    border-radius: 6pt;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 11pt;
+    margin-bottom: 8pt;
+  }
+
+  .info-card-title {
+    font-weight: 600;
+    font-size: 10pt;
+    color: var(--gray-900);
+    margin-bottom: 4pt;
+  }
+
+  .info-card-body {
+    font-size: 8.5pt;
+    color: var(--gray-600);
+    line-height: 1.45;
+  }
+
+  /* ============ UTILS ============ */
+  .text-right { text-align: right; }
+  .text-center { text-align: center; }
+  hr.divider { border: none; border-top: 1px solid var(--gray-200); margin: 18pt 0; }
+
+  .pill {
+    display: inline-block;
+    padding: 2pt 8pt;
+    border-radius: 12pt;
+    font-size: 8pt;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .pill-p0 { background: #fee2e2; color: #991b1b; }
+  .pill-p1 { background: #fef3c7; color: #92400e; }
+  .pill-p2 { background: #d1fae5; color: #065f46; }
+
+  .dev-col { background: var(--brand-50) !important; color: var(--gray-400); height: 22pt; }
+  .empty-line { color: var(--gray-300); letter-spacing: 0.5px; }
+
+</style>
+</head>
+<body>
+
+<!-- ============ COVER ============ -->
+<div class="cover">
+  <div class="cover-header">
+    <div class="cover-logo">G</div>
+    <div class="cover-logo-text">
+      Gabriel Neuman
+      <small>GNB Labs · AI &amp; Software</small>
+    </div>
+  </div>
+
+  <div class="cover-body">
+    <div class="cover-eyebrow">Cotización de desarrollo</div>
+    <h1 class="cover-title">Migraflix / Chefiando</h1>
+    <p class="cover-subtitle">Plataforma multi-tenant + IA + SEO automatizado. Cuatro features para validación de estimado con tu equipo de desarrollo.</p>
+
+    <div class="cover-meta">
+      <div class="cover-meta-item">
+        <div class="cover-meta-label">Cliente</div>
+        <div class="cover-meta-value">Chefiando</div>
+      </div>
+      <div class="cover-meta-item">
+        <div class="cover-meta-label">Features</div>
+        <div class="cover-meta-value">4 features</div>
+      </div>
+      <div class="cover-meta-item">
+        <div class="cover-meta-label">Fecha</div>
+        <div class="cover-meta-value">22 mayo 2026</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="cover-footer">
+    <img src="gabriel.jpg" alt="Gabriel Neuman">
+    <div class="cover-footer-text">
+      <strong>Preparado por Gabriel Neuman</strong><br>
+      soy@gabrielneuman.com · gabrielneuman.com
+    </div>
+  </div>
+</div>
+
+<!-- ============ TOC ============ -->
+<div class="toc">
+  <h1>Contenido</h1>
+  <ul class="toc-list">
+    <li><span class="toc-num">01</span><span class="toc-title">Cómo leer este documento</span><span class="toc-page">3</span></li>
+    <li><span class="toc-num">02</span><span class="toc-title">Contexto del proyecto</span><span class="toc-page">4</span></li>
+    <li><span class="toc-num">03</span><span class="toc-title">Decisiones ya tomadas</span><span class="toc-page">6</span></li>
+    <li><span class="toc-num">04</span><span class="toc-title">Resumen ejecutivo de features</span><span class="toc-page">7</span></li>
+    <li><span class="toc-num">F1</span><span class="toc-title">Login IG + Multi-tenant + Publicación</span><span class="toc-page">8</span></li>
+    <li><span class="toc-num">F2</span><span class="toc-title">Bots IA WhatsApp + Voz</span><span class="toc-page">12</span></li>
+    <li><span class="toc-num">F3</span><span class="toc-title">Sentry: auditoría + Linear</span><span class="toc-page">15</span></li>
+    <li><span class="toc-num">F4</span><span class="toc-title">SEO automatizado: landings + GMB + directorios</span><span class="toc-page">17</span></li>
+    <li><span class="toc-num">05</span><span class="toc-title">Riesgos globales y dependencias</span><span class="toc-page">22</span></li>
+    <li><span class="toc-num">06</span><span class="toc-title">Totales y firma</span><span class="toc-page">23</span></li>
+  </ul>
+</div>
+
+<!-- ============ MAIN ============ -->
+<main>
+
+<h1>Cómo leer este documento</h1>
+
+<p>Este PDF describe <strong>4 features</strong> que vamos a construir sobre el repo <code>migraflix/chefiando</code> actual. Para cada una verás:</p>
+
+<ol>
+<li>Contexto y objetivo de negocio.</li>
+<li>Diseño técnico (arquitectura, schemas, files a tocar).</li>
+<li><strong>Tabla de tareas granulares con columna vacía "Estimado dev"</strong> para que la llenes vos.</li>
+<li>Riesgos y supuestos.</li>
+</ol>
+
+<p>Al final del PDF hay una <strong>hoja de firma</strong> para cerrar la cotización.</p>
+
+<div class="callout">
+<strong>Tu trabajo:</strong>
+<ul style="margin-top: 6pt; margin-bottom: 0;">
+<li>Revisar cada tarea.</li>
+<li>Llenar la columna "Estimado dev" con tus horas reales.</li>
+<li>Si una tarea te toma 0h porque algo ya existe, márcala como tal y aclará.</li>
+<li>Si detectás tareas que faltan, agregalas al final de cada tabla.</li>
+<li>Llenar "Supuestos del dev" si hay algo que cambia el alcance.</li>
+</ul>
+</div>
+
+<h1>Contexto del proyecto</h1>
+
+<h2>Qué es Migraflix / Chefiando</h2>
+
+<p>Plataforma que ayuda a restaurantes con:</p>
+<ul>
+<li>Gestión de contenido (fotos, copy) generado por IA.</li>
+<li>Publicación en Instagram.</li>
+<li>Próximamente: bots de atención al cliente, SEO automatizado, presencia en directorios.</li>
+</ul>
+
+<p>Hoy es <strong>admin-only</strong>: el equipo de Chefiando edita en una interfaz web (<code>/admin/*</code>) la data que se publica luego en IG (vía n8n + flujos manuales).</p>
+
+<p><strong>Volumen actual:</strong> ~500 brands en Airtable, ~10k contenidos.</p>
+
+<h2>Stack actual del repo</h2>
+
+<table>
+<thead><tr><th>Capa</th><th>Tecnología</th><th>Notas</th></tr></thead>
+<tbody>
+<tr><td>Frontend</td><td>Next.js 16.0.7 + React 19.1.0</td><td>App Router</td></tr>
+<tr><td>UI</td><td>Tailwind 4 + Radix UI + shadcn</td><td>Recharts disponible</td></tr>
+<tr><td>Backend</td><td>Next.js API routes</td><td>Node runtime</td></tr>
+<tr><td>DB</td><td>Airtable (<code>apprcCvYyrWqDXKay</code>)</td><td>3 tablas: <code>Brands</code>, <code>Content</code>, <code>Fotos AI</code></td></tr>
+<tr><td>Auth</td><td>JWT custom + whitelist emails</td><td>Cookie <code>admin_token</code>, sin multi-tenant</td></tr>
+<tr><td>Storage</td><td>Google Cloud Storage</td><td>Imágenes</td></tr>
+<tr><td>Observabilidad</td><td>Sentry (<code>@sentry/nextjs ^10.34.0</code>)</td><td>Instalado, DSN puede no estar en prod</td></tr>
+<tr><td>Workflows externos</td><td>n8n</td><td>Consume webhooks para flujo imágenes AI</td></tr>
+<tr><td>Hosting</td><td>Vercel</td><td>Plan a confirmar (Pro requerido por F4)</td></tr>
+</tbody>
+</table>
+
+<h2>Archivos clave del repo</h2>
+
+<table>
+<thead><tr><th>Archivo</th><th>Propósito</th><th>Para qué tocarlo</th></tr></thead>
+<tbody>
+<tr><td><code>lib/auth.ts</code> (37)</td><td>JWT admin + cookie</td><td>Sesión restaurante (F1)</td></tr>
+<tr><td><code>middleware.ts</code> (34)</td><td>Protege <code>/admin/*</code></td><td><code>/dashboard/*</code> + host routing (F1, F4)</td></tr>
+<tr><td><code>lib/airtable/brands.ts</code> (239)</td><td>CRUD Brands</td><td>Query por IG user (F1)</td></tr>
+<tr><td><code>lib/airtable/utils.ts</code></td><td>Helpers Airtable</td><td>Reusar para nuevas tablas</td></tr>
+<tr><td><code>sentry.client.config.ts</code> (78)</td><td>Config Sentry frontend</td><td>Auditar (F3)</td></tr>
+<tr><td><code>app/admin/*</code></td><td>UI admin actual</td><td>Refactor coexistir con dashboard (F1)</td></tr>
+<tr><td><code>app/api/admin/*</code></td><td>APIs admin</td><td>Filtrar por brandId (F1)</td></tr>
+</tbody>
+</table>
+
+<h2>Cómo levantar el dev env</h2>
+
+<pre><code>git clone &lt;repo&gt;
+cd chefiando
+npm install
+cp .env.example .env.local  # pedir credenciales a Gabriel
+npm run dev</code></pre>
+
+<p>Variables clave: <code>AIRTABLE_API_KEY</code>, <code>AIRTABLE_BASE_ID</code>, <code>NEXTAUTH_SECRET</code>, <code>ADMIN_EMAILS</code>, <code>NEXT_PUBLIC_SENTRY_DSN</code>, <code>GCS_*</code>.</p>
+
+<h1>Decisiones ya tomadas</h1>
+
+<p>No re-discutir. Solo aplicar.</p>
+
+<table>
+<thead><tr><th style="width: 27%;">Decisión</th><th style="width: 13%;">Aplica a</th><th>Detalle</th></tr></thead>
+<tbody>
+<tr><td>DB = Airtable para todo</td><td>Todas</td><td>No migrar a Supabase. Trigger de migración futura: >1.500 brands o >30k conversaciones/mes.</td></tr>
+<tr><td>IG cuentas mixtas</td><td>F1</td><td>Personal puede entrar pero NO publicar (botón deshabilitado, tooltip). Business publica.</td></tr>
+<tr><td>Ownership IG → Brand</td><td>F1</td><td>1:1. Match por <code>instagram_user_id</code> o normalización del campo <code>Instagram del negocio</code>.</td></tr>
+<tr><td>Stack bots</td><td>F2</td><td>WhatsApp: SendPulse (ya en uso). Voz: nlpearl. LLM: Claude Haiku 4.5.</td></tr>
+<tr><td>Sin billing</td><td>F2, F4</td><td>Chefiando absorbe costos variables de bots, GMB, listings. No se mide uso por brand en este lote.</td></tr>
+<tr><td>GMB respuestas a reseñas</td><td>F4</td><td>NUNCA auto-publish. IA propone, humano aprueba.</td></tr>
+<tr><td>Landings multi-dominio</td><td>F4</td><td>3 modos: <code>/r/[slug]</code>, <code>[brand].migraflix.com</code> (wildcard), dominio propio (CNAME).</td></tr>
+<tr><td>Idioma</td><td>Todas</td><td>Español LATAM. Sin voseo en <code>.tsx</code>/<code>.md</code>.</td></tr>
+</tbody>
+</table>
+
+<h1>Resumen ejecutivo de features</h1>
+
+<table>
+<thead><tr><th>#</th><th style="width: 50%;">Feature</th><th>Estimado dev</th><th>Prioridad</th><th>Depende</th></tr></thead>
+<tbody>
+<tr><td><strong>F1</strong></td><td>Login IG + Multi-tenant + Publicación (feed/Stories/Reels + agendar)</td><td class="dev-col"></td><td><span class="pill pill-p0">P0</span></td><td>—</td></tr>
+<tr><td><strong>F2</strong></td><td>Bots IA WhatsApp + Voz (nlpearl)</td><td class="dev-col"></td><td><span class="pill pill-p1">P1</span></td><td>F1</td></tr>
+<tr><td><strong>F3</strong></td><td>Sentry: auditoría + triage + Linear</td><td class="dev-col"></td><td><span class="pill pill-p2">P2</span></td><td>—</td></tr>
+<tr><td><strong>F4</strong></td><td>SEO automatizado: landings multi-dominio + GMB + directorios</td><td class="dev-col"></td><td><span class="pill pill-p1">P1</span></td><td>F1</td></tr>
+<tr><td></td><td><strong>Total</strong></td><td class="dev-col"></td><td></td><td></td></tr>
+</tbody>
+</table>
+
+<p><strong>Orden recomendado:</strong> F3 → F1 → F4 → F2.</p>
+
+<!-- ============ F1 ============ -->
+<div class="feature-header">
+  <span class="feature-tag">FEATURE 01 · PRIORIDAD P0</span>
+  <h1 class="feature-title">Login IG + Multi-tenant + Publicación (Feed / Stories / Reels + Agendar)</h1>
+  <div class="feature-meta">
+    <div class="feature-meta-item">
+      <div class="label">Estimado dev</div>
+      <div class="value empty-line">_______</div>
+    </div>
+    <div class="feature-meta-item">
+      <div class="label">Depende de</div>
+      <div class="value">— Fundación</div>
+    </div>
+    <div class="feature-meta-item">
+      <div class="label">Stack</div>
+      <div class="value">Meta Graph API · OAuth</div>
+    </div>
+  </div>
+</div>
+
+<h2>Contexto</h2>
+<p>Hoy Migraflix es admin-only. Los restaurantes (Brands en Airtable) no tienen cuenta propia y la publicación a Instagram es manual o vía n8n.</p>
+<p><strong>Necesitamos</strong> que cada restaurante entre con su propia cuenta de Instagram, vea solo su Brand, y pueda publicar contenido (feed, Stories, Reels) ahora o agendado con un clic.</p>
+
+<h2>Diseño técnico</h2>
+
+<h3>Flow OAuth</h3>
+<pre><code>[Restaurante en /dashboard/login]
+   → click "Entrar con Instagram"
+[/api/auth/instagram] → redirect a Meta OAuth
+   → usuario autoriza
+[/api/auth/instagram/callback]
+   → exchange code → short-lived → long-lived (60d)
+   → GET /me?fields=username,account_type
+   → detectar Business vs Personal
+   → findBrandByInstagramId() o findBrandByHandle()
+   ├ match → guardar token, set cookie, redirect /dashboard
+   └ no match → redirect /dashboard/vincular</code></pre>
+
+<h3>Schema Airtable — campos nuevos en <code>Brands</code></h3>
+<table>
+<thead><tr><th>Campo</th><th>Tipo</th><th>Notas</th></tr></thead>
+<tbody>
+<tr><td><code>instagram_user_id</code></td><td>Text</td><td>ID numérico de IG</td></tr>
+<tr><td><code>instagram_username</code></td><td>Text</td><td>Handle sin @</td></tr>
+<tr><td><code>ig_access_token_encrypted</code></td><td>Long text</td><td>AES-256-GCM</td></tr>
+<tr><td><code>ig_token_expires_at</code></td><td>DateTime</td><td>60 días desde emisión</td></tr>
+<tr><td><code>can_publish</code></td><td>Checkbox</td><td>True solo si Business</td></tr>
+<tr><td><code>last_login_at</code></td><td>DateTime</td><td>Última entrada del brand</td></tr>
+</tbody>
+</table>
+
+<h3>Schema Airtable — nueva tabla <code>ScheduledPosts</code></h3>
+<table>
+<thead><tr><th>Campo</th><th>Tipo</th><th>Notas</th></tr></thead>
+<tbody>
+<tr><td><code>brandId</code></td><td>Link</td><td>A Brands</td></tr>
+<tr><td><code>media_type</code></td><td>Select</td><td>feed / story / reel</td></tr>
+<tr><td><code>media_url</code></td><td>URL</td><td>Foto o video (GCS)</td></tr>
+<tr><td><code>cover_url</code></td><td>URL</td><td>Solo Reels</td></tr>
+<tr><td><code>caption</code></td><td>Long text</td><td>Solo feed/reel</td></tr>
+<tr><td><code>scheduled_for</code></td><td>DateTime</td><td>Cuándo publicar</td></tr>
+<tr><td><code>status</code></td><td>Select</td><td>pending / publishing / published / failed / cancelled</td></tr>
+<tr><td><code>ig_media_id</code></td><td>Text</td><td>ID que devuelve IG</td></tr>
+</tbody>
+</table>
+
+<h3>Endpoints de publicación</h3>
+<table>
+<thead><tr><th>Tipo</th><th>Flow IG Graph API</th></tr></thead>
+<tbody>
+<tr><td><strong>Feed</strong></td><td><code>POST /{ig_user_id}/media</code> (image_url) → <code>/media_publish</code></td></tr>
+<tr><td><strong>Story</strong></td><td><code>POST /{ig_user_id}/media</code> (image_url, <code>media_type=STORIES</code>) → publish</td></tr>
+<tr><td><strong>Reel</strong></td><td><code>POST /{ig_user_id}/media</code> (video_url, <code>REELS</code>, cover_url) → poll status → publish</td></tr>
+</tbody>
+</table>
+
+<h2>Tareas granulares — F1</h2>
+
+<table>
+<thead><tr><th style="width: 5%;">#</th><th style="width: 60%;">Tarea</th><th style="width: 12%;">Estimado dev</th><th style="width: 23%;">Notas dev</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>Setup App Meta + revisar permisos requeridos (incluye Stories/Reels)</td><td class="dev-col"></td><td class="dev-col"></td></tr>
+<tr><td>2</td><td>Flow OAuth <code>/api/auth/instagram</code> + callback + cookie</td><td class="dev-col"></td><td class="dev-col"></td></tr>
+<tr><td>3</td><td>Detección Business vs Personal + flag <code>can_publish</code></td><td class="dev-col"></td><td class="dev-col"></td></tr>
+<tr><td>4</td><td>Schema Airtable: 6 campos en <code>Brands</code> + tabla <code>ScheduledPosts</code></td><td class="dev-col"></td><td class="dev-col"></td></tr>
+<tr><td>5</td><td>Encriptación AES-256-GCM de tokens</td><td class="dev-col"></td><td class="dev-col"></td></tr>
+<tr><td>6</td><td><code>findBrandByInstagramId</code> + <code>findBrandByHandle</code> + match</td><td class="dev-col"></td><td class="dev-col"></td></tr>
+<tr><td>7</td><td>Pantalla <code>/dashboard/login</code></td><td class="dev-col"></td><td class="dev-col"></td></tr>
+<tr><td>8</td><td>Pantalla <code>/dashboard/vincular</code></td><td class="dev-col"></td><td class="dev-col"></td></tr>
+<tr><td>9</td><td>Middleware multi-tenant: <code>restaurant_token</code> + <code>/dashboard/*</code></td><td class="dev-col"></td><td class="dev-col"></td></tr>
+<tr><td>10</td><td>Refactor APIs existentes para filtrar por <code>brandId</code></td><td class="dev-col"></td><td class="dev-col"></td></tr>
+<tr><td>11</td><td>Dashboard home <code>/dashboard</code> (lista contenido del brand)</td><td class="dev-col"></td><td class="dev-col"></td></tr>
+<tr><td>12</td><td>Endpoint publicación <strong>feed</strong> + UI</td><td class="dev-col"></td><td class="dev-col"></td></tr>
+<tr><td>13</td><td>Endpoint publicación <strong>Story</strong> (24h, sticker opcional)</td><td class="dev-col"></td><td class="dev-col"></td></tr>
+<tr><td>14</td><td>Endpoint publicación <strong>Reel</strong> (video + cover + poll status)</td><td class="dev-col"></td><td class="dev-col"></td></tr>
+<tr><td>15</td><td>UI <code>/dashboard/publicar</code> con selector tipo + estados</td><td class="dev-col"></td><td class="dev-col"></td></tr>
+<tr><td>16</td><td>Agendamiento: cron <code>/api/cron/publish-scheduled</code> + retries</td><td class="dev-col"></td><td class="dev-col"></td></tr>
+<tr><td>17</td><td>UI <code>/dashboard/agendados</code> (lista + editar + cancelar)</td><td class="dev-col"></td><td class="dev-col"></td></tr>
+<tr><td>18</td><td>Cron diario refresh long-lived token + alerta</td><td class="dev-col"></td><td class="dev-col"></td></tr>
+<tr><td>19</td><td>Logout + invalidación cookie</td><td class="dev-col"></td><td class="dev-col"></td></tr>
+<tr><td>20</td><td>Tests E2E (los 3 tipos + agendado)</td><td class="dev-col"></td><td class="dev-col"></td></tr>
+<tr><td>21</td><td>Docs internas onboarding de Brand</td><td class="dev-col"></td><td class="dev-col"></td></tr>
+<tr><td>22</td><td>App Review Meta (someter + iteraciones, variable)</td><td class="dev-col"></td><td class="dev-col"></td></tr>
+<tr><td></td><td><strong>Total F1</strong></td><td class="dev-col"></td><td class="dev-col"></td></tr>
+</tbody>
+</table>
+
+<h2>Riesgos F1</h2>
+<div class="callout callout-warning">
+<ul style="margin: 0;">
+<li><strong>Meta App Review</strong> tarda 2–6 semanas (bloqueador externo, no contado en horas dev). Empezar trámite el día 1.</li>
+<li><strong>Tokens 60d expiran silenciosamente</strong> si el cron falla. Mitigación: alerta admin si refresh falla 2 veces.</li>
+<li><strong>Handle de Airtable</strong> no siempre coincide con username real de IG. Normalización robusta.</li>
+<li><strong>Reels processing async:</strong> IG tarda 30s-5min en procesar video. Cron debe poll status.</li>
+</ul>
+</div>
+
+<h2>Supuestos del dev</h2>
+<div class="signature-field" style="margin-bottom: 8pt;">&nbsp;</div>
+<div class="signature-field" style="margin-bottom: 8pt;">&nbsp;</div>
+<div class="signature-field" style="margin-bottom: 8pt;">&nbsp;</div>
+
+<!-- ============ F2 ============ -->
+<div class="feature-header">
+  <span class="feature-tag">FEATURE 02 · PRIORIDAD P1</span>
+  <h1 class="feature-title">Bots IA por Restaurante — WhatsApp + Voz</h1>
+  <div class="feature-meta">
+    <div class="feature-meta-item">
+      <div class="label">Estimado dev</div>
+      <div class="value empty-line">_______</div>
+    </div>
+    <div class="feature-meta-item">
+      <div class="label">Depende de</div>
+      <div class="value">F1</div>
+    </div>
+    <div class="feature-meta-item">
+      <div class="label">Stack</div>
+      <div class="value">SendPulse · nlpearl · Claude</div>
+    </div>
+  </div>
+</div>
+
+<h2>Contexto</h2>
+<p>Hoy Chefiando atiende consultas de clientes finales (comensales) manualmente desde el WhatsApp del restaurante. No hay automatización de voz. Pierde consultas fuera de horario y no mide CSAT.</p>
+<p><strong>Objetivo:</strong> bot 24/7 que responde menú, horarios, ubicación, reservas básicas (WhatsApp) y opcionalmente atiende llamadas con bot de voz que toma pedido/reserva y escala a humano.</p>
+
+<h2>Stack decidido</h2>
+
+<div class="info-cards">
+<div class="info-card">
+<div class="info-card-icon">W</div>
+<div class="info-card-title">WhatsApp · SendPulse</div>
+<div class="info-card-body">Ya pago + integrado. Evaluar wacrm como benchmark en POC inicial.</div>
+</div>
+<div class="info-card">
+<div class="info-card-icon">V</div>
+<div class="info-card-title">Voz · nlpearl</div>
+<div class="info-card-body">Elegido por cliente. Orquesta STT + LLM + TTS.</div>
+</div>
+<div class="info-card">
+<div class="info-card-icon">L</div>
+<div class="info-card-title">LLM · Claude Haiku 4.5</div>
+<div class="info-card-body">Default GNB. Bajo costo/latencia para conversación.</div>
+</div>
+<div class="info-card">
+<div class="info-card-icon">K</div>
+<div class="info-card-title">Knowledge base · Airtable</div>
+<div class="info-card-body">Per-brand. Sin vector store en MVP. Prompt context suficiente.</div>
+</div>
+</div>
+
+<h2>Schema Airtable</h2>
+<p><strong><code>BotConfigs</code></strong> (1 row por brand): <code>brandId</code>, <code>whatsapp_enabled</code>, <code>voice_enabled</code>, <code>whatsapp_number</code>, <code>voice_number</code>, <code>bot_persona</code>, <code>menu_json</code>, <code>horarios</code>, <code>direccion</code>, <code>faqs_json</code>, <code>handoff_keywords</code>, <code>handoff_notify_phone</code>.</p>
+
+<p><strong><code>Conversations</code></strong> (1 row por conversación — patrón anti-bloat): <code>brandId</code>, <code>channel</code>, <code>customer_id</code>, <code>messages_json</code>, <code>messages_count</code>, <code>tokens_used</code>, <code>cost_estimated_usd</code>, <code>duration_seconds</code>, <code>created_at</code>, <code>last_message_at</code>, <code>closed_at</code>, <code>status</code>, <code>csat_rating</code>.</p>
+
+<p><strong><code>Conversations_Archive</code></strong> — mismo schema, recibe rows &gt;90 días vía job mensual.</p>
+
+<h2>Tareas granulares — F2</h2>
+
+<table>
+<thead><tr><th style="width: 5%;">#</th><th style="width: 60%;">Tarea</th><th style="width: 12%;">Estimado dev</th><th style="width: 23%;">Notas dev</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>Comparativa SendPulse vs wacrm (POC corto)</td><td class="dev-col"></td><td class="dev-col"></td></tr>
+<tr><td>2</td><td>Setup webhooks WhatsApp en proveedor elegido</td><td class="dev-col"></td><td class="dev-col"></td></tr>
+<tr><td>3</td><td>Schema <code>BotConfigs</code> + <code>Conversations</code> + <code>Archive</code></td><td class="dev-col"></td><td class="dev-col"></td></tr>
+<tr><td>4</td><td>UI <code>/dashboard/bot</code> (menú, horarios, FAQs, persona)</td><td class="dev-col"></td><td class="dev-col"></td></tr>
+<tr><td>5</td><td>Prompt builder dinámico por brand</td><td class="dev-col"></td><td class="dev-col"></td></tr>
+<tr><td>6</td><td>Wrapper Anthropic + manejo errores + retries</td><td class="dev-col"></td><td class="dev-col"></td></tr>
+<tr><td>7</td><td>Webhook entrada WhatsApp → procesar → responder</td><td class="dev-col"></td><td class="dev-col"></td></tr>
+<tr><td>8</td><td>Logger conversaciones + medición tokens/costo</td><td class="dev-col"></td><td class="dev-col"></td></tr>
+<tr><td>9</td><td>Handoff a humano (detección keywords + notif)</td><td class="dev-col"></td><td class="dev-col"></td></tr>
+<tr><td>10</td><td>UI historial conversaciones (búsqueda + filtros)</td><td class="dev-col"></td><td class="dev-col"></td></tr>
+<tr><td>11</td><td>Setup nlpearl + número asignado</td><td class="dev-col"></td><td class="dev-col"></td></tr>
+<tr><td>12</td><td>Webhook voz → reservas/pedidos</td><td class="dev-col"></td><td class="dev-col"></td></tr>
+<tr><td>13</td><td>Transcripción + log de llamadas</td><td class="dev-col"></td><td class="dev-col"></td></tr>
+<tr><td>14</td><td>Tests con cuentas reales (1 brand piloto)</td><td class="dev-col"></td><td class="dev-col"></td></tr>
+<tr><td>15</td><td>Onboarding: cómo conectar WhatsApp del restaurante</td><td class="dev-col"></td><td class="dev-col"></td></tr>
+<tr><td>16</td><td>Rate limiting + protección abuso por brand</td><td class="dev-col"></td><td class="dev-col"></td></tr>
+<tr><td>17</td><td>Docs cliente: cómo entrenar al bot</td><td class="dev-col"></td><td class="dev-col"></td></tr>
+<tr><td>18</td><td>Throttling escrituras Airtable (queue + retry)</td><td class="dev-col"></td><td class="dev-col"></td></tr>
+<tr><td>19</td><td>Job mensual archivado a <code>Conversations_Archive</code></td><td class="dev-col"></td><td class="dev-col"></td></tr>
+<tr><td></td><td><strong>Total F2</strong></td><td class="dev-col"></td><td class="dev-col"></td></tr>
+</tbody>
+</table>
+
+<h2>Riesgos F2</h2>
+<div class="callout callout-warning">
+<ul style="margin: 0;">
+<li>Calidad del bot = calidad del prompt + datos del brand. Mitigación: UI guiada + piloto.</li>
+<li>Costos variables sin control (Chefiando absorbe). Monitorear gasto mensual.</li>
+<li>Volumen Airtable: 50 brands × 200 conversaciones/mes = 10k rows. Archivado mantiene activa &lt;30k.</li>
+</ul>
+</div>
+
+<h2>Supuestos del dev</h2>
+<div class="signature-field" style="margin-bottom: 8pt;">&nbsp;</div>
+<div class="signature-field" style="margin-bottom: 8pt;">&nbsp;</div>
+<div class="signature-field" style="margin-bottom: 8pt;">&nbsp;</div>
+
+<!-- ============ F3 ============ -->
+<div class="feature-header">
+  <span class="feature-tag">FEATURE 03 · PRIORIDAD P2 · QUICK WIN</span>
+  <h1 class="feature-title">Auditoría Sentry + Triage + Integración Linear</h1>
+  <div class="feature-meta">
+    <div class="feature-meta-item">
+      <div class="label">Estimado dev</div>
+      <div class="value empty-line">_______</div>
+    </div>
+    <div class="feature-meta-item">
+      <div class="label">Depende de</div>
+      <div class="value">—</div>
+    </div>
+    <div class="feature-meta-item">
+      <div class="label">Tipo</div>
+      <div class="value">Observabilidad</div>
+    </div>
+  </div>
+</div>
+
+<h2>Contexto</h2>
+<p>Sentry ya está instalado (<code>sentry.client.config.ts:1-78</code>) pero:</p>
+<ul>
+<li>No hay certeza que el DSN esté seteado en Vercel producción.</li>
+<li>9+ docs en <code>/docs/</code> sobre Sentry — señal de que la config fue dolorosa y no quedó cerrada.</li>
+<li>No hay alertas, no hay runbook, no hay integración con Linear.</li>
+</ul>
+<p><strong>Objetivo:</strong> dejar Sentry en estado "Listo" — auditoría + triage + alertas + loop Sentry↔Linear.</p>
+
+<h2>Diseño técnico</h2>
+
+<h3>4 fases</h3>
+<ol>
+<li><strong>Auditoría:</strong> validar DSN en Vercel, source maps, sampling, ignoreErrors.</li>
+<li><strong>Triage:</strong> API Sentry → lista de errores activos → reporte priorizado.</li>
+<li><strong>Alertas:</strong> 3 mínimo (nuevo error / spike / crítico) hacia Slack o email.</li>
+<li><strong>Integración Linear:</strong> webhook Sentry → crear issue. Linear Done → resolve Sentry.</li>
+</ol>
+
+<pre><code>[Sentry detecta issue] → webhook → /api/integrations/sentry-to-linear
+   → Linear API: create issue
+   → Mapping guardado en Airtable
+
+[Linear issue Done] → webhook → /api/integrations/linear-to-sentry
+   → Sentry API: resolve</code></pre>
+
+<h2>Tareas granulares — F3</h2>
+
+<table>
+<thead><tr><th style="width: 5%;">#</th><th style="width: 60%;">Tarea</th><th style="width: 12%;">Estimado dev</th><th style="width: 23%;">Notas dev</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>Verificar DSN en Vercel (prod + preview)</td><td class="dev-col"></td><td class="dev-col"></td></tr>
+<tr><td>2</td><td>Validar envío client/server/edge con test errors</td><td class="dev-col"></td><td class="dev-col"></td></tr>
+<tr><td>3</td><td>Configurar Source Maps upload en build</td><td class="dev-col"></td><td class="dev-col"></td></tr>
+<tr><td>4</td><td>Revisar y ajustar <code>ignoreErrors</code></td><td class="dev-col"></td><td class="dev-col"></td></tr>
+<tr><td>5</td><td>Configurar releases (asociar deploys a versiones)</td><td class="dev-col"></td><td class="dev-col"></td></tr>
+<tr><td>6</td><td>Triage errores actuales + reporte priorizado</td><td class="dev-col"></td><td class="dev-col"></td></tr>
+<tr><td>7</td><td>Configurar 3 alertas (Slack o email)</td><td class="dev-col"></td><td class="dev-col"></td></tr>
+<tr><td>8</td><td>Endpoint webhook <code>sentry-to-linear</code></td><td class="dev-col"></td><td class="dev-col"></td></tr>
+<tr><td>9</td><td>Cliente Linear con templates de issue</td><td class="dev-col"></td><td class="dev-col"></td></tr>
+<tr><td>10</td><td>Webhook reverso Linear → resolve Sentry</td><td class="dev-col"></td><td class="dev-col"></td></tr>
+<tr><td>11</td><td>Vistas custom Sentry (por tipo de error)</td><td class="dev-col"></td><td class="dev-col"></td></tr>
+<tr><td>12</td><td>Runbook top-5 errores comunes</td><td class="dev-col"></td><td class="dev-col"></td></tr>
+<tr><td>13</td><td>Testing loop completo Sentry → Linear → fix → cierre</td><td class="dev-col"></td><td class="dev-col"></td></tr>
+<tr><td></td><td><strong>Total F3</strong></td><td class="dev-col"></td><td class="dev-col"></td></tr>
+</tbody>
+</table>
+
+<h2>Riesgos F3</h2>
+<div class="callout">
+<ul style="margin: 0;">
+<li>Webhook loop si Linear resuelve y Sentry re-abre por nuevo evento. Mitigación: ignorar reaperturas &lt;30 días.</li>
+<li>Spam de issues Linear. Mitigación: crear issue solo si level &gt;= warning Y users_affected &gt;= 2.</li>
+</ul>
+</div>
+
+<h2>Supuestos del dev</h2>
+<div class="signature-field" style="margin-bottom: 8pt;">&nbsp;</div>
+<div class="signature-field" style="margin-bottom: 8pt;">&nbsp;</div>
+
+<!-- ============ F4 ============ -->
+<div class="feature-header">
+  <span class="feature-tag">FEATURE 04 · PRIORIDAD P1 · MAYOR ALCANCE</span>
+  <h1 class="feature-title">SEO Automatizado — Landings Multi-Dominio + GMB + Directorios</h1>
+  <div class="feature-meta">
+    <div class="feature-meta-item">
+      <div class="label">Estimado dev</div>
+      <div class="value empty-line">_______</div>
+    </div>
+    <div class="feature-meta-item">
+      <div class="label">Depende de</div>
+      <div class="value">F1</div>
+    </div>
+    <div class="feature-meta-item">
+      <div class="label">Sub-sistemas</div>
+      <div class="value">A · B · C · D</div>
+    </div>
+  </div>
+</div>
+
+<h2>Contexto</h2>
+<p>Los restaurantes hoy: sin landing pública optimizada (invisibles en búsqueda local), GMB semi-abandonado (horarios desactualizados, sin posts, sin respuesta a reseñas), ausentes en directorios LATAM relevantes.</p>
+<p><strong>Objetivo:</strong> automatizar presencia SEO/SEM local con 3 sub-sistemas + trackeo unificado.</p>
+
+<h3>A · Landings públicas multi-dominio</h3>
+
+<p>3 modos de URL, resolución por host:</p>
+
+<pre><code>[Request entra con host X]
+   → middleware
+   → si X = migraflix.com → URL /r/[slug]
+   → si X = *.migraflix.com → match Brand.subdomain → rewrite a /r/[slug]
+   → si X es dominio custom → lookup BrandDomains → rewrite a /r/[slug]</code></pre>
+
+<p><strong>Campos nuevos en <code>Brands</code>:</strong> <code>slug</code>, <code>subdomain</code>, <code>subdomain_enabled</code>.</p>
+
+<p><strong>Nueva tabla <code>BrandDomains</code>:</strong> <code>brandId</code>, <code>custom_domain</code>, <code>status</code>, <code>verification_token</code>, <code>ssl_status</code>, <code>connected_at</code>, <code>vercel_project_alias</code>.</p>
+
+<h3>B · Google My Business</h3>
+<ul>
+<li>OAuth Google (scope <code>business.manage</code>) → tokens encriptados.</li>
+<li>Sync diferencial diario: horarios/fotos/menú Airtable → GMB.</li>
+<li>Posts con IA (3 variantes) + rate limit (max 1/día, 3/semana).</li>
+<li><strong>Reseñas:</strong> NUNCA auto-publish. IA propone, humano aprueba.</li>
+<li>Métricas diarias: vistas, llamadas, direcciones.</li>
+</ul>
+
+<h3>C · Directorios externos</h3>
+<p>Shortlist 10 LATAM: TripAdvisor, OpenTable, PedidosYa, Rappi, Restorando, Cuponatic, Listado, Yelp, Foursquare, Zomato. Realista: 4-5 con API + 2-3 con autofill semi-asistido. <strong>No scraping.</strong></p>
+
+<h3>D · Trackeo de conversiones</h3>
+<p>Tabla <code>SeoEvents</code> (1 row por brand-día, agregado): event_type (call/directions/reservation/landing_view), source (landing/gmb/directory). Reporte unificado por canal + dominio.</p>
+
+<h2>Tareas granulares — F4</h2>
+
+<h3>A · Landings + Multi-dominio</h3>
+<table>
+<thead><tr><th style="width: 5%;">#</th><th style="width: 60%;">Tarea</th><th style="width: 12%;">Estimado dev</th><th style="width: 23%;">Notas dev</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>Diseño UI landing pública (mockup + aprobación)</td><td class="dev-col"></td><td class="dev-col"></td></tr>
+<tr><td>2</td><td><code>app/r/[slug]/page.tsx</code> con SSG + ISR</td><td class="dev-col"></td><td class="dev-col"></td></tr>
+<tr><td>3</td><td>Schema.org Restaurant + JSON-LD + OpenGraph</td><td class="dev-col"></td><td class="dev-col"></td></tr>
+<tr><td>4</td><td>Sitemap dinámico (root + por host) + robots.txt</td><td class="dev-col"></td><td class="dev-col"></td></tr>
+<tr><td>5</td><td>Form de reserva → WhatsApp del brand</td><td class="dev-col"></td><td class="dev-col"></td></tr>
+<tr><td>6</td><td>Trackeo eventos en <code>SeoEvents</code></td><td class="dev-col"></td><td class="dev-col"></td></tr>
+<tr><td>7</td><td><code>/dashboard/seo</code> overview (conversiones, ranking)</td><td class="dev-col"></td><td class="dev-col"></td></tr>
+<tr><td>7b</td><td>Setup wildcard DNS <code>*.migraflix.com</code></td><td class="dev-col"></td><td class="dev-col"></td></tr>
+<tr><td>7c</td><td>Middleware host routing (host → brandId)</td><td class="dev-col"></td><td class="dev-col"></td></tr>
+<tr><td>7d</td><td>UI <code>/dashboard/seo/dominio</code> (3 modos)</td><td class="dev-col"></td><td class="dev-col"></td></tr>
+<tr><td>7e</td><td>Schema <code>BrandDomains</code> + campos slug/subdomain</td><td class="dev-col"></td><td class="dev-col"></td></tr>
+<tr><td>7f</td><td>Endpoints connect/verify/disconnect + cron</td><td class="dev-col"></td><td class="dev-col"></td></tr>
+<tr><td>7g</td><td>Integración Vercel API (alias + monitor SSL)</td><td class="dev-col"></td><td class="dev-col"></td></tr>
+<tr><td>7h</td><td>Branding condicional (oculta "Powered by")</td><td class="dev-col"></td><td class="dev-col"></td></tr>
+</tbody>
+</table>
+
+<h3>B · Google My Business</h3>
+<table>
+<thead><tr><th style="width: 5%;">#</th><th style="width: 60%;">Tarea</th><th style="width: 12%;">Estimado dev</th><th style="width: 23%;">Notas dev</th></tr></thead>
+<tbody>
+<tr><td>8</td><td>Setup Google Cloud + GMB API + verificación</td><td class="dev-col"></td><td class="dev-col"></td></tr>
+<tr><td>9</td><td>OAuth Google + scope GMB + tokens encriptados</td><td class="dev-col"></td><td class="dev-col"></td></tr>
+<tr><td>10</td><td>UI <code>/dashboard/seo/gmb</code> (conectar + estado)</td><td class="dev-col"></td><td class="dev-col"></td></tr>
+<tr><td>11</td><td>Sync horarios/fotos/menú Airtable → GMB</td><td class="dev-col"></td><td class="dev-col"></td></tr>
+<tr><td>12</td><td>Publicación posts GMB (texto + imagen)</td><td class="dev-col"></td><td class="dev-col"></td></tr>
+<tr><td>13</td><td>IA: generar copy (3 variantes) desde brief</td><td class="dev-col"></td><td class="dev-col"></td></tr>
+<tr><td>14</td><td>Pull reseñas → tabla <code>Reviews</code></td><td class="dev-col"></td><td class="dev-col"></td></tr>
+<tr><td>15</td><td>IA: propuesta de respuesta con tono del brand</td><td class="dev-col"></td><td class="dev-col"></td></tr>
+<tr><td>16</td><td>UI reviews aprobar/editar/publicar</td><td class="dev-col"></td><td class="dev-col"></td></tr>
+<tr><td>17</td><td>Pull métricas GMB → tabla <code>GmbMetrics</code></td><td class="dev-col"></td><td class="dev-col"></td></tr>
+<tr><td>18</td><td>Cron diario sync + métricas + reviews</td><td class="dev-col"></td><td class="dev-col"></td></tr>
+</tbody>
+</table>
+
+<h3>C · Directorios externos (5-10)</h3>
+<table>
+<thead><tr><th style="width: 5%;">#</th><th style="width: 60%;">Tarea</th><th style="width: 12%;">Estimado dev</th><th style="width: 23%;">Notas dev</th></tr></thead>
+<tbody>
+<tr><td>19</td><td>Investigación API de 10 directorios LATAM</td><td class="dev-col"></td><td class="dev-col"></td></tr>
+<tr><td>20</td><td>Schema <code>BrandListings</code> + cola de sync</td><td class="dev-col"></td><td class="dev-col"></td></tr>
+<tr><td>21</td><td>UI listings (estado por directorio)</td><td class="dev-col"></td><td class="dev-col"></td></tr>
+<tr><td>22</td><td>Integración API TripAdvisor</td><td class="dev-col"></td><td class="dev-col"></td></tr>
+<tr><td>23</td><td>Integración API OpenTable</td><td class="dev-col"></td><td class="dev-col"></td></tr>
+<tr><td>24</td><td>Integración API PedidosYa o Rappi</td><td class="dev-col"></td><td class="dev-col"></td></tr>
+<tr><td>25</td><td>2 directorios más (API o autofill semi-asistido)</td><td class="dev-col"></td><td class="dev-col"></td></tr>
+<tr><td>26</td><td>Cron semanal de sync diferencial</td><td class="dev-col"></td><td class="dev-col"></td></tr>
+</tbody>
+</table>
+
+<h3>D · Cross-cutting</h3>
+<table>
+<thead><tr><th style="width: 5%;">#</th><th style="width: 60%;">Tarea</th><th style="width: 12%;">Estimado dev</th><th style="width: 23%;">Notas dev</th></tr></thead>
+<tbody>
+<tr><td>27</td><td>Tests E2E (landing + GMB sandbox + 1 directorio)</td><td class="dev-col"></td><td class="dev-col"></td></tr>
+<tr><td>28</td><td>Docs cliente: cómo aprovechar SEO</td><td class="dev-col"></td><td class="dev-col"></td></tr>
+<tr><td></td><td><strong>Total F4</strong></td><td class="dev-col"></td><td class="dev-col"></td></tr>
+</tbody>
+</table>
+
+<h2>Riesgos F4</h2>
+<div class="callout callout-danger">
+<ul style="margin: 0;">
+<li><strong>Penalización GMB por spam</strong> — rate limit + variación IA + max 1 post/día.</li>
+<li><strong>Directorios sin API</strong> — solo APIs oficiales + autofill semi-asistido. Nunca scraping.</li>
+<li><strong>Reseñas mal respondidas</strong> — aprobación humana obligatoria.</li>
+<li><strong>Listings duplicados</strong> — reclamar antes (manual, parte del onboarding).</li>
+<li><strong>Dominio propio mal configurado</strong> — UI clara + retry + soporte humano para primer dominio.</li>
+<li><strong>Vercel Pro requerido</strong> — wildcard + custom domains no soportados en Hobby.</li>
+<li><strong>SSL provisioning</strong> — Vercel a veces tarda. Cron re-intenta y alerta si &gt;24h.</li>
+</ul>
+</div>
+
+<h2>Supuestos del dev</h2>
+<div class="signature-field" style="margin-bottom: 8pt;">&nbsp;</div>
+<div class="signature-field" style="margin-bottom: 8pt;">&nbsp;</div>
+<div class="signature-field" style="margin-bottom: 8pt;">&nbsp;</div>
+
+<!-- ============ RIESGOS GLOBALES ============ -->
+
+<h1>Riesgos globales y dependencias</h1>
+
+<h2>Grafo de dependencias</h2>
+
+<pre><code>F3 (Sentry) ─── independiente, arrancar primera semana
+                ↓
+F1 (Login IG + Multi-tenant) ─── FUNDACIÓN, todo lo demás depende
+   ├──→ F4 (SEO + GMB + Landings)    usa sesión de restaurante
+   └──→ F2 (Bots IA)                  usa sesión + costos absorbidos</code></pre>
+
+<h2>Riesgos globales</h2>
+
+<div class="callout callout-danger">
+<strong>1. Meta App Review (F1)</strong> — 2-6 semanas de bloqueador externo. <strong>Empezar trámite el día 1.</strong>
+</div>
+
+<div class="callout callout-warning">
+<strong>2. Costos variables sin cobro (F2 + F4)</strong> — Chefiando absorbe LLM + voz + WhatsApp + GMB. Definir umbral mensual y revisar mensualmente.
+</div>
+
+<div class="callout callout-warning">
+<strong>3. Airtable como DB de tablas que crecen</strong> — <code>Conversations</code> (F2) y <code>SeoEvents</code> (F4). Trigger de migración: &gt;30k rows/mes O &gt;1.500 brands → cotizar Supabase aparte.
+</div>
+
+<div class="callout">
+<strong>4. Vercel Pro necesario</strong> — F4 requiere wildcard domains + custom domains. Hobby no soporta. Confirmar plan antes de empezar.
+</div>
+
+<div class="callout">
+<strong>5. Calidad de prompts/IA (F2, F4)</strong> — dependen de datos del brand. UI guiada + piloto antes de rollout masivo.
+</div>
+
+<!-- ============ TOTALES + FIRMA ============ -->
+
+<h1>Totales</h1>
+
+<table>
+<thead><tr><th style="width: 55%;">Feature</th><th>Estimado dev</th><th>Comentario</th></tr></thead>
+<tbody>
+<tr><td>F1 · Login IG + Publicación</td><td class="dev-col"></td><td class="dev-col"></td></tr>
+<tr><td>F1 · + Meta App Review extra</td><td class="dev-col"></td><td class="dev-col"></td></tr>
+<tr><td>F2 · Bots IA</td><td class="dev-col"></td><td class="dev-col"></td></tr>
+<tr><td>F3 · Sentry</td><td class="dev-col"></td><td class="dev-col"></td></tr>
+<tr><td>F4 · SEO + GMB + Directorios</td><td class="dev-col"></td><td class="dev-col"></td></tr>
+<tr><td>Buffer imprevistos (sugerido 15%)</td><td class="dev-col"></td><td class="dev-col"></td></tr>
+<tr><td><strong>TOTAL FINAL</strong></td><td class="dev-col"></td><td class="dev-col"></td></tr>
+</tbody>
+</table>
+
+<h2>Tarifa y plazo</h2>
+
+<div class="signature-block">
+<div class="signature-grid">
+<div>
+  <div class="signature-field">&nbsp;</div>
+  <div class="signature-field-label">Tarifa por hora (USD)</div>
+</div>
+<div>
+  <div class="signature-field">&nbsp;</div>
+  <div class="signature-field-label">Total estimado USD</div>
+</div>
+<div>
+  <div class="signature-field">&nbsp;</div>
+  <div class="signature-field-label">Plazo de entrega (semanas)</div>
+</div>
+<div>
+  <div class="signature-field">&nbsp;</div>
+  <div class="signature-field-label">Disponibilidad (h/semana)</div>
+</div>
+<div>
+  <div class="signature-field">&nbsp;</div>
+  <div class="signature-field-label">Fecha de inicio propuesta</div>
+</div>
+<div>
+  <div class="signature-field">&nbsp;</div>
+  <div class="signature-field-label">Modalidad de pago</div>
+</div>
+</div>
+</div>
+
+<h2>Condiciones del dev</h2>
+<div class="signature-field" style="margin-bottom: 8pt;">&nbsp;</div>
+<div class="signature-field" style="margin-bottom: 8pt;">&nbsp;</div>
+<div class="signature-field" style="margin-bottom: 8pt;">&nbsp;</div>
+
+<h1>Firma</h1>
+
+<p>Confirmo que revisé las 4 features de este documento, llené las estimaciones de horas por tarea, y mis números reflejan un trabajo realista que puedo entregar en el plazo indicado.</p>
+
+<div class="signature-block">
+<div class="signature-grid">
+<div>
+  <div class="signature-field">&nbsp;</div>
+  <div class="signature-field-label">Nombre del dev</div>
+</div>
+<div>
+  <div class="signature-field">&nbsp;</div>
+  <div class="signature-field-label">Email</div>
+</div>
+<div>
+  <div class="signature-field">&nbsp;</div>
+  <div class="signature-field-label">Fecha</div>
+</div>
+<div>
+  <div class="signature-field">&nbsp;</div>
+  <div class="signature-field-label">Firma</div>
+</div>
+</div>
+</div>
+
+<hr class="divider">
+
+<p style="text-align: center; color: var(--gray-400); font-size: 8pt; margin-top: 20pt;">
+Documento generado por GNB Labs · soy@gabrielneuman.com · gabrielneuman.com<br>
+22 de mayo, 2026 · Cotización confidencial
+</p>
+
+</main>
+
+</body>
+</html>
