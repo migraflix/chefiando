@@ -25,6 +25,8 @@ Este PDF describe **4 features** que vamos a construir sobre el repo `migraflix/
 
 Al final del PDF hay una **hoja de firma** para cerrar la cotización.
 
+> **El precio se mueve con el scope, en ambas direcciones.** Cada feature, módulo o tarea que se **agrega** sube las horas y el precio; cada cosa que se **quita o se recorta** los baja. El estimado de este documento corresponde al scope descrito tal cual. Si algo entra o sale, se re-cotiza la diferencia antes de empezar — no hay sorpresas para ninguna de las dos partes.
+
 **Tu trabajo:**
 - Revisar cada tarea.
 - Llenar la columna "Estimado dev" con tus horas reales.
@@ -104,13 +106,15 @@ Variables clave: `AIRTABLE_API_KEY`, `AIRTABLE_BASE_ID`, `NEXTAUTH_SECRET`, `ADM
 
 ## Resumen Ejecutivo de Features
 
-| # | Feature | Estimado dev | Prioridad | Depende de |
-|---|---------|--------------|-----------|------------|
-| F1 | Login IG + Multi-tenant + Publicación (feed/Stories/Reels + agendar) | _____ | P0 | — |
-| F2 | Bots IA WhatsApp + Voz | _____ | P1 | F1 |
-| F3 | Sentry: auditoría + triage + Linear | _____ | P2 (quick-win) | — |
-| F4 | SEO automatizado: landings multi-dominio + GMB + directorios | _____ | P1 | F1 |
-| **Total** | | _____ | | |
+| # | Feature | Estimado orientativo | Estimado dev | Prioridad | Depende de |
+|---|---------|----------------------|--------------|-----------|------------|
+| F1 | Login IG + Multi-tenant + Publicación (feed/Stories/Reels + agendar) | 184h | _____ | P0 | — |
+| F2 | Bots IA WhatsApp + Voz | 201h | _____ | P1 | F1 |
+| F3 | Sentry: auditoría + triage + Linear | 44h | _____ | P2 (quick-win) | — |
+| F4 | SEO automatizado: landings multi-dominio + GMB + directorios | 322h | _____ | P1 | F1 |
+| **Total** | | **751h** | _____ | | |
+
+> El estimado orientativo es nuestra estimación interna (incluye validación de edge cases, manejo de errores de APIs externas, reintentos y QA). No contempla las semanas de espera del App Review de Meta (F1), que es un bloqueador externo, no horas de dev. Usá la columna "Estimado dev" para tus números reales.
 
 **Orden recomendado:** F3 → F1 → F4 → F2.
 
@@ -118,6 +122,7 @@ Variables clave: `AIRTABLE_API_KEY`, `AIRTABLE_BASE_ID`, `NEXTAUTH_SECRET`, `ADM
 
 # F1 — Login IG + Multi-tenant + Publicación (Feed/Stories/Reels + Agendar)
 
+**Estimado orientativo:** 184h (no incluye espera de App Review de Meta)
 **Estimado dev (total):** _____
 
 ## 1. Contexto
@@ -235,33 +240,79 @@ Hoy Migraflix es admin-only. Los restaurantes (Brands en Airtable) no tienen cue
 
 \newpage
 
-# F2 — Bots IA por Restaurante (WhatsApp + Voz)
+# F2 — Bot IA de Producción de Contenido por WhatsApp (+ Voz)
 
+**Estimado orientativo:** 201h
 **Estimado dev (total):** _____
 
 ## 1. Contexto
 
-Hoy Chefiando atiende consultas de clientes finales (comensales) manualmente desde el WhatsApp del restaurante. No hay automatización de voz. Pierde consultas fuera de horario y no mide CSAT.
+Hoy Chefiando genera el contenido (foto + copy) del restaurante de forma asistida desde el admin y la publicación a IG es manual o vía n8n. El restaurante no participa en un loop conversacional propio.
 
-**Objetivo:** cada restaurante tiene un bot 24/7 que responde menú, horarios, ubicación, reservas básicas (WhatsApp texto) y opcionalmente atiende llamadas con un bot de voz que toma pedido/reserva y escala a humano cuando hace falta.
+**Objetivo:** cada restaurante tiene un asistente por WhatsApp ("ChefIAndo") que lo acompaña en el ciclo diario de producción de contenido: recibe la foto/datos del producto, genera foto mejorada + copy, los valida con loops de revisión, ofrece producir un video corto, recuerda postear y arranca un nuevo día de producción. Adicionalmente (opcional) atiende por voz vía nlpearl.
+
+> Este es el flujo que el cliente especificó en el diagrama "Flujo de Comunicación vía WhatsApp" (4 partes). El diseño técnico de abajo lo implementa tal cual.
+
+### Flujo conversacional (según diagrama del cliente)
+
+**Parte 1 — Producción y validación de foto + texto**
+1. Usuario completa el formulario → el bot envía la foto y el texto para el post.
+2. **Validación de la foto:** "¿Te gustó la foto o querés que la mejore?"
+   - *Mejorar* → "Contanos por qué no te gustó" → usuario manda feedback → "Vas a recibir una nueva foto en breve" → nueva foto. **Loop máx. 3 veces.** Al 3° rechazo: "intentá con otro producto".
+   - *Me gustó* → "¡Genial! Compartila en Instagram. Postear entre las xx–xx".
+3. **Validación del texto:** mismo loop de revisión (máx. 3 veces).
+
+**Parte 2 — Oferta de video (+2h después de aprobar la foto)**
+4. "¿Te gustaría producir un video del producto a partir de la foto mejorada?"
+   - *Sí* → "¿Cómo te gustaría que sea ese video de 8 segundos?" → usuario describe → el bot envía el video como archivo por WhatsApp → "¿Te gustó el video o querés que lo mejore?" (**loop máx. 2 veces**). Al 2° rechazo: "¿Seguimos con otro producto?" (Sí → pide foto / No → fin).
+   - *No* → mensaje de valor ("los videos generan hasta 80% más engagement") → "¿Querés intentar crear un video a partir de otra foto o concepto?" (Sí → vuelve al flujo de video / No → "Avisá cuando querás continuar").
+
+**Parte 3 — Recordatorio de posteo + nuevo día**
+5. **+3h después del horario sugerido:** el bot revisa el Instagram del negocio y verifica si se publicó. Si no: recordatorio "¿Aún no posteás? ¡Qué tal ahora!".
+6. **Día siguiente 9am:** "¡Buen día! ¿Ya tenés las fotos de lo que vas a producir hoy?"
+   - *Sí* → "Mandá las fotos y te voy generando los posts" → usuario envía 1+ fotos → arranca el ciclo de nuevo.
+   - *No* → "Cuando tenés las fotos, mandalas por acá y te armo los posts".
+
+Adicional (opcional, no en el diagrama): bot de **voz** vía nlpearl para tomar pedido/reserva y escalar a humano.
 
 ## 2. Diseño técnico
 
 ### Stack (decidido)
 - **WhatsApp:** SendPulse (ya pago + integrado). Evaluar wacrm como benchmark en POC inicial.
-- **LLM:** Claude Haiku 4.5.
-- **Voz:** nlpearl.
+- **LLM:** Claude Haiku 4.5 (texto/copy + decisiones de conversación).
+- **Generación de imagen/video:** reusa el pipeline AI actual del repo (n8n + foto AI) extendido a video de 8s.
+- **Voz:** nlpearl (opcional).
 - **Knowledge base:** Airtable per-brand (sin vector store en MVP).
+
+### Máquina de estados de la conversación
+
+El flujo del cliente no es un Q&A suelto: es una **state machine** con loops contados y temporizadores. Cada conversación avanza por estados:
+
+```
+FORM_RECIBIDO → FOTO_ENVIADA → VALIDAR_FOTO ⟲(máx 3)
+   → TEXTO_ENVIADO → VALIDAR_TEXTO ⟲(máx 3)
+   → [+2h] OFERTA_VIDEO
+        ├ sí → DESCRIBIR_VIDEO → VIDEO_ENVIADO → VALIDAR_VIDEO ⟲(máx 2)
+        └ no → PITCH_VIDEO → ¿otro concepto?
+   → [+3h post horario] VERIFICAR_POSTEO (lee IG del negocio)
+   → [día sig. 9am] NUEVO_DIA
+```
+
+Los temporizadores (+2h, +3h, día siguiente 9am) se manejan con jobs agendados, no con la conversación viva. Cada loop guarda su contador (`foto_rechazos`, `texto_rechazos`, `video_rechazos`) para cortar al máximo.
 
 ### Schema Airtable
 
 **`BotConfigs`** (1 row por brand):
 - `brandId`, `whatsapp_enabled`, `voice_enabled`, `whatsapp_number`, `voice_number`
-- `bot_persona` (system prompt), `menu_json`, `horarios`, `direccion`, `faqs_json`
+- `bot_persona` (system prompt), `horario_posteo_sugerido`, `menu_json`, `horarios`, `direccion`, `faqs_json`
 - `handoff_keywords` (multi-select), `handoff_notify_phone`
 
 **`Conversations`** (1 row por conversación — patrón anti-bloat):
 - `brandId`, `channel`, `customer_id`, `messages_json` (long text), `messages_count`
+- `estado` (select: form_recibido / validar_foto / validar_texto / oferta_video / validar_video / verificar_posteo / nuevo_dia / cerrada)
+- `foto_rechazos`, `texto_rechazos`, `video_rechazos` (contadores de loop)
+- `foto_url`, `foto_aprobada`, `texto_aprobado`, `video_url`, `video_aprobado`
+- `next_action_at` (DateTime — dispara temporizadores +2h / +3h / 9am)
 - `tokens_used`, `cost_estimated_usd`, `duration_seconds`
 - `created_at`, `last_message_at`, `closed_at`, `status`, `csat_rating`
 
@@ -269,37 +320,64 @@ Hoy Chefiando atiende consultas de clientes finales (comensales) manualmente des
 
 ### Files nuevos
 - `lib/bots/{whatsapp,voice,prompt-builder,llm,conversation-logger,airtable-throttle,handoff}.ts`
+- `lib/bots/state-machine.ts` — transiciones de estado + control de loops contados
+- `lib/bots/media-gen.ts` — wrapper foto mejorada + video 8s (reusa pipeline AI)
+- `lib/bots/ig-check.ts` — lee el IG del negocio para verificar si se publicó
 - `app/api/bots/{whatsapp,voice}/webhook/route.ts`
+- `app/api/cron/bot-timers/route.ts` (cada 5 min — dispara +2h video, +3h recordatorio, 9am nuevo día)
 - `app/api/cron/archive-conversations/route.ts` (mensual)
 - `app/dashboard/bot/{page,conversaciones}.tsx`
 
 ## 3. Tareas granulares — F2
 
+### Base — Proveedor, datos y motor de conversación
+
 | # | Tarea | Estimado dev | Notas dev |
 |---|-------|-------------:|-----------|
 | 1 | Comparativa SendPulse vs wacrm (POC corto) | | |
-| 2 | Setup webhooks WhatsApp en proveedor elegido | | |
-| 3 | Schema `BotConfigs` + `Conversations` + `Conversations_Archive` | | |
-| 4 | UI `/dashboard/bot` (config: menú, horarios, FAQs, persona) | | |
+| 2 | Setup webhooks WhatsApp + validación firma Meta + rate limits/reintentos | | |
+| 3 | Schema `BotConfigs` + `Conversations` (con estado + contadores) + `Conversations_Archive` | | |
+| 4 | Wrapper Anthropic + manejo errores + retries | | |
 | 5 | Prompt builder dinámico por brand | | |
-| 6 | Wrapper Anthropic + manejo errores + retries | | |
-| 7 | Webhook entrada WhatsApp → procesar → responder | | |
-| 8 | Logger conversaciones + medición tokens/costo | | |
-| 9 | Handoff a humano (detección keywords + notif) | | |
-| 10 | UI historial conversaciones (búsqueda + filtros) | | |
-| 11 | Setup nlpearl + número asignado | | |
-| 12 | Webhook voz → reservas/pedidos | | |
-| 13 | Transcripción + log de llamadas | | |
-| 14 | Tests con cuentas reales (1 brand piloto) | | |
-| 15 | Onboarding: cómo conectar WhatsApp del restaurante | | |
-| 16 | Rate limiting + protección abuso por brand | | |
-| 17 | Docs cliente: cómo entrenar al bot | | |
-| 18 | Throttling escrituras Airtable (queue + retry) | | |
-| 19 | Job mensual archivado a `Conversations_Archive` | | |
+| 6 | Logger conversaciones + medición tokens/costo | | |
+| 7 | Throttling escrituras Airtable (queue + retry) | | |
+
+### Flujo conversacional (diagrama del cliente)
+
+| # | Tarea | Estimado dev | Notas dev |
+|---|-------|-------------:|-----------|
+| 8 | **State machine** del flujo (estados + transiciones + persistencia en `Conversations`) | | |
+| 9 | Parte 1: ingreso de formulario → generar foto + texto y enviarlos | | |
+| 10 | Loop validación de **foto** (¿gustó/mejorar? + feedback → regenera, máx 3, fallback "otro producto") | | |
+| 11 | Loop validación de **texto** (mismo patrón, máx 3) | | |
+| 12 | Mensajes de "compartí en Instagram, postear entre xx–xx" (usa `horario_posteo_sugerido`) | | |
+| 13 | Generación de **video 8s** desde foto mejorada + brief del usuario (extiende pipeline AI) | | |
+| 14 | Parte 2: oferta de video, loop validación video (máx 2) + rama "no" (pitch + reintentar) | | |
+| 15 | Envío del video como **archivo por WhatsApp** | | |
+| 16 | Cron `bot-timers`: dispara +2h (oferta video), +3h (recordatorio posteo), 9am (nuevo día) | | |
+| 17 | Verificación de posteo: leer IG del negocio + recordatorio si no publicó | | |
+| 18 | Parte 3: arranque de **nuevo día de producción** (pide fotos → reinicia ciclo) | | |
+
+### Operación, voz y entrega
+
+| # | Tarea | Estimado dev | Notas dev |
+|---|-------|-------------:|-----------|
+| 19 | Handoff a humano (detección keywords + notif) | | |
+| 20 | UI `/dashboard/bot` (config: persona, horario de posteo sugerido, datos del brand) | | |
+| 21 | UI historial conversaciones (búsqueda + filtros + ver estado del flujo) | | |
+| 22 | Rate limiting + protección abuso por brand | | |
+| 23 | Job mensual archivado a `Conversations_Archive` | | |
+| 24 | Setup nlpearl + número asignado (voz, opcional) | | |
+| 25 | Webhook voz → reservas/pedidos + transcripción + log de llamadas (opcional) | | |
+| 26 | Tests con cuentas reales (1 brand piloto, flujo completo de las 3 partes) | | |
+| 27 | Onboarding + docs cliente: cómo conectar WhatsApp y entrenar al bot | | |
 | | **Total F2** | _____ | |
 
 ## 4. Riesgos F2
 
+- **El flujo es una state machine, no un Q&A:** la complejidad real está en los loops contados, los temporizadores (+2h, +3h, 9am) y mantener el estado entre mensajes asíncronos. Mitigación: `state-machine.ts` aislado + tests de cada transición.
+- **Generación de video 8s:** depende del pipeline AI actual y de tiempos de procesamiento variables. Mitigación: enviar como archivo cuando esté listo, no bloquear la conversación.
+- **Verificación de posteo en IG:** leer el feed del negocio requiere permisos/tokens de F1. Mitigación: F2 depende de F1; si el brand no conectó IG, el recordatorio cae a un mensaje genérico.
 - Calidad del bot = calidad del prompt + datos del brand. Mitigación: UI guiada + piloto.
 - Costos variables sin control (Chefiando absorbe). Monitorear gasto mensual.
 - Volumen Airtable: con 50 brands x 200 conversaciones/mes = 10k rows. Archivado mantiene activa <30k.
@@ -314,6 +392,7 @@ Hoy Chefiando atiende consultas de clientes finales (comensales) manualmente des
 
 # F3 — Auditoría Sentry + Triage + Linear
 
+**Estimado orientativo:** 44h
 **Estimado dev (total):** _____
 
 ## 1. Contexto
@@ -382,6 +461,7 @@ Sentry ya está instalado (`sentry.client.config.ts:1-78`) pero:
 
 # F4 — SEO Automatizado: Landings Multi-Dominio + GMB + Directorios
 
+**Estimado orientativo:** 322h
 **Estimado dev (total):** _____
 
 ## 1. Contexto
@@ -542,15 +622,18 @@ F1 (Login IG + Multi-tenant) — FUNDACIÓN, todo lo demás depende
 
 # Totales
 
-| Feature | Estimado dev | Comentario dev |
-|---------|-------------:|----------------|
-| F1 Login IG + Publicación | _____ | |
-| F1 — App Review Meta extra | _____ | |
-| F2 Bots IA | _____ | |
-| F3 Sentry | _____ | |
-| F4 SEO + GMB + Directorios | _____ | |
-| **Buffer por imprevistos (sugerido 15%)** | _____ | |
-| **TOTAL FINAL** | _____ | |
+| Feature | Estimado orientativo | Estimado dev | Comentario dev |
+|---------|---------------------:|-------------:|----------------|
+| F1 Login IG + Publicación | 184h | _____ | |
+| F1 — App Review Meta extra | 32h | _____ | |
+| F2 Bot IA producción de contenido | 201h | _____ | |
+| F3 Sentry | 44h | _____ | |
+| F4 SEO + GMB + Directorios | 322h | _____ | |
+| **TOTAL FINAL** | **783h** | _____ | |
+
+> El estimado orientativo ya incorpora validación de edge cases, manejo de errores de APIs externas, reintentos y QA integrado. La fila "App Review Meta" son horas de gestión del trámite, separadas de las 2–6 semanas de espera (bloqueador externo, no horas de dev).
+
+> **Scope ↔ precio.** Este total corresponde al scope de las 4 features tal como están descritas. **Agregar** features, módulos o tareas sube el total; **quitar o recortar** lo baja. Cualquier cambio de alcance se re-cotiza por la diferencia y se acuerda por escrito antes de ejecutarlo.
 
 ## Tarifa y plazo
 
