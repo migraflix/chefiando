@@ -19,8 +19,8 @@ export default function HomePage() {
 
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-gradient-to-br from-primary/5 via-accent/5 to-secondary/5">
-        <div className="container mx-auto px-4 py-20 md:py-32">
-          <div className="max-w-4xl mx-auto text-center space-y-8">
+        <div className="container mx-auto px-4 py-14 md:py-20">
+          <div className="max-w-4xl mx-auto text-center space-y-6">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
@@ -31,12 +31,9 @@ export default function HomePage() {
             <p className="text-xl md:text-2xl text-muted-foreground text-pretty leading-relaxed max-w-2xl mx-auto">
               {t.landing.hero.description}
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
-              <Button size="lg" className="text-lg px-8 py-6" asChild>
-                <Link href="/registro">{t.landing.hero.cta}</Link>
-              </Button>
-              <Button size="lg" variant="outline" className="text-lg px-8 py-6 bg-transparent" asChild>
-                <Link href="#beneficios">{t.landing.hero.benefits}</Link>
+            <div className="flex justify-center pt-2">
+              <Button size="lg" className="text-lg px-10 py-6" asChild>
+                <Link href="/contacto">{t.landing.hero.cta}</Link>
               </Button>
             </div>
           </div>
@@ -44,7 +41,7 @@ export default function HomePage() {
       </section>
 
       {/* Stats Section */}
-      <section className="py-16 border-y bg-card">
+      <section className="py-10 border-y bg-card">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
             <div className="text-center space-y-2">
@@ -64,9 +61,9 @@ export default function HomePage() {
       </section>
 
       {/* Benefits Section */}
-      <section id="beneficios" className="py-20 md:py-32">
+      <section id="beneficios" className="py-14 md:py-20">
         <div className="container mx-auto px-4">
-          <div className="max-w-3xl mx-auto text-center space-y-4 mb-16">
+          <div className="max-w-3xl mx-auto text-center space-y-4 mb-10">
             <h2 className="text-4xl md:text-5xl font-bold text-balance">{t.landing.benefits.title}</h2>
             <p className="text-xl text-muted-foreground text-pretty leading-relaxed">{t.landing.benefits.subtitle}</p>
           </div>
@@ -111,49 +108,8 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Features Section */}
-      <section className="py-20 md:py-32 bg-muted/30">
-        <div className="container mx-auto px-4">
-          <div className="max-w-3xl mx-auto text-center space-y-4 mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold text-balance">{t.landing.features.title}</h2>
-            <p className="text-xl text-muted-foreground text-pretty leading-relaxed">{t.landing.features.subtitle}</p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
-            {t.landing.features.list.map((feature, index) => (
-              <div key={index} className="flex items-start gap-3 p-4 rounded-lg bg-card">
-                <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
-                  {/* Replace Check with a built-in SVG check icon to fix "Cannot find name 'Check'" error */}
-                  <svg className="w-4 h-4 text-primary" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                  </svg>
-                </div>
-                <span className="text-lg">{feature}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-20 md:py-32">
-        <div className="container mx-auto px-4">
-          <Card className="max-w-4xl mx-auto border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-accent/5">
-            <CardContent className="p-12 text-center space-y-6">
-              <h2 className="text-4xl md:text-5xl font-bold text-balance">{t.landing.cta.title}</h2>
-              <p className="text-xl text-muted-foreground text-pretty leading-relaxed max-w-2xl mx-auto">
-                {t.landing.cta.subtitle}
-              </p>
-              <Button size="lg" className="text-lg px-8 py-6" asChild>
-                <Link href="/registro">{t.landing.cta.button}</Link>
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
-      </section>
-
       {/* Footer */}
-      <footer className="border-t py-12 bg-card">
+      <footer className="border-t py-10 bg-card">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto text-center space-y-4">
             <div className="text-2xl font-bold">ChefIAndo</div>
