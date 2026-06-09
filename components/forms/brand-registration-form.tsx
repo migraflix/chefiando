@@ -35,7 +35,15 @@ const COUNTRIES = [
   "Otro",
 ].sort();
 
-export function BrandRegistrationForm() {
+type BrandRegistrationFormProps = {
+  leadId?: string;
+  defaultValues?: Partial<BrandFormData>;
+};
+
+export function BrandRegistrationForm({
+  leadId,
+  defaultValues,
+}: BrandRegistrationFormProps = {}) {
   const [currentSection, setCurrentSection] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [recordId, setRecordId] = useState<string | null>(null);
@@ -55,14 +63,14 @@ export function BrandRegistrationForm() {
     resolver: zodResolver(brandRegistrationSchema),
     mode: "onChange",
     defaultValues: {
-      emprendedor: "",
-      negocio: "",
-      correo: "",
-      ciudad: "",
-      pais: "",
-      whatsapp: "",
-      instagram: "",
-      descripcion: "",
+      emprendedor: defaultValues?.emprendedor ?? "",
+      negocio: defaultValues?.negocio ?? "",
+      correo: defaultValues?.correo ?? "",
+      ciudad: defaultValues?.ciudad ?? "",
+      pais: defaultValues?.pais ?? "",
+      whatsapp: defaultValues?.whatsapp ?? "",
+      instagram: defaultValues?.instagram ?? "",
+      descripcion: defaultValues?.descripcion ?? "",
     },
   });
 
@@ -167,6 +175,16 @@ export function BrandRegistrationForm() {
 
       setRecordId(result.recordId);
       setCurrentSection(2);
+
+      // Linkear Brand al Emprendedor (el lead sigue en "Registrando"
+      // hasta que termine de subir fotos en /fotos/gracias).
+      if (leadId && result.recordId) {
+        fetch(`/api/leads/${leadId}/link-brand`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ brandRecordId: result.recordId }),
+        }).catch((err) => console.warn("No se pudo linkear el brand al lead:", err));
+      }
 
       toast({
         title: t.registration.success.perfect,

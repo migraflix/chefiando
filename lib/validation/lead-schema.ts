@@ -44,16 +44,14 @@ export const leadSchema = z.object({
   whatsapp: z
     .string()
     .min(1, "El WhatsApp es obligatorio")
+    // Normaliza: quita espacios/guiones/parentesis y agrega "+" si falta.
+    // Mantiene "+" cuando ya viene para no duplicarlo.
+    .transform((val) => {
+      const clean = val.replace(/[\s\-\(\)]/g, "");
+      return clean.startsWith("+") ? clean : `+${clean}`;
+    })
     .refine(
       (val) => {
-        if (!val) return false;
-
-        // Remover espacios, guiones y paréntesis
-        const cleanNumber = val.replace(/[\s\-\(\)]/g, "");
-
-        // Debe empezar con +
-        if (!cleanNumber.startsWith("+")) return false;
-
         // Códigos de país válidos para LATAM y España
         const validCountryCodes = [
           "1", "34", "52", "54", "55", "56", "57", "58", "591", "592",
@@ -62,22 +60,39 @@ export const leadSchema = z.object({
         ];
 
         const hasValidCountryCode = validCountryCodes.some((code) =>
-          cleanNumber.startsWith(`+${code}`)
+          val.startsWith(`+${code}`)
         );
         if (!hasValidCountryCode) return false;
 
         // Solo dígitos después del +
-        if (!/^\+\d+$/.test(cleanNumber)) return false;
+        if (!/^\+\d+$/.test(val)) return false;
 
         // Longitud total razonable
-        const digitsOnly = cleanNumber.substring(1).replace(/\D/g, "");
+        const digitsOnly = val.substring(1);
         return digitsOnly.length >= 8 && digitsOnly.length <= 15;
       },
       {
         message:
-          "Por favor ingresa un número de WhatsApp válido con código de país (ej: +51987654321)",
+          "Por favor ingresa un número de WhatsApp válido con código de país (ej: 5215555555555)",
       }
     ),
 });
 
 export type LeadFormData = z.infer<typeof leadSchema>;
+
+/**
+ * UTMs y metadata de atribucion capturados desde la URL de la landing.
+ * Todos opcionales: si el lead llega organico, simplemente no vienen.
+ */
+export const utmSchema = z.object({
+  utm_source: z.string().max(120).optional(),
+  utm_medium: z.string().max(120).optional(),
+  utm_campaign: z.string().max(200).optional(),
+  utm_term: z.string().max(200).optional(),
+  utm_content: z.string().max(200).optional(),
+  landing_path: z.string().max(200).optional(),
+  referrer: z.string().max(500).optional(),
+  click_id: z.string().max(200).optional(),
+});
+
+export type UtmParams = z.infer<typeof utmSchema>;

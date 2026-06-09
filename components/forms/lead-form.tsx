@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { leadSchema, type LeadFormData } from "@/lib/validation/lead-schema";
+import { useUtmParams } from "@/hooks/use-utm-params";
 
 type FieldErrors = Partial<Record<keyof LeadFormData, string>>;
 
@@ -16,8 +17,19 @@ const INITIAL_DATA: LeadFormData = {
   whatsapp: "",
 };
 
-export function LeadForm() {
+type LeadFormProps = {
+  origen?: string;
+  ctaLabel?: string;
+  onSuccess?: (recordId: string, data: LeadFormData) => void;
+};
+
+export function LeadForm({
+  origen = "Landing",
+  ctaLabel = "Quiero empezar",
+  onSuccess,
+}: LeadFormProps = {}) {
   const router = useRouter();
+  const utm = useUtmParams();
   const [data, setData] = useState<LeadFormData>(INITIAL_DATA);
   const [errors, setErrors] = useState<FieldErrors>({});
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -48,12 +60,20 @@ export function LeadForm() {
       const response = await fetch("/api/leads", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...result.data, origen: "Landing" }),
+        body: JSON.stringify({ ...result.data, origen, utm }),
       });
 
       if (!response.ok) {
         const errData = await response.json().catch(() => ({}));
         throw new Error(errData.error || "No se pudo enviar el formulario");
+      }
+
+      const body = await response.json().catch(() => ({}));
+      const recordId = typeof body.recordId === "string" ? body.recordId : "";
+
+      if (onSuccess) {
+        onSuccess(recordId, result.data);
+        return;
       }
 
       router.push("/thank-you");
@@ -108,7 +128,7 @@ export function LeadForm() {
           type="tel"
           value={data.whatsapp}
           onChange={(e) => update("whatsapp", e.target.value)}
-          placeholder="+52 55 1234 5678"
+          placeholder="52 55 1234 5678"
           autoComplete="tel"
         />
         {errors.whatsapp && <p className="text-sm text-destructive">{errors.whatsapp}</p>}
@@ -119,7 +139,7 @@ export function LeadForm() {
       )}
 
       <Button type="submit" size="lg" className="w-full text-lg py-6" disabled={isSubmitting}>
-        {isSubmitting ? "Enviando..." : "Quiero empezar"}
+        {isSubmitting ? "Enviando..." : ctaLabel}
       </Button>
     </form>
   );

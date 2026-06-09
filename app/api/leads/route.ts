@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import * as Sentry from "@sentry/nextjs";
 import { createLead } from "@/lib/airtable/leads";
-import { leadSchema } from "@/lib/validation/lead-schema";
+import { leadSchema, utmSchema } from "@/lib/validation/lead-schema";
 
 export async function POST(request: NextRequest) {
   try {
@@ -21,7 +21,10 @@ export async function POST(request: NextRequest) {
     }
 
     const origen = typeof body.origen === "string" ? body.origen : "Landing";
-    const result = await createLead(validationResult.data, origen);
+    const utmResult = utmSchema.safeParse(body.utm ?? {});
+    const utm = utmResult.success ? utmResult.data : undefined;
+
+    const result = await createLead(validationResult.data, origen, utm);
 
     return NextResponse.json({ success: true, recordId: result.recordId });
   } catch (error) {

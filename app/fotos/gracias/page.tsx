@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -15,6 +16,18 @@ export default function GraciasPage() {
   const { t, language, locationInfo } = useLanguage();
 
   console.log('📄 Página de gracias cargada', { marca, processed, searchParams: Object.fromEntries(searchParams.entries()) });
+
+  // Cierra el embudo: si este Brand vino de un lead de /oportunidad,
+  // el endpoint busca al Emprendedor por Brand linkeado y lo marca "Cuenta abierta".
+  // No bloquea: si falla o no hay lead, no le mostramos error al usuario.
+  useEffect(() => {
+    if (!marca) return;
+    fetch("/api/leads/complete-by-brand", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ brandRecordId: marca }),
+    }).catch((err) => console.warn("No se pudo cerrar el lead:", err));
+  }, [marca]);
 
   const handleGoToBrand = () => {
     console.log('🖱️ Click en botón "Ver minha marca"', { marca });
