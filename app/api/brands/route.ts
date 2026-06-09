@@ -34,40 +34,45 @@ export async function GET() {
     for (const TABLE_NAME of possibleTableNames) {
       try {
         const encodedTableName = encodeURIComponent(TABLE_NAME)
-        const url = `https://api.airtable.com/v0/${process.env.AIRTABLE_BASE_ID}/${encodedTableName}`
+        const baseUrl = `https://api.airtable.com/v0/${process.env.AIRTABLE_BASE_ID}/${encodedTableName}`
 
-        const response = await fetch(url, {
-          headers: {
-            Authorization: `Bearer ${process.env.AIRTABLE_API_KEY}`,
-          },
-        })
+        // Paginar para traer TODOS los registros (Airtable devuelve max 100 por request)
+        const allRecords: any[] = []
+        let offset: string | undefined = undefined
+        let tableFound = false
 
-        if (response.ok) {
+        do {
+          const params = new URLSearchParams({ pageSize: "100" })
+          if (offset) params.set("offset", offset)
+          const url = `${baseUrl}?${params.toString()}`
+          const response = await fetch(url, {
+            headers: {
+              Authorization: `Bearer ${process.env.AIRTABLE_API_KEY}`,
+            },
+          })
+
+          if (!response.ok) {
+            const errorText = await response.text()
+            let errorData
+            try { errorData = JSON.parse(errorText) } catch { errorData = { raw: errorText } }
+            lastError = errorData
+            lastStatus = response.status
+            break
+          }
+
+          tableFound = true
           const data = await response.json()
-          return NextResponse.json(data)
+          allRecords.push(...(data.records || []))
+          offset = data.offset // undefined cuando no hay más páginas
+        } while (offset)
+
+        if (tableFound) {
+          return NextResponse.json({ records: allRecords })
         }
 
-        // Si no es exitoso, guardar el error y continuar con el siguiente
-        const errorText = await response.text()
-        let errorData
-        try {
-          errorData = JSON.parse(errorText)
-        } catch {
-          errorData = { raw: errorText }
-        }
-
-        lastError = errorData
-        lastStatus = response.status
-
-        // Si es 404, continuar con el siguiente nombre
-        // Si es 403 o 401, también continuar (puede ser que el nombre sea diferente)
-        if (response.status === 404) {
-          continue // Probar siguiente nombre
-        }
-        
       } catch (fetchError) {
         lastError = { message: fetchError instanceof Error ? fetchError.message : "Error desconocido" }
-        continue // Probar siguiente nombre
+        continue
       }
     }
 

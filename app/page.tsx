@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-// Using inline SVGs to avoid lucide-react version compatibility issues
+import Image from "next/image"
 import Link from "next/link"
 import { useLanguage } from "@/contexts/language-context"
 import { LanguageSelector } from "@/components/language-selector"
@@ -45,15 +45,15 @@ export default function HomePage() {
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
             <div className="text-center space-y-2">
-              <div className="text-4xl md:text-5xl font-bold text-primary">500+</div>
+              <div className="text-4xl md:text-5xl font-bold text-primary">5 min</div>
               <div className="text-muted-foreground">{t.landing.stats.restaurants}</div>
             </div>
             <div className="text-center space-y-2">
-              <div className="text-4xl md:text-5xl font-bold text-secondary">10K+</div>
+              <div className="text-4xl md:text-5xl font-bold text-secondary">24/7</div>
               <div className="text-muted-foreground">{t.landing.stats.content}</div>
             </div>
             <div className="text-center space-y-2">
-              <div className="text-4xl md:text-5xl font-bold text-accent">85%</div>
+              <div className="text-4xl md:text-5xl font-bold text-accent">+80%</div>
               <div className="text-muted-foreground">{t.landing.stats.engagement}</div>
             </div>
           </div>
@@ -112,7 +112,15 @@ export default function HomePage() {
       <footer className="border-t py-10 bg-card">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto text-center space-y-4">
-            <div className="text-2xl font-bold">ChefIAndo</div>
+            <div className="flex justify-center">
+              <Image
+                src="/chefiando.png"
+                alt="ChefIAndo"
+                width={200}
+                height={62}
+                className="h-12 w-auto"
+              />
+            </div>
             <span className="inline-block px-2 py-0.5 text-xs font-medium bg-primary/10 text-primary rounded-full">
               v{APP_VERSION}
             </span>

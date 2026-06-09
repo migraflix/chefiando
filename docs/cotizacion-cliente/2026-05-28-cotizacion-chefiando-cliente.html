@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Propuesta — Plataforma Chefiando</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Lora:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --brand-50:  #f0f4ff;
+    --brand-100: #e0e9ff;
+    --brand-400: #3b5bdb;
+    --brand-600: #2f4ac8;
+    --brand-700: #2340b5;
+    --gray-50:   #f9fafb;
+    --gray-100:  #f3f4f6;
+    --gray-200:  #e5e7eb;
+    --gray-300:  #d1d5db;
+    --gray-400:  #9ca3af;
+    --gray-500:  #6b7280;
+    --gray-600:  #4b5563;
+    --gray-700:  #374151;
+    --gray-900:  #111827;
+    --accent-orange: #FF6B35;
+    --accent-red:    #E63946;
+    --accent-green:  #16a34a;
+    --accent-yellow: #FFD23F;
+  }
+
+  @page {
+    size: letter;
+    margin: 0.75in 0.7in 0.85in 0.7in;
+    @bottom-left {
+      content: "GNB Labs · Propuesta Chefiando";
+      font-family: 'Inter', sans-serif;
+      font-size: 8.5pt;
+      color: var(--gray-400);
+    }
+    @bottom-center {
+      content: "Página " counter(page) " de " counter(pages);
+      font-family: 'Inter', sans-serif;
+      font-size: 8.5pt;
+      color: var(--gray-400);
+    }
+    @bottom-right {
+      content: "Propuesta · 2026-05-28";
+      font-family: 'Inter', sans-serif;
+      font-size: 8.5pt;
+      color: var(--gray-400);
+    }
+  }
+
+  @page :first {
+    margin: 0;
+    @bottom-left { content: ""; }
+    @bottom-center { content: ""; }
+    @bottom-right { content: ""; }
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-size: 10.5pt;
+    line-height: 1.55;
+    color: var(--gray-900);
+    background: white;
+  }
+
+  /* ============ COVER ============ */
+  .cover {
+    page-break-after: always;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: linear-gradient(135deg, #ffffff 0%, var(--brand-50) 100%);
+    position: relative;
+    overflow: hidden;
+  }
+  .cover::before {
+    content: ""; position: absolute; top: -150px; right: -150px;
+    width: 500px; height: 500px; background: var(--brand-600);
+    border-radius: 50%; opacity: 0.08;
+  }
+  .cover::after {
+    content: ""; position: absolute; bottom: -200px; left: -200px;
+    width: 600px; height: 600px; background: var(--brand-400);
+    border-radius: 50%; opacity: 0.06;
+  }
+  .cover-header {
+    padding: 1.2in 0.9in 0; display: flex; align-items: center; gap: 16px; z-index: 2;
+  }
+  .cover-logo {
+    width: 56px; height: 56px; background: var(--gray-900); color: white;
+    border-radius: 14px; display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 22pt; letter-spacing: -1px;
+    box-shadow: 0 8px 24px rgba(47, 74, 200, 0.18);
+  }
+  .cover-logo-text { font-weight: 700; font-size: 13pt; letter-spacing: -0.3px; color: var(--gray-900); }
+  .cover-logo-text small { display: block; font-weight: 400; font-size: 9pt; color: var(--gray-500); letter-spacing: 0; }
+  .cover-body { flex: 1; padding: 0 0.9in; display: flex; flex-direction: column; justify-content: center; z-index: 2; }
+  .cover-eyebrow { text-transform: uppercase; letter-spacing: 2.5px; font-size: 9pt; font-weight: 600; color: var(--brand-600); margin-bottom: 16px; }
+  .cover-title {
+    font-family: 'Lora', Georgia, serif; font-size: 38pt; font-weight: 700;
+    line-height: 1.08; letter-spacing: -1px; color: var(--gray-900);
+    margin-bottom: 18px; max-width: 5.5in;
+  }
+  .cover-subtitle { font-size: 13.5pt; font-weight: 400; line-height: 1.45; color: var(--gray-600); max-width: 5in; margin-bottom: 50px; }
+  .cover-meta {
+    display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 24px; max-width: 5in;
+    padding: 24px; background: white; border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(17, 24, 39, 0.06); border: 1px solid var(--gray-200);
+  }
+  .cover-meta-item { border-left: 2px solid var(--brand-600); padding-left: 12px; }
+  .cover-meta-label { text-transform: uppercase; letter-spacing: 1.3px; font-size: 7.5pt; font-weight: 600; color: var(--gray-500); margin-bottom: 4px; }
+  .cover-meta-value { font-size: 10pt; font-weight: 600; color: var(--gray-900); }
+  .cover-footer { padding: 0 0.9in 0.9in; display: flex; align-items: center; gap: 16px; z-index: 2; }
+  .cover-footer img { width: 52px; height: 52px; border-radius: 50%; object-fit: cover; border: 3px solid white; box-shadow: 0 0 0 2px var(--brand-400), 0 4px 12px rgba(0,0,0,0.1); }
+  .cover-footer-text { font-size: 9.5pt; color: var(--gray-700); line-height: 1.4; }
+  .cover-footer-text strong { color: var(--gray-900); font-weight: 600; }
+
+  /* ============ BODY ============ */
+  main { padding: 0; }
+  h1 {
+    font-family: 'Lora', Georgia, serif; font-size: 22pt; font-weight: 700; color: var(--gray-900);
+    margin: 28pt 0 14pt; line-height: 1.15; letter-spacing: -0.5px;
+    page-break-before: always; page-break-after: avoid;
+    border-bottom: 3px solid var(--brand-600); padding-bottom: 12pt;
+  }
+  h1:first-of-type { page-break-before: avoid; }
+  h2 { font-family: 'Inter', sans-serif; font-size: 14pt; font-weight: 700; color: var(--gray-900); margin: 22pt 0 10pt; line-height: 1.25; letter-spacing: -0.2px; page-break-after: avoid; }
+  h3 { font-family: 'Inter', sans-serif; font-size: 11.5pt; font-weight: 600; color: var(--brand-700); margin: 16pt 0 8pt; line-height: 1.3; page-break-after: avoid; }
+  h4 { font-family: 'Inter', sans-serif; font-size: 10pt; font-weight: 600; color: var(--gray-700); margin: 12pt 0 6pt; text-transform: uppercase; letter-spacing: 1px; page-break-after: avoid; }
+  p { margin: 0 0 8pt; color: var(--gray-700); }
+  strong { color: var(--gray-900); font-weight: 600; }
+  ul, ol { margin: 0 0 10pt 0; padding-left: 20pt; }
+  li { margin-bottom: 3pt; color: var(--gray-700); }
+  li::marker { color: var(--brand-600); }
+
+  /* ============ TABLES ============ */
+  table { width: 100%; border-collapse: collapse; margin: 12pt 0; font-size: 9pt; page-break-inside: auto; border-radius: 6px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+  thead { display: table-header-group; }
+  th { background: var(--gray-900); color: white; text-align: left; padding: 8pt 10pt; font-weight: 600; font-size: 8.5pt; text-transform: uppercase; letter-spacing: 0.5px; border-right: 1px solid var(--gray-700); }
+  th:last-child { border-right: none; }
+  td { padding: 7pt 10pt; border-bottom: 1px solid var(--gray-200); color: var(--gray-700); vertical-align: top; }
+  tr:nth-child(even) td { background: var(--gray-50); }
+  tr:last-child td { border-bottom: none; }
+  tbody tr:last-child td { background: var(--brand-50); font-weight: 600; color: var(--gray-900); border-top: 2px solid var(--brand-600); }
+  .text-right { text-align: right; }
+
+  /* ============ CALLOUT BOXES ============ */
+  .callout { border-left: 3px solid var(--brand-600); background: var(--brand-50); padding: 12pt 14pt; margin: 12pt 0; border-radius: 0 6px 6px 0; font-size: 9.5pt; page-break-inside: avoid; }
+  .callout-warning { border-left-color: var(--accent-orange); background: #fff7ed; }
+  .callout-success { border-left-color: var(--accent-green); background: #f0fdf4; }
+
+  /* ============ FEATURE HEADER ============ */
+  .feature-header { background: linear-gradient(135deg, var(--gray-900) 0%, var(--brand-700) 100%); color: white; padding: 24pt 22pt; border-radius: 10pt; margin: 0 0 18pt; page-break-after: avoid; page-break-inside: avoid; }
+  .feature-tag { display: inline-block; background: rgba(255,255,255,0.15); color: white; padding: 4pt 10pt; border-radius: 20pt; font-size: 8pt; font-weight: 600; letter-spacing: 1px; margin-bottom: 10pt; }
+  .feature-title { font-family: 'Lora', Georgia, serif; font-size: 19pt; font-weight: 700; line-height: 1.2; margin-bottom: 14pt; color: white; border: none; padding: 0; }
+  .feature-meta { display: flex; gap: 28pt; flex-wrap: wrap; }
+  .feature-meta-item { font-size: 9pt; }
+  .feature-meta-item .label { text-transform: uppercase; letter-spacing: 1px; font-size: 7.5pt; color: rgba(255,255,255,0.65); margin-bottom: 3pt; }
+  .feature-meta-item .value { font-weight: 700; font-size: 11pt; color: white; }
+
+  /* ============ TOC ============ */
+  .toc { page-break-after: always; padding-top: 12pt; }
+  .toc h1 { page-break-before: avoid; border-bottom: 3px solid var(--brand-600); }
+  .toc-list { list-style: none; padding: 0; margin: 20pt 0 0; }
+  .toc-list li { padding: 10pt 0; border-bottom: 1px dotted var(--gray-300); display: flex; align-items: baseline; }
+  .toc-list .toc-num { color: var(--brand-600); font-weight: 700; font-size: 10pt; width: 35pt; flex-shrink: 0; }
+  .toc-list .toc-title { flex: 1; color: var(--gray-900); font-weight: 500; font-size: 10.5pt; }
+  .toc-list .toc-page { color: var(--gray-400); font-size: 9pt; font-weight: 500; }
+
+  /* ============ SCOPE GRID (qué sí / qué no) ============ */
+  .scope-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12pt; margin: 14pt 0; page-break-inside: avoid; }
+  .scope-box { border-radius: 8pt; padding: 14pt 16pt; }
+  .scope-yes { background: #f0fdf4; border: 1px solid #bbf7d0; }
+  .scope-no  { background: #fef2f2; border: 1px solid #fecaca; }
+  .scope-box h4 { margin-top: 0; }
+  .scope-yes h4 { color: var(--accent-green); }
+  .scope-no h4 { color: var(--accent-red); }
+  .scope-box ul { padding-left: 16pt; margin-bottom: 0; }
+  .scope-box li { font-size: 8.8pt; line-height: 1.4; }
+
+  /* ============ INFO CARDS ============ */
+  .info-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 12pt; margin: 14pt 0; }
+  .info-card { border: 1px solid var(--gray-200); border-radius: 8pt; padding: 12pt 14pt; background: white; page-break-inside: avoid; }
+  .info-card-icon { font-size: 18pt; margin-bottom: 6pt; }
+  .info-card-title { font-weight: 600; font-size: 10pt; color: var(--gray-900); margin-bottom: 4pt; }
+  .info-card-body { font-size: 8.5pt; color: var(--gray-600); line-height: 1.45; }
+
+  /* ============ PRICE BOX ============ */
+  .price-hero { background: linear-gradient(135deg, var(--gray-900) 0%, var(--brand-700) 100%); color: white; border-radius: 12pt; padding: 26pt 24pt; margin: 16pt 0; text-align: center; page-break-inside: avoid; }
+  .price-hero .label { text-transform: uppercase; letter-spacing: 2px; font-size: 9pt; color: rgba(255,255,255,0.7); margin-bottom: 8pt; }
+  .price-hero .amount { font-family: 'Lora', Georgia, serif; font-size: 40pt; font-weight: 700; line-height: 1; margin-bottom: 8pt; }
+  .price-hero .sub { font-size: 9.5pt; color: rgba(255,255,255,0.75); }
+
+  /* ============ UTILS ============ */
+  hr.divider { border: none; border-top: 1px solid var(--gray-200); margin: 18pt 0; }
+  .pill { display: inline-block; padding: 2pt 8pt; border-radius: 12pt; font-size: 8pt; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+  .pill-p0 { background: #fee2e2; color: #991b1b; }
+  .pill-p1 { background: #fef3c7; color: #92400e; }
+  .pill-p2 { background: #d1fae5; color: #065f46; }
+  .sign-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16pt 30pt; margin-top: 16pt; }
+  .sign-field { border-bottom: 1.5px solid var(--gray-900); padding-bottom: 6pt; min-height: 30pt; }
+  .sign-field-label { font-size: 7.5pt; text-transform: uppercase; letter-spacing: 1.2px; color: var(--gray-500); margin-top: 4pt; font-weight: 600; }
+  .signature-block { border: 2px solid var(--gray-900); border-radius: 10pt; padding: 20pt; margin-top: 24pt; background: var(--gray-50); page-break-inside: avoid; }
+</style>
+</head>
+<body>
+
+<!-- ============ COVER ============ -->
+<div class="cover">
+  <div class="cover-header">
+    <div class="cover-logo">G</div>
+    <div class="cover-logo-text">
+      Gabriel Neuman
+      <small>GNB Labs · AI &amp; Software</small>
+    </div>
+  </div>
+
+  <div class="cover-body">
+    <div class="cover-eyebrow">Propuesta de desarrollo</div>
+    <h1 class="cover-title">Plataforma Chefiando</h1>
+    <p class="cover-subtitle">Cada restaurante opera su propia presencia digital — Instagram, contenido por IA y SEO local — sin que tu equipo sea el cuello de botella. Cuatro módulos independientes.</p>
+
+    <div class="cover-meta">
+      <div class="cover-meta-item">
+        <div class="cover-meta-label">Cliente</div>
+        <div class="cover-meta-value">Chefiando</div>
+      </div>
+      <div class="cover-meta-item">
+        <div class="cover-meta-label">Inversión</div>
+        <div class="cover-meta-value">desde $28,665</div>
+      </div>
+      <div class="cover-meta-item">
+        <div class="cover-meta-label">Fecha</div>
+        <div class="cover-meta-value">28 mayo 2026</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="cover-footer">
+    <img src="gabriel.jpg" alt="Gabriel Neuman">
+    <div class="cover-footer-text">
+      <strong>Preparado por Gabriel Neuman</strong><br>
+      soy@gabrielneuman.com · gabrielneuman.com
+    </div>
+  </div>
+</div>
+
+<!-- ============ TOC ============ -->
+<div class="toc">
+  <h1>Contenido</h1>
+  <ul class="toc-list">
+    <li><span class="toc-num">01</span><span class="toc-title">Resumen de la propuesta</span><span class="toc-page">3</span></li>
+    <li><span class="toc-num">02</span><span class="toc-title">Los 4 módulos y su inversión</span><span class="toc-page">4</span></li>
+    <li><span class="toc-num">M1</span><span class="toc-title">Login con Instagram + Publicación</span><span class="toc-page">5</span></li>
+    <li><span class="toc-num">M2a</span><span class="toc-title">Bot de contenido para Chefiando</span><span class="toc-page">6</span></li>
+    <li><span class="toc-num">M2b</span><span class="toc-title">Bot por restaurante (multi-tenant)</span><span class="toc-page">7</span></li>
+    <li><span class="toc-num">M2c</span><span class="toc-title">Atención por voz (nlpearl) — opcional</span><span class="toc-page">8</span></li>
+    <li><span class="toc-num">M3</span><span class="toc-title">Alertas + loop con Linear (Sentry)</span><span class="toc-page">9</span></li>
+    <li><span class="toc-num">M4a</span><span class="toc-title">Páginas web (landings multi-dominio)</span><span class="toc-page">10</span></li>
+    <li><span class="toc-num">M4b</span><span class="toc-title">Google My Business + reseñas + directorios</span><span class="toc-page">11</span></li>
+    <li><span class="toc-num">03</span><span class="toc-title">Lo que aplica a todo el proyecto</span><span class="toc-page">12</span></li>
+    <li><span class="toc-num">04</span><span class="toc-title">Inversión, plazo y condiciones</span><span class="toc-page">13</span></li>
+  </ul>
+</div>
+
+<!-- ============ MAIN ============ -->
+<main>
+
+<h1>Resumen de la propuesta</h1>
+
+<p>Hoy Chefiando es el que hace el trabajo: el equipo edita el contenido de cada restaurante y la publicación a Instagram pasa por sus manos. Esta propuesta cambia eso. Construimos una <strong>plataforma multi-tenant</strong> sobre el repositorio actual para que <strong>cada restaurante opere lo suyo</strong> — entra con su Instagram, recibe el contenido listo, lo aprueba conversando, publica con un clic, y aparece en búsquedas locales — mientras tu equipo pasa de operar a supervisar.</p>
+
+<p>Lo dividimos en <strong>4 módulos independientes</strong>. Cada uno entrega valor por sí solo, se puede contratar por separado, recortar o reordenar. Para cada módulo verás <strong>qué incluye</strong> y, con la misma claridad, <strong>qué queda fuera</strong> — sin ambigüedades.</p>
+
+<div class="callout callout-success">
+<strong>Tarifa preferencial ONG.</strong> Por tratarse de una organización sin fines de lucro, aplicamos una tarifa de <strong>USD $45 por hora</strong> (por debajo de nuestra tarifa estándar). El total de la propuesta refleja esta tarifa.
+</div>
+
+<div class="info-cards">
+  <div class="info-card">
+    <div class="info-card-icon">🎯</div>
+    <div class="info-card-title">El restaurante se autogestiona</div>
+    <div class="info-card-body">Entra con su Instagram, ve solo su contenido y publica feed, Stories y Reels — sin pedirle nada al equipo de Chefiando.</div>
+  </div>
+  <div class="info-card">
+    <div class="info-card-icon">🤖</div>
+    <div class="info-card-title">El contenido llega por WhatsApp</div>
+    <div class="info-card-body">Un asistente de IA genera la foto mejorada, el texto y hasta un video de 8 segundos. El restaurante solo aprueba.</div>
+  </div>
+  <div class="info-card">
+    <div class="info-card-icon">📍</div>
+    <div class="info-card-title">Visible en búsquedas locales</div>
+    <div class="info-card-body">Landing propia, Google My Business al día y alta en directorios. Los clientes los encuentran sin esfuerzo manual.</div>
+  </div>
+  <div class="info-card">
+    <div class="info-card-icon">🛡️</div>
+    <div class="info-card-title">Plataforma confiable</div>
+    <div class="info-card-body">Monitoreo de errores en producción con alertas, para detectar y resolver problemas antes de que afecten a los restaurantes.</div>
+  </div>
+</div>
+
+<h1>Los módulos y su inversión</h1>
+
+<p>Cada módulo es independiente. Pueden contratar el conjunto completo o empezar por las piezas que más urgen. La tarifa es de <strong>USD $45/hora</strong> en todos los casos.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Módulo</th>
+      <th>Qué resuelve</th>
+      <th>Prioridad</th>
+      <th class="text-right">Horas</th>
+      <th class="text-right">Inversión</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>M1 · Login Instagram + Publicación</strong></td>
+      <td>El restaurante entra y publica solo</td>
+      <td><span class="pill pill-p0">Fundación</span></td>
+      <td class="text-right">184 h</td>
+      <td class="text-right">$8,280</td>
+    </tr>
+    <tr>
+      <td><strong>M2a · Bot de contenido (Chefiando)</strong></td>
+      <td>El flujo completo armado en n8n</td>
+      <td><span class="pill pill-p1">Alta</span></td>
+      <td class="text-right">90 h</td>
+      <td class="text-right">$4,050</td>
+    </tr>
+    <tr>
+      <td><strong>M2b · Bot por restaurante (multi-tenant)</strong></td>
+      <td>Cada restaurante configura el suyo</td>
+      <td><span class="pill pill-p1">Alta</span></td>
+      <td class="text-right">25 h</td>
+      <td class="text-right">$1,125</td>
+    </tr>
+    <tr>
+      <td><strong>M2c · Atención por voz (nlpearl)</strong></td>
+      <td>Opcional · pedidos y reservas por voz</td>
+      <td><span class="pill pill-p2">Opcional</span></td>
+      <td class="text-right">15 h</td>
+      <td class="text-right">$675</td>
+    </tr>
+    <tr>
+      <td><strong>M3 · Alertas + loop con Linear</strong></td>
+      <td>Cada error se vuelve tarea y se cierra solo</td>
+      <td><span class="pill pill-p2">Quick win</span></td>
+      <td class="text-right">16 h</td>
+      <td class="text-right">$720</td>
+    </tr>
+    <tr>
+      <td><strong>M4a · Páginas web (landings)</strong></td>
+      <td>Cada restaurante con su sitio optimizado</td>
+      <td><span class="pill pill-p1">Alta</span></td>
+      <td class="text-right">150 h</td>
+      <td class="text-right">$6,750</td>
+    </tr>
+    <tr>
+      <td><strong>M4b · Google + reseñas + directorios</strong></td>
+      <td>Visibilidad y reputación en buscadores</td>
+      <td><span class="pill pill-p1">Alta</span></td>
+      <td class="text-right">172 h</td>
+      <td class="text-right">$7,740</td>
+    </tr>
+    <tr>
+      <td><strong>Total (núcleo, sin voz)</strong></td>
+      <td>Plataforma completa</td>
+      <td></td>
+      <td class="text-right">637 h</td>
+      <td class="text-right">$28,665</td>
+    </tr>
+  </tbody>
+</table>
+
+<p style="font-size:9pt;color:var(--gray-500);">El módulo M2c (voz) es opcional y se suma aparte: con voz, el total es 652 h / USD $29,340.</p>
+
+<div class="callout">
+<strong>Orden recomendado:</strong> M3 (quick win, arranca primero) → M1 (la fundación que todo lo demás necesita) → M2a → M2b → M4a/M4b. El bot por restaurante (M2b) y los módulos de SEO dependen de que M1 esté listo, porque usan la sesión de cada restaurante; M2b además necesita el flujo de M2a.
+</div>
+
+<!-- ============ M1 ============ -->
+<h1>M1 · Login con Instagram + Publicación</h1>
+
+<div class="feature-header">
+  <span class="feature-tag">MÓDULO 1 · FUNDACIÓN</span>
+  <div class="feature-title">El restaurante entra con su Instagram y publica solo</div>
+  <div class="feature-meta">
+    <div class="feature-meta-item"><div class="label">Inversión</div><div class="value">USD $8,280</div></div>
+    <div class="feature-meta-item"><div class="label">Esfuerzo</div><div class="value">184 horas</div></div>
+    <div class="feature-meta-item"><div class="label">Tarifa</div><div class="value">$45 / hora</div></div>
+  </div>
+</div>
+
+<p>Hoy los restaurantes no tienen cuenta propia y la publicación a Instagram es manual. Con este módulo, cada restaurante <strong>entra con su propia cuenta de Instagram</strong>, ve únicamente su contenido, y <strong>publica feed, Stories y Reels</strong> — ahora mismo o agendado con un clic. Es la base sobre la que se apoyan los demás módulos.</p>
+
+<div class="scope-grid">
+  <div class="scope-box scope-yes">
+    <h4>✓ Qué incluye</h4>
+    <ul>
+      <li>Inicio de sesión con Instagram (OAuth de Meta).</li>
+      <li>Cada restaurante ve y gestiona solo su propio contenido.</li>
+      <li>Publicación de feed, Stories y Reels.</li>
+      <li>Agendar publicaciones para una fecha/hora futura.</li>
+      <li>Detección automática de cuenta Business vs Personal.</li>
+      <li>Renovación automática de la conexión + alerta si falla.</li>
+    </ul>
+  </div>
+  <div class="scope-box scope-no">
+    <h4>✕ Qué NO incluye</h4>
+    <ul>
+      <li>El trámite de App Review ante Meta lo gestiona Chefiando (no son horas de desarrollo de esta propuesta).</li>
+      <li>La espera de aprobación de Meta (2–6 semanas): bloqueador externo.</li>
+      <li>Publicar desde cuentas Personales (solo Business publica; las Personales pueden entrar pero no publicar).</li>
+      <li>Edición avanzada de imágenes/video dentro de la app (eso lo cubre el asistente de IA en M2).</li>
+      <li>Gestión de comentarios o mensajes directos de Instagram.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ============ M2a ============ -->
+<h1>M2a · Bot de contenido para Chefiando</h1>
+
+<div class="feature-header">
+  <span class="feature-tag">MÓDULO 2A · PRIORIDAD ALTA</span>
+  <div class="feature-title">El flujo de producción de contenido, armado y funcionando</div>
+  <div class="feature-meta">
+    <div class="feature-meta-item"><div class="label">Inversión</div><div class="value">USD $4,050</div></div>
+    <div class="feature-meta-item"><div class="label">Esfuerzo</div><div class="value">90 horas</div></div>
+    <div class="feature-meta-item"><div class="label">Tarifa</div><div class="value">$45 / hora</div></div>
+  </div>
+</div>
+
+<p>Construimos <strong>el flujo completo</strong> del asistente "ChefIAndo" tal como está en su diagrama, funcionando para Chefiando: recibe la foto del producto, <strong>genera la foto mejorada y el texto</strong>, los valida en un par de mensajes, ofrece un <strong>video corto</strong>, recuerda postear y al día siguiente arranca de nuevo. La lógica vive en <strong>n8n + Airtable + IA</strong> (no se programa un motor desde cero), por eso es más liviano de lo que parece. Es el grueso del trabajo: armar la "máquina" una sola vez.</p>
+
+<div class="scope-grid">
+  <div class="scope-box scope-yes">
+    <h4>✓ Qué incluye</h4>
+    <ul>
+      <li>Flujo conversacional completo en n8n (las 3 partes del diagrama).</li>
+      <li>Bot de WhatsApp con SendPulse (ya integrado).</li>
+      <li>Generación de foto mejorada + texto del post con IA.</li>
+      <li>Loops de validación: "¿te gustó o la mejoro?" (foto, texto, video).</li>
+      <li>Producción de un video de 8 segundos desde la foto.</li>
+      <li>Temporizadores (+2h video, +3h recordatorio, 9am nuevo día).</li>
+      <li>Verificación de posteo + arranque de un nuevo día.</li>
+      <li>Estado y datos guardados en Airtable.</li>
+    </ul>
+  </div>
+  <div class="scope-box scope-no">
+    <h4>✕ Qué NO incluye</h4>
+    <ul>
+      <li>Que cada restaurante lo configure por su cuenta (eso es M2b).</li>
+      <li>Atención por voz (eso es M2c, opcional).</li>
+      <li>Videos de más de 8 segundos o edición profesional.</li>
+      <li>Toma de pedidos con cobro/pago integrado.</li>
+      <li>La verificación de posteo en IG depende de que M1 esté activo.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ============ M2b ============ -->
+<h1>M2b · Bot por restaurante (multi-tenant)</h1>
+
+<div class="feature-header">
+  <span class="feature-tag">MÓDULO 2B · PRIORIDAD ALTA</span>
+  <div class="feature-title">Que cada restaurante tenga y configure su propio bot</div>
+  <div class="feature-meta">
+    <div class="feature-meta-item"><div class="label">Inversión</div><div class="value">USD $1,125</div></div>
+    <div class="feature-meta-item"><div class="label">Esfuerzo</div><div class="value">25 horas</div></div>
+    <div class="feature-meta-item"><div class="label">Tarifa</div><div class="value">$45 / hora</div></div>
+  </div>
+</div>
+
+<p>Tomamos el flujo de M2a y lo hacemos <strong>configurable por restaurante</strong>: cada uno tiene su propia "personalidad", sus datos (menú, horarios, dirección) y sus conversaciones aisladas de los demás. Reusa los mismos workflows de n8n parametrizados por restaurante, por eso es liviano. Depende de M2a.</p>
+
+<div class="scope-grid">
+  <div class="scope-box scope-yes">
+    <h4>✓ Qué incluye</h4>
+    <ul>
+      <li>Configuración por restaurante en Airtable (persona, menú, horarios).</li>
+      <li>Conversaciones aisladas: cada restaurante ve solo las suyas.</li>
+      <li>Panel para ajustar el bot de cada restaurante.</li>
+      <li>Escalamiento a una persona cuando se detectan palabras clave.</li>
+      <li>Protección contra abuso por restaurante.</li>
+      <li>Onboarding: cómo conectar WhatsApp y entrenar al bot.</li>
+    </ul>
+  </div>
+  <div class="scope-box scope-no">
+    <h4>✕ Qué NO incluye</h4>
+    <ul>
+      <li>El flujo del bot en sí (eso es M2a; M2b lo da por hecho).</li>
+      <li>Atención por voz (eso es M2c, opcional).</li>
+      <li>Cobro de costos de IA/WhatsApp por restaurante (Chefiando los absorbe en esta fase).</li>
+      <li>Integración con otros canales (Messenger, Telegram, SMS).</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ============ M2c ============ -->
+<h1>M2c · Atención por voz (nlpearl) — opcional</h1>
+
+<div class="feature-header">
+  <span class="feature-tag">MÓDULO 2C · OPCIONAL</span>
+  <div class="feature-title">Pedidos y reservas por voz, además del WhatsApp</div>
+  <div class="feature-meta">
+    <div class="feature-meta-item"><div class="label">Inversión</div><div class="value">USD $675</div></div>
+    <div class="feature-meta-item"><div class="label">Esfuerzo</div><div class="value">15 horas</div></div>
+    <div class="feature-meta-item"><div class="label">Tarifa</div><div class="value">$45 / hora</div></div>
+  </div>
+</div>
+
+<p>Un canal de <strong>voz</strong> (nlpearl) que atiende llamadas para tomar pedidos o reservas y escala a una persona cuando hace falta. Es <strong>opcional</strong> y se suma aparte: el bot de WhatsApp funciona perfecto sin esto. Lo dejamos como módulo independiente para que Chefiando decida si lo activa.</p>
+
+<div class="scope-grid">
+  <div class="scope-box scope-yes">
+    <h4>✓ Qué incluye</h4>
+    <ul>
+      <li>Conexión con nlpearl y número asignado.</li>
+      <li>Atención de llamadas para pedidos/reservas.</li>
+      <li>Transcripción y registro de llamadas.</li>
+      <li>Escalamiento a una persona.</li>
+    </ul>
+  </div>
+  <div class="scope-box scope-no">
+    <h4>✕ Qué NO incluye</h4>
+    <ul>
+      <li>Cobro de pedidos por teléfono (pago integrado).</li>
+      <li>Costos de minutos/voz por restaurante (Chefiando los absorbe).</li>
+      <li>Integración con centrales telefónicas existentes.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ============ M3 ============ -->
+<h1>M3 · Alertas + loop con Linear (Sentry)</h1>
+
+<div class="feature-header">
+  <span class="feature-tag">MÓDULO 3 · QUICK WIN</span>
+  <div class="feature-title">Cada error se vuelve tarea y se cierra solo</div>
+  <div class="feature-meta">
+    <div class="feature-meta-item"><div class="label">Inversión</div><div class="value">USD $720</div></div>
+    <div class="feature-meta-item"><div class="label">Esfuerzo</div><div class="value">16 horas</div></div>
+    <div class="feature-meta-item"><div class="label">Tarifa</div><div class="value">$45 / hora</div></div>
+  </div>
+</div>
+
+<p>Sentry <strong>ya está instalado y funcionando</strong> en la plataforma — eso no se cobra. Lo que falta es cerrarle el ciclo: poner <strong>alertas</strong> cuando algo falla y conectar un <strong>loop automático con Linear</strong> para que cada error se convierta en una tarea y, al resolverla, se marque como cerrado en Sentry. Es el módulo más chico y se puede arrancar primero.</p>
+
+<div class="scope-grid">
+  <div class="scope-box scope-yes">
+    <h4>✓ Qué incluye</h4>
+    <ul>
+      <li>3 alertas: error nuevo, pico de errores, error crítico.</li>
+      <li>Cuando Sentry detecta un error → crea tarea en Linear.</li>
+      <li>Cuando se cierra la tarea en Linear → se resuelve en Sentry.</li>
+      <li>Verificación de que las alertas llegan correctamente.</li>
+    </ul>
+  </div>
+  <div class="scope-box scope-no">
+    <h4>✕ Qué NO incluye</h4>
+    <ul>
+      <li>Instalación o reconfiguración de Sentry (ya está hecho).</li>
+      <li>Corrección de los errores existentes (los arreglos se cotizan según lo que aparezca).</li>
+      <li>Monitoreo de infraestructura o servidores (uptime, base de datos).</li>
+      <li>Integración con herramientas distintas de Sentry y Linear.</li>
+      <li>Soporte on-call o guardias 24/7.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ============ M4a ============ -->
+<h1>M4a · Páginas web (landings multi-dominio)</h1>
+
+<div class="feature-header">
+  <span class="feature-tag">MÓDULO 4A · PRIORIDAD ALTA</span>
+  <div class="feature-title">Cada restaurante con su propia página web optimizada</div>
+  <div class="feature-meta">
+    <div class="feature-meta-item"><div class="label">Inversión</div><div class="value">USD $6,750</div></div>
+    <div class="feature-meta-item"><div class="label">Esfuerzo</div><div class="value">150 horas</div></div>
+    <div class="feature-meta-item"><div class="label">Tarifa</div><div class="value">$45 / hora</div></div>
+  </div>
+</div>
+
+<p>Los restaurantes hoy no tienen una página pública optimizada, así que son casi invisibles en búsqueda. Este submódulo le da a cada uno <strong>su propia landing</strong>, lista para Google, con la opción de usar su <strong>propio dominio</strong>. Todo el tráfico y las conversiones se miden en un panel.</p>
+
+<div class="scope-grid">
+  <div class="scope-box scope-yes">
+    <h4>✓ Qué incluye</h4>
+    <ul>
+      <li>Landing pública por restaurante, optimizada para Google (SEO + datos estructurados).</li>
+      <li>3 formas de URL: ruta corta, subdominio o dominio propio.</li>
+      <li>Conexión y verificación de dominio propio (DNS + SSL automático).</li>
+      <li>Formulario de reserva que llega al WhatsApp del restaurante.</li>
+      <li>Panel de conversiones por canal y por dominio.</li>
+    </ul>
+  </div>
+  <div class="scope-box scope-no">
+    <h4>✕ Qué NO incluye</h4>
+    <ul>
+      <li>Compra o registro de los dominios propios (los provee el restaurante).</li>
+      <li>Redacción de contenido editorial/blog para las landings.</li>
+      <li>Campañas de publicidad pagada (Google/Meta Ads).</li>
+      <li>Tienda en línea o pagos dentro de la landing.</li>
+      <li>Requiere plan Vercel Pro (lo confirma Chefiando antes de iniciar).</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ============ M4b ============ -->
+<h1>M4b · Google My Business + reseñas + directorios</h1>
+
+<div class="feature-header">
+  <span class="feature-tag">MÓDULO 4B · PRIORIDAD ALTA</span>
+  <div class="feature-title">Ficha de Google al día y reputación gestionada — el "robot" de buscadores</div>
+  <div class="feature-meta">
+    <div class="feature-meta-item"><div class="label">Inversión</div><div class="value">USD $7,740</div></div>
+    <div class="feature-meta-item"><div class="label">Esfuerzo</div><div class="value">172 horas</div></div>
+    <div class="feature-meta-item"><div class="label">Tarifa</div><div class="value">$45 / hora</div></div>
+  </div>
+</div>
+
+<p>La ficha de Google de cada restaurante suele estar desactualizada y sin responder reseñas. Este submódulo es el <strong>robot que mantiene la presencia en buscadores</strong>: sincroniza Google My Business a diario, genera posts, propone respuestas a reseñas (que una persona aprueba) y da de alta al restaurante en directorios.</p>
+
+<div class="scope-grid">
+  <div class="scope-box scope-yes">
+    <h4>✓ Qué incluye</h4>
+    <ul>
+      <li>Google My Business sincronizado a diario (horarios, fotos, menú).</li>
+      <li>Posts de Google generados por IA (el restaurante elige).</li>
+      <li>Respuestas a reseñas: la IA propone, una persona aprueba.</li>
+      <li>Métricas de la ficha de Google (vistas, búsquedas, acciones).</li>
+      <li>Alta en 5–10 directorios LATAM relevantes.</li>
+    </ul>
+  </div>
+  <div class="scope-box scope-no">
+    <h4>✕ Qué NO incluye</h4>
+    <ul>
+      <li>Auto-publicación de respuestas a reseñas (siempre requiere aprobación humana).</li>
+      <li>Scraping de directorios sin API oficial.</li>
+      <li>Reclamación inicial de fichas de Google no verificadas (manual, parte del onboarding).</li>
+      <li>Gestión de reputación fuera de Google (TripAdvisor, redes, etc.).</li>
+      <li>Campañas de publicidad pagada.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ============ GLOBAL ============ -->
+<h1>Lo que aplica a todo el proyecto</h1>
+
+<h2>Cómo se construye</h2>
+<p>Sobre el repositorio actual de Chefiando, sin reescribir lo que ya funciona. La base de datos sigue siendo <strong>Airtable</strong>, el hosting <strong>Vercel</strong>, y el contenido por IA usa <strong>Claude</strong>. Los flujos conversacionales se arman en <strong>n8n</strong> (no se programa un motor desde cero, por eso el bot es más liviano de lo habitual), y WhatsApp corre sobre <strong>SendPulse</strong>, que ya tienen integrado.</p>
+
+<h2>Decisiones ya acordadas</h2>
+<ul>
+  <li><strong>Base de datos:</strong> se mantiene Airtable. Migrar a otra tecnología solo si se superan ~1.500 restaurantes o ~30k conversaciones/mes — eso se cotizaría aparte.</li>
+  <li><strong>Costos variables:</strong> en esta fase Chefiando absorbe los costos de IA, voz, WhatsApp y Google. No se mide consumo por restaurante.</li>
+  <li><strong>Reseñas de Google:</strong> nunca se publican automáticamente. La IA propone, una persona aprueba.</li>
+  <li><strong>Instagram:</strong> solo las cuentas Business pueden publicar vía API.</li>
+</ul>
+
+<div class="callout callout-warning">
+<strong>Único bloqueador externo:</strong> la <strong>App Review de Meta</strong> tarda entre 2 y 6 semanas. El trámite lo gestiona Chefiando y no entra en las horas de esta propuesta. Conviene iniciarlo el día 1 y avanzar el resto del proyecto en paralelo.
+</div>
+
+<h2>El precio se mueve con el alcance</h2>
+<p>Este total corresponde al alcance descrito en los 4 módulos, tal como están. <strong>Agregar</strong> módulos, funciones o tareas sube el total; <strong>quitar o recortar</strong> lo baja. Cualquier cambio se acuerda por escrito antes de ejecutarlo — sin sorpresas para ninguna de las dos partes.</p>
+
+<!-- ============ INVERSIÓN ============ -->
+<h1>Inversión, plazo y condiciones</h1>
+
+<div class="price-hero">
+  <div class="label">Inversión total · Plataforma completa</div>
+  <div class="amount">USD $28,665</div>
+  <div class="sub">637 horas × USD $45/hora (tarifa preferencial ONG) · núcleo sin voz</div>
+</div>
+
+<table>
+  <thead>
+    <tr>
+      <th>Módulo</th>
+      <th class="text-right">Horas</th>
+      <th class="text-right">Inversión (USD)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td>M1 · Login Instagram + Publicación</td><td class="text-right">184 h</td><td class="text-right">$8,280</td></tr>
+    <tr><td>M2a · Bot de contenido (Chefiando)</td><td class="text-right">90 h</td><td class="text-right">$4,050</td></tr>
+    <tr><td>M2b · Bot por restaurante (multi-tenant)</td><td class="text-right">25 h</td><td class="text-right">$1,125</td></tr>
+    <tr><td>M3 · Alertas + loop con Linear</td><td class="text-right">16 h</td><td class="text-right">$720</td></tr>
+    <tr><td>M4a · Páginas web (landings)</td><td class="text-right">150 h</td><td class="text-right">$6,750</td></tr>
+    <tr><td>M4b · Google + reseñas + directorios</td><td class="text-right">172 h</td><td class="text-right">$7,740</td></tr>
+    <tr><td><strong>Total (núcleo, sin voz)</strong></td><td class="text-right">637 h</td><td class="text-right">$28,665</td></tr>
+  </tbody>
+</table>
+
+<table>
+  <thead>
+    <tr>
+      <th>Módulo opcional</th>
+      <th class="text-right">Horas</th>
+      <th class="text-right">Inversión (USD)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td>M2c · Atención por voz (nlpearl)</td><td class="text-right">15 h</td><td class="text-right">$675</td></tr>
+    <tr><td><strong>Total con voz</strong></td><td class="text-right">652 h</td><td class="text-right">$29,340</td></tr>
+  </tbody>
+</table>
+
+<h2>Condiciones</h2>
+<ul>
+  <li><strong>Tarifa:</strong> USD $45 / hora (preferencial por organización sin fines de lucro).</li>
+  <li><strong>Modalidad:</strong> los módulos se pueden contratar por separado o en conjunto.</li>
+  <li><strong>Forma de pago:</strong> a acordar (anticipo + hitos por módulo es lo habitual).</li>
+  <li><strong>Inicio:</strong> a coordinar tras la aceptación; se recomienda iniciar el trámite de Meta el día 1.</li>
+  <li><strong>No incluye:</strong> mantenimiento mensual continuo tras la entrega (se cotiza como retainer si lo necesitan).</li>
+</ul>
+
+<div class="signature-block">
+  <h3 style="margin-top:0;">Aceptación de la propuesta</h3>
+  <p style="font-size:9.5pt;">Al firmar, Chefiando acepta el alcance, la inversión y las condiciones de los módulos seleccionados de esta propuesta.</p>
+  <div class="sign-grid">
+    <div><div class="sign-field"></div><div class="sign-field-label">Nombre y cargo</div></div>
+    <div><div class="sign-field"></div><div class="sign-field-label">Módulos aceptados</div></div>
+    <div><div class="sign-field"></div><div class="sign-field-label">Fecha</div></div>
+    <div><div class="sign-field"></div><div class="sign-field-label">Firma</div></div>
+  </div>
+</div>
+
+<hr class="divider">
+<p style="font-size:9pt;color:var(--gray-500);text-align:center;">Propuesta preparada por GNB Labs · Gabriel Neuman · soy@gabrielneuman.com · gabrielneuman.com</p>
+
+</main>
+</body>
+</html>

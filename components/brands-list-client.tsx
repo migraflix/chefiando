@@ -28,6 +28,7 @@ interface Brand {
     Country?: string;
     Idioma?: string;
     Language?: string;
+    Creada?: string;
     [key: string]: any;
   };
 }
@@ -39,6 +40,8 @@ export function BrandsListClient() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCountry, setSelectedCountry] = useState<string>("all");
   const [selectedLanguage, setSelectedLanguage] = useState<string>("all");
+  const [dateFrom, setDateFrom] = useState<string>("");
+  const [dateTo, setDateTo] = useState<string>("");
   const { t } = useLanguage();
   const { toast } = useToast();
 
@@ -88,7 +91,12 @@ export function BrandsListClient() {
           hasRecords: !!(data.records && data.records.length > 0),
         });
 
-        setBrands(data.records || []);
+        const sorted = (data.records || []).sort((a: Brand, b: Brand) => {
+          const dateA = a.fields.Creada ? new Date(a.fields.Creada).getTime() : 0;
+          const dateB = b.fields.Creada ? new Date(b.fields.Creada).getTime() : 0;
+          return dateB - dateA;
+        });
+        setBrands(sorted);
       } catch (error) {
         console.error("❌ [CLIENT] Error fetching brands:", error);
         toast({
@@ -156,10 +164,9 @@ export function BrandsListClient() {
     return Array.from(languageSet).sort();
   }, [brands]);
 
-  // Filtrar marcas según búsqueda, país e idioma
+  // Filtrar marcas según búsqueda, país, idioma y fecha de creación
   const filteredBrands = useMemo(() => {
     return brands.filter((brand) => {
-      // Filtro por término de búsqueda
       const searchMatch =
         searchTerm === "" ||
         (brand.fields.Negocio?.toLowerCase().includes(
@@ -167,29 +174,44 @@ export function BrandsListClient() {
         ) ??
           false);
 
-      // Filtro por país 2
       const country = brand.fields.País;
       const countryMatch =
         selectedCountry === "all" || country === selectedCountry;
 
-      // Filtro por idioma
       const language = brand.fields.Idioma || brand.fields.Language;
       const languageMatch =
         selectedLanguage === "all" || language === selectedLanguage;
 
-      return searchMatch && countryMatch && languageMatch;
+      let dateMatch = true;
+      if (dateFrom || dateTo) {
+        const creada = brand.fields.Creada;
+        if (!creada) {
+          dateMatch = false;
+        } else {
+          const brandDate = new Date(creada);
+          if (dateFrom) {
+            const from = new Date(dateFrom);
+            from.setHours(0, 0, 0, 0);
+            if (brandDate < from) dateMatch = false;
+          }
+          if (dateTo && dateMatch) {
+            const to = new Date(dateTo);
+            to.setHours(23, 59, 59, 999);
+            if (brandDate > to) dateMatch = false;
+          }
+        }
+      }
+
+      return searchMatch && countryMatch && languageMatch && dateMatch;
     });
-  }, [brands, searchTerm, selectedCountry, selectedLanguage]);
+  }, [brands, searchTerm, selectedCountry, selectedLanguage, dateFrom, dateTo]);
 
   if (loading) {
     return (
       <div className="min-h-screen bg-background p-8">
         <div className="mx-auto max-w-6xl">
           <div className="mb-8 flex items-center justify-between">
-            <div>
-              <h1 className="text-4xl font-bold">{t.brands.title}</h1>
-              <p className="mt-2 text-muted-foreground">{t.brands.subtitle}</p>
-            </div>
+            <p className="text-muted-foreground">{t.brands.subtitle}</p>
             <LanguageSelector />
           </div>
           <div className="text-center text-muted-foreground">
@@ -204,14 +226,7 @@ export function BrandsListClient() {
     <div className="min-h-screen bg-background p-8">
       <div className="mx-auto max-w-6xl">
         <div className="mb-8 flex items-center justify-between">
-          <div>
-            <h1 className="text-balance text-4xl font-bold">
-              {t.brands.title}
-            </h1>
-            <p className="mt-2 text-pretty text-muted-foreground">
-              {t.brands.subtitle}
-            </p>
-          </div>
+          <p className="text-pretty text-muted-foreground">{t.brands.subtitle}</p>
           <LanguageSelector />
         </div>
 
@@ -255,6 +270,22 @@ export function BrandsListClient() {
               ))}
             </SelectContent>
           </Select>
+          <Input
+            type="date"
+            value={dateFrom}
+            onChange={(e) => setDateFrom(e.target.value)}
+            className="w-full sm:w-[160px]"
+            title="Desde"
+            placeholder="Desde"
+          />
+          <Input
+            type="date"
+            value={dateTo}
+            onChange={(e) => setDateTo(e.target.value)}
+            className="w-full sm:w-[160px]"
+            title="Hasta"
+            placeholder="Hasta"
+          />
         </div>
 
         {brands.length === 0 ? (
