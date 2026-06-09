@@ -44,11 +44,19 @@ export const leadSchema = z.object({
   whatsapp: z
     .string()
     .min(1, "El WhatsApp es obligatorio")
-    // Normaliza: quita espacios/guiones/parentesis y agrega "+" si falta.
-    // Mantiene "+" cuando ya viene para no duplicarlo.
+    // Normaliza:
+    //  1) quita espacios/guiones/parentesis
+    //  2) agrega "+" si falta
+    //  3) MX: WhatsApp requiere "1" despues del codigo pais para celulares.
+    //     +52 + 10 digitos -> +521 + 10 digitos. Sin esto no llega el mensaje.
     .transform((val) => {
       const clean = val.replace(/[\s\-\(\)]/g, "");
-      return clean.startsWith("+") ? clean : `+${clean}`;
+      const withPlus = clean.startsWith("+") ? clean : `+${clean}`;
+      // MX: si es +52 + 10 digitos (sin "1"), inserta el "1".
+      if (/^\+52\d{10}$/.test(withPlus)) {
+        return `+521${withPlus.slice(3)}`;
+      }
+      return withPlus;
     })
     .refine(
       (val) => {
