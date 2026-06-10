@@ -20,11 +20,13 @@ export function OportunidadLeadStep() {
         // sin storage no es bloqueante: /registro pide los datos de nuevo si falta.
       }
     }
+    // En /oportunidad solo capturamos nombre + WhatsApp; negocio/email se
+    // completan en /registro, así que pueden venir vacíos.
     const qs = new URLSearchParams({
       lead: recordId,
       nombre: data.nombre,
-      negocio: data.negocio,
-      email: data.email,
+      negocio: data.negocio ?? "",
+      email: data.email ?? "",
       whatsapp: data.whatsapp,
     });
     router.push(`/registro?${qs.toString()}`);
@@ -34,6 +36,7 @@ export function OportunidadLeadStep() {
     <LeadForm
       origen="Oportunidad"
       ctaLabel="Continuar"
+      fields="minimal"
       onSuccess={handleSuccess}
     />
   );

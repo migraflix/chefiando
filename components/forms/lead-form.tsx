@@ -21,13 +21,18 @@ type LeadFormProps = {
   origen?: string;
   ctaLabel?: string;
   onSuccess?: (recordId: string, data: LeadFormData) => void;
+  // "minimal" muestra solo nombre + WhatsApp (negocio/email se piden en /registro).
+  // "full" (default) muestra los 4 campos.
+  fields?: "full" | "minimal";
 };
 
 export function LeadForm({
   origen = "Landing",
   ctaLabel = "Quiero empezar",
   onSuccess,
+  fields = "full",
 }: LeadFormProps = {}) {
+  const isMinimal = fields === "minimal";
   const router = useRouter();
   const utm = useUtmParams();
   const [data, setData] = useState<LeadFormData>(INITIAL_DATA);
@@ -97,29 +102,33 @@ export function LeadForm({
         {errors.nombre && <p className="text-sm text-destructive">{errors.nombre}</p>}
       </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="negocio">Nombre del negocio</Label>
-        <Input
-          id="negocio"
-          value={data.negocio}
-          onChange={(e) => update("negocio", e.target.value)}
-          placeholder="Ej. Tacos La Esquina"
-        />
-        {errors.negocio && <p className="text-sm text-destructive">{errors.negocio}</p>}
-      </div>
+      {!isMinimal && (
+        <div className="space-y-2">
+          <Label htmlFor="negocio">Nombre del negocio</Label>
+          <Input
+            id="negocio"
+            value={data.negocio}
+            onChange={(e) => update("negocio", e.target.value)}
+            placeholder="Ej. Tacos La Esquina"
+          />
+          {errors.negocio && <p className="text-sm text-destructive">{errors.negocio}</p>}
+        </div>
+      )}
 
-      <div className="space-y-2">
-        <Label htmlFor="email">Correo electrónico</Label>
-        <Input
-          id="email"
-          type="email"
-          value={data.email}
-          onChange={(e) => update("email", e.target.value)}
-          placeholder="tu@correo.com"
-          autoComplete="email"
-        />
-        {errors.email && <p className="text-sm text-destructive">{errors.email}</p>}
-      </div>
+      {!isMinimal && (
+        <div className="space-y-2">
+          <Label htmlFor="email">Correo electrónico</Label>
+          <Input
+            id="email"
+            type="email"
+            value={data.email}
+            onChange={(e) => update("email", e.target.value)}
+            placeholder="tu@correo.com"
+            autoComplete="email"
+          />
+          {errors.email && <p className="text-sm text-destructive">{errors.email}</p>}
+        </div>
+      )}
 
       <div className="space-y-2">
         <Label htmlFor="whatsapp">WhatsApp (con código de país)</Label>

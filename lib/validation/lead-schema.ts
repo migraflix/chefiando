@@ -2,7 +2,8 @@ import { z } from "zod";
 
 /**
  * Esquema de validación para el formulario de lead de campaña.
- * Captura los datos mínimos para contacto: nombre, negocio, WhatsApp y email.
+ * Captura los datos mínimos para contacto: nombre y WhatsApp (obligatorios),
+ * negocio y email (opcionales, se completan en el paso siguiente /registro).
  *
  * Reusa la misma lógica de validación de WhatsApp del flujo de marca
  * (código de país LATAM/España + longitud razonable).
@@ -13,17 +14,22 @@ export const leadSchema = z.object({
     .min(2, "El nombre es obligatorio")
     .max(60, "El nombre no puede exceder 60 caracteres")
     .transform((val) => val.trim()),
+  // Opcional: en /oportunidad solo pedimos nombre + WhatsApp; el negocio
+  // se captura en /registro. Si viene, se valida la longitud.
   negocio: z
     .string()
-    .min(2, "El nombre del negocio es obligatorio")
     .max(80, "El nombre del negocio no puede exceder 80 caracteres")
-    .transform((val) => val.trim()),
+    .transform((val) => val.trim())
+    .optional()
+    .or(z.literal("")),
+  // Opcional por la misma razón: el email se pide en el paso siguiente.
   email: z
     .string()
-    .min(5, "El email es obligatorio")
     .max(254, "El email es demasiado largo")
     .refine(
       (val) => {
+        if (!val) return true; // opcional
+
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(val)) return false;
 
@@ -40,7 +46,9 @@ export const leadSchema = z.object({
         return domainParts.length >= 2;
       },
       { message: "Por favor ingresa un email válido (no aceptamos emails temporales)" }
-    ),
+    )
+    .optional()
+    .or(z.literal("")),
   whatsapp: z
     .string()
     .min(1, "El WhatsApp es obligatorio")
