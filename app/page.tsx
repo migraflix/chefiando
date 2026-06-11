@@ -31,9 +31,12 @@ export default function HomePage() {
             <p className="text-xl md:text-2xl text-muted-foreground text-pretty leading-relaxed max-w-2xl mx-auto">
               {t.landing.hero.description}
             </p>
-            <div className="flex justify-center pt-2">
-              <Button size="lg" className="text-lg px-10 py-6" asChild>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center pt-2">
+              <Button size="lg" className="text-lg px-8 py-6" asChild>
                 <Link href="/contacto">{t.landing.hero.cta}</Link>
+              </Button>
+              <Button size="lg" variant="outline" className="text-lg px-8 py-6 bg-transparent" asChild>
+                <Link href="#beneficios">{t.landing.hero.benefits}</Link>
               </Button>
             </div>
           </div>
@@ -104,6 +107,68 @@ export default function HomePage() {
                 <p className="text-muted-foreground leading-relaxed">{t.landing.benefits.time.description}</p>
               </CardContent>
             </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* Features Section */}
+      <section className="py-14 md:py-20 bg-muted/30">
+        <div className="container mx-auto px-4">
+          <div className="max-w-3xl mx-auto text-center space-y-4 mb-10">
+            <h2 className="text-4xl md:text-5xl font-bold text-balance">{t.landing.features.title}</h2>
+            <p className="text-xl text-muted-foreground text-pretty leading-relaxed">{t.landing.features.subtitle}</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+            {t.landing.features.list.map((feature, index) => (
+              <div key={index} className="flex items-start gap-3 p-4 rounded-lg bg-card">
+                <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <svg className="w-4 h-4 text-primary" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+                <span className="text-lg">{feature}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-14 md:py-20">
+        <div className="container mx-auto px-4">
+          <Card className="max-w-4xl mx-auto border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-accent/5">
+            <CardContent className="p-12 text-center space-y-6">
+              <h2 className="text-4xl md:text-5xl font-bold text-balance">{t.landing.cta.title}</h2>
+              <p className="text-xl text-muted-foreground text-pretty leading-relaxed max-w-2xl mx-auto">
+                {t.landing.cta.subtitle}
+              </p>
+              <Button size="lg" className="text-lg px-8 py-6" asChild>
+                <Link href="/contacto">{t.landing.cta.button}</Link>
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </section>
+
+      {/* FAQ Section */}
+      <section className="py-14 md:py-20 bg-card/30">
+        <div className="container mx-auto px-4">
+          <div className="max-w-3xl mx-auto">
+            <h2 className="text-4xl md:text-5xl font-bold text-balance text-center mb-10">{t.landing.faq.title}</h2>
+            <div className="space-y-4">
+              {t.landing.faq.items.map((item, index) => (
+                <details key={index} className="group border rounded-lg bg-card">
+                  <summary className="flex items-center justify-between gap-4 p-6 cursor-pointer list-none font-semibold text-lg">
+                    {item.question}
+                    <svg className="w-5 h-5 flex-shrink-0 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </summary>
+                  <p className="px-6 pb-6 text-muted-foreground leading-relaxed">{item.answer}</p>
+                </details>
+              ))}
+            </div>
           </div>
         </div>
       </section>
