@@ -404,6 +404,31 @@ export const translations = {
       consoleTips: "Revisa la consola del navegador para más detalles",
       terminalTips: "Los logs del servidor aparecen en la terminal",
     },
+    oportunidad: {
+      metaTitle: "Comece com ChefIAndo",
+      metaDescription:
+        "Conteúdo profissional para o seu restaurante em 5 minutos. Deixe seus dados e abrimos sua conta.",
+      badge: "Para restaurantes que querem lotar as mesas",
+      title: "Conteúdo profissional para o seu restaurante em 5 minutos",
+      description:
+        "Publique todos os dias sem contratar fotógrafo, sem escrever a legenda e sem brigar com apps. Você cozinha, ChefIAndo publica.",
+      bullets: [
+        "Fotos profissionais geradas com IA a partir de uma única imagem sua",
+        "Legendas que vendem, não que enrolam: pensadas para o seu mercado",
+        "Pronto para publicar no Instagram, Facebook e Google",
+      ],
+      formTitle: "Abra sua conta grátis",
+      formSubtitle:
+        "Vai levar menos de 2 minutos. Na próxima etapa configuramos o seu negócio.",
+      cta: "Continuar",
+      disclaimer: "Ao continuar, você aceita que entremos em contato por WhatsApp ou email.",
+      form: {
+        nombreLabel: "Seu nome",
+        nombrePlaceholder: "Ex. Ana Silva",
+        whatsappLabel: "WhatsApp (com código do país)",
+        whatsappPlaceholder: "55 11 91234 5678",
+      },
+    },
   },
   es: {
     // Landing Page
@@ -807,6 +832,31 @@ export const translations = {
       base64Tips: "Base64: Máximo 5MB, datos directos al webhook",
       consoleTips: "Revisa la consola del navegador para más detalles",
       terminalTips: "Los logs del servidor aparecen en la terminal",
+    },
+    oportunidad: {
+      metaTitle: "Empieza con ChefIAndo",
+      metaDescription:
+        "Contenido profesional para tu restaurante en 5 minutos. Déjanos tus datos y abrimos tu cuenta.",
+      badge: "Para restaurantes que quieren llenar mesas",
+      title: "Contenido profesional para tu restaurante en 5 minutos",
+      description:
+        "Publica todos los días sin contratar fotógrafo, sin escribir el copy y sin pelearte con apps. Tú cocinas, ChefIAndo publica.",
+      bullets: [
+        "Fotos profesionales generadas con IA desde una sola imagen tuya",
+        "Copy que vende, no que rellena: pensado para tu mercado",
+        "Listo para publicar en Instagram, Facebook y Google",
+      ],
+      formTitle: "Abre tu cuenta gratis",
+      formSubtitle:
+        "Te tomará menos de 2 minutos. En el siguiente paso configuramos tu negocio.",
+      cta: "Continuar",
+      disclaimer: "Al continuar aceptas que te contactemos por WhatsApp o email.",
+      form: {
+        nombreLabel: "Tu nombre",
+        nombrePlaceholder: "Ej. Ana García",
+        whatsappLabel: "WhatsApp (con código de país)",
+        whatsappPlaceholder: "52 55 1234 5678",
+      },
     },
   },
 }

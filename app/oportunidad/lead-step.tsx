@@ -6,7 +6,17 @@ import type { LeadFormData } from "@/lib/validation/lead-schema";
 
 const PREFILL_STORAGE_KEY = "chefiando_lead_prefill";
 
-export function OportunidadLeadStep() {
+type LeadFormLabels = {
+  nombreLabel?: string;
+  nombrePlaceholder?: string;
+  whatsappLabel?: string;
+  whatsappPlaceholder?: string;
+};
+
+export function OportunidadLeadStep({
+  ctaLabel = "Continuar",
+  labels,
+}: { ctaLabel?: string; labels?: LeadFormLabels } = {}) {
   const router = useRouter();
 
   const handleSuccess = (recordId: string, data: LeadFormData) => {
@@ -35,8 +45,9 @@ export function OportunidadLeadStep() {
   return (
     <LeadForm
       origen="Oportunidad"
-      ctaLabel="Continuar"
+      ctaLabel={ctaLabel}
       fields="minimal"
+      labels={labels}
       onSuccess={handleSuccess}
     />
   );

@@ -17,6 +17,15 @@ const INITIAL_DATA: LeadFormData = {
   whatsapp: "",
 };
 
+// Etiquetas y placeholders de los campos. Por defecto en español;
+// se pueden sobreescribir para traducir el form (ej. /oportunidad en pt).
+type LeadFormLabels = {
+  nombreLabel?: string;
+  nombrePlaceholder?: string;
+  whatsappLabel?: string;
+  whatsappPlaceholder?: string;
+};
+
 type LeadFormProps = {
   origen?: string;
   ctaLabel?: string;
@@ -24,6 +33,7 @@ type LeadFormProps = {
   // "minimal" muestra solo nombre + WhatsApp (negocio/email se piden en /registro).
   // "full" (default) muestra los 4 campos.
   fields?: "full" | "minimal";
+  labels?: LeadFormLabels;
 };
 
 export function LeadForm({
@@ -31,8 +41,13 @@ export function LeadForm({
   ctaLabel = "Quiero empezar",
   onSuccess,
   fields = "full",
+  labels,
 }: LeadFormProps = {}) {
   const isMinimal = fields === "minimal";
+  const nombreLabel = labels?.nombreLabel ?? "Tu nombre";
+  const nombrePlaceholder = labels?.nombrePlaceholder ?? "Ej. Ana García";
+  const whatsappLabel = labels?.whatsappLabel ?? "WhatsApp (con código de país)";
+  const whatsappPlaceholder = labels?.whatsappPlaceholder ?? "52 55 1234 5678";
   const router = useRouter();
   const utm = useUtmParams();
   const [data, setData] = useState<LeadFormData>(INITIAL_DATA);
@@ -91,12 +106,12 @@ export function LeadForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-5" noValidate>
       <div className="space-y-2">
-        <Label htmlFor="nombre">Tu nombre</Label>
+        <Label htmlFor="nombre">{nombreLabel}</Label>
         <Input
           id="nombre"
           value={data.nombre}
           onChange={(e) => update("nombre", e.target.value)}
-          placeholder="Ej. Ana García"
+          placeholder={nombrePlaceholder}
           autoComplete="name"
         />
         {errors.nombre && <p className="text-sm text-destructive">{errors.nombre}</p>}
@@ -131,13 +146,13 @@ export function LeadForm({
       )}
 
       <div className="space-y-2">
-        <Label htmlFor="whatsapp">WhatsApp (con código de país)</Label>
+        <Label htmlFor="whatsapp">{whatsappLabel}</Label>
         <Input
           id="whatsapp"
           type="tel"
           value={data.whatsapp}
           onChange={(e) => update("whatsapp", e.target.value)}
-          placeholder="52 55 1234 5678"
+          placeholder={whatsappPlaceholder}
           autoComplete="tel"
         />
         {errors.whatsapp && <p className="text-sm text-destructive">{errors.whatsapp}</p>}
