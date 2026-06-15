@@ -6,7 +6,7 @@ export const translations = {
     landing: {
       badge: "Conteúdo que vende",
       hero: {
-        title: "Transforme seus pratos em conteúdo que vende. Em 5 minutos, pelo celular",
+        title: "Transforme seus pratos em conteúdo que vende. Em 5 minutos, direto do seu celular",
         description:
           "ChefIAndo cria posts insuperáveis dos seus produtos para você conquistar novos clientes",
         cta: "Experimentar grátis",
