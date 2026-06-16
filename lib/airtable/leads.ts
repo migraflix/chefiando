@@ -1,5 +1,5 @@
 import { LeadFormData, UtmParams } from "@/lib/validation/lead-schema";
-import { sanitizeString } from "./utils";
+import { sanitizeString, languageFromSession } from "./utils";
 
 const AIRTABLE_API_KEY = process.env.AIRTABLE_API_KEY;
 const AIRTABLE_BASE_ID = process.env.AIRTABLE_BASE_ID;
@@ -70,7 +70,10 @@ async function fireContactWebhook(payload: Record<string, unknown>) {
 export async function createLead(
   formData: LeadFormData,
   origen = "Landing",
-  utm?: UtmParams
+  utm?: UtmParams,
+  // Idioma de la sesión web ("pt" | "es"). Se reenvía en el webhook a n8n para
+  // diferenciar en qué idioma se manda el follow-up.
+  language?: string
 ) {
   if (!AIRTABLE_API_KEY || !AIRTABLE_BASE_ID) {
     throw new Error("Configuración de Airtable incompleta");
@@ -115,10 +118,14 @@ export async function createLead(
   const continueUrl = `${appUrl.replace(/\/$/, "")}/retomar/${recordId}`;
 
   // Disparar webhook de contacto (no bloqueante para la respuesta)
+  // Se mandan dos formas del idioma: el código de sesión ("pt"/"es") y el
+  // valor legible ("Portugués"/"Español") para que n8n use el que prefiera.
   await fireContactWebhook({
     recordId,
     origen,
     continueUrl,
+    language: language ?? null,
+    idioma: languageFromSession(language) ?? null,
     ...fields,
   });
 

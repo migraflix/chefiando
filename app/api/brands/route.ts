@@ -159,8 +159,11 @@ export async function POST(request: NextRequest) {
 
     // Crear registro en Airtable con Status "Basic Register"
     const status = body.status || "Basic Register"
+    // Idioma real de la sesión web (pt/es): fuente principal del campo Idioma
+    // que la automatización de SendPulse usa para elegir el template.
+    const sessionLang = typeof body.language === "string" ? body.language : undefined
     // Type assertion seguro porque el schema ya validó que negocio y whatsapp están presentes
-    const result = await createBrand(validationResult.data as BrandFormData, status)
+    const result = await createBrand(validationResult.data as BrandFormData, status, sessionLang)
 
     return NextResponse.json({
       success: true,

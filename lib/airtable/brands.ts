@@ -1,5 +1,5 @@
 import { BrandFormData } from "@/lib/validation/brand-schema";
-import { inferLanguage, sanitizeString, generateUploadPhotosLink } from "./utils";
+import { inferLanguage, languageFromSession, sanitizeString, generateUploadPhotosLink } from "./utils";
 
 const AIRTABLE_API_KEY = process.env.AIRTABLE_API_KEY;
 const AIRTABLE_BASE_ID = process.env.AIRTABLE_BASE_ID;
@@ -11,7 +11,10 @@ const TABLE_NAME = "Brands";
  */
 export function mapFormDataToAirtable(
   formData: BrandFormData,
-  status?: string
+  status?: string,
+  // Idioma de la sesión web ("pt" | "es"). Es la fuente PRINCIPAL de idioma;
+  // el país solo se usa como respaldo si esto no viene.
+  sessionLang?: string
 ) {
   const fields: Record<string, any> = {
     Negocio: sanitizeString(formData.negocio),
@@ -40,7 +43,15 @@ export function mapFormDataToAirtable(
 
   if (formData.pais) {
     fields["País"] = sanitizeString(formData.pais);
-    // Inferir idioma automáticamente
+  }
+
+  // Idioma: principal = idioma real de la sesión web (pt/es); respaldo = país.
+  // El país es opcional, así que inferirlo solo no basta (caía a "Español" por
+  // default). Esto es lo que la automatización de SendPulse lee para el template.
+  const idioma = languageFromSession(sessionLang);
+  if (idioma) {
+    fields["Idioma"] = idioma;
+  } else if (formData.pais) {
     fields["Idioma"] = inferLanguage(formData.pais, formData.ciudad);
   }
 
@@ -106,13 +117,14 @@ export async function updateBrandStatus(
  */
 export async function updateBrandFields(
   recordId: string,
-  formData: Partial<BrandFormData>
+  formData: Partial<BrandFormData>,
+  sessionLang?: string
 ) {
   if (!AIRTABLE_API_KEY || !AIRTABLE_BASE_ID) {
     throw new Error("Configuración de Airtable incompleta");
   }
 
-  const fields = mapFormDataToAirtable(formData as BrandFormData);
+  const fields = mapFormDataToAirtable(formData as BrandFormData, undefined, sessionLang);
   const encodedTableName = encodeURIComponent(TABLE_NAME);
 
   const response = await fetch(
@@ -144,12 +156,16 @@ export async function updateBrandFields(
 /**
  * Crea un nuevo registro de marca en Airtable
  */
-export async function createBrand(formData: BrandFormData, status?: string) {
+export async function createBrand(
+  formData: BrandFormData,
+  status?: string,
+  sessionLang?: string
+) {
   if (!AIRTABLE_API_KEY || !AIRTABLE_BASE_ID) {
     throw new Error("Configuración de Airtable incompleta");
   }
 
-  const fields = mapFormDataToAirtable(formData, status);
+  const fields = mapFormDataToAirtable(formData, status, sessionLang);
   const encodedTableName = encodeURIComponent(TABLE_NAME);
 
   // Crear registro en Airtable con mejor manejo de errores

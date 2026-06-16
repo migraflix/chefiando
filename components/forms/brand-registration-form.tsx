@@ -49,7 +49,7 @@ export function BrandRegistrationForm({
   const [recordId, setRecordId] = useState<string | null>(null);
   const router = useRouter();
   const { toast } = useToast();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { logFormError, logFormWarning, logFormSuccess } = useErrorLogger();
 
   const {
@@ -136,6 +136,7 @@ export function BrandRegistrationForm({
           body: JSON.stringify({
             ...section1Data,
             status: "Basic Register",
+            language,
           }),
           signal: controller.signal,
         });
