@@ -17,7 +17,8 @@ type LeadFormLabels = {
 export function OportunidadLeadStep({
   ctaLabel = "Continuar",
   labels,
-}: { ctaLabel?: string; labels?: LeadFormLabels } = {}) {
+  origen = "Oportunidad",
+}: { ctaLabel?: string; labels?: LeadFormLabels; origen?: string } = {}) {
   const router = useRouter();
 
   const handleSuccess = (recordId: string, data: LeadFormData) => {
@@ -46,7 +47,7 @@ export function OportunidadLeadStep({
 
   return (
     <LeadForm
-      origen="Oportunidad"
+      origen={origen}
       ctaLabel={ctaLabel}
       fields="minimal"
       labels={labels}

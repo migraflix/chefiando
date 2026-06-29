@@ -23,8 +23,11 @@ export async function POST(request: NextRequest) {
     const origen = typeof body.origen === "string" ? body.origen : "Landing";
     const utmResult = utmSchema.safeParse(body.utm ?? {});
     const utm = utmResult.success ? utmResult.data : undefined;
+    // Idioma de la sesión web (pt/es): se incluye en el webhook a n8n para
+    // decidir en qué idioma sale el follow-up.
+    const language = typeof body.language === "string" ? body.language : undefined;
 
-    const result = await createLead(validationResult.data, origen, utm);
+    const result = await createLead(validationResult.data, origen, utm, language);
 
     return NextResponse.json({ success: true, recordId: result.recordId });
   } catch (error) {

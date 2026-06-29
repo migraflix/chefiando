@@ -26,6 +26,19 @@ export function inferLanguage(pais?: string, ciudad?: string): string {
 }
 
 /**
+ * Mapea el código de idioma de la sesión web ("pt" | "es") al valor que
+ * espera Airtable (y que usa la automatización de SendPulse para elegir el
+ * template). Esta es la fuente PRINCIPAL de idioma: refleja en qué idioma
+ * navegó realmente el usuario, no el país (que es opcional y puede faltar).
+ */
+export function languageFromSession(lang?: string): string | undefined {
+  if (!lang) return undefined;
+  if (lang === "pt") return "Portugués";
+  if (lang === "es") return "Español";
+  return undefined;
+}
+
+/**
  * Sanitiza un string para Airtable
  * Elimina caracteres problemáticos, escapa caracteres especiales y trim
  */

@@ -7,6 +7,7 @@ import Link from "next/link"
 import { useLanguage } from "@/contexts/language-context"
 import { LanguageSelector } from "@/components/language-selector"
 import { APP_VERSION } from "@/lib/version"
+import { OportunidadLeadStep } from "./oportunidad/lead-step"
 
 export default function HomePage() {
   const { t } = useLanguage()
@@ -18,7 +19,7 @@ export default function HomePage() {
       </div>
 
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-primary/5 via-accent/5 to-secondary/5">
+      <section id="empezar" className="relative overflow-hidden bg-gradient-to-br from-primary/5 via-accent/5 to-secondary/5">
         <div className="container mx-auto px-4 py-14 md:py-20">
           <div className="max-w-4xl mx-auto text-center space-y-6">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium">
@@ -31,10 +32,20 @@ export default function HomePage() {
             <p className="text-xl md:text-2xl text-muted-foreground text-pretty leading-relaxed max-w-2xl mx-auto">
               {t.landing.hero.description}
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center pt-2">
-              <Button size="lg" className="text-lg px-8 py-6" asChild>
-                <Link href="/contacto">{t.landing.hero.cta}</Link>
-              </Button>
+            {/* Formulario de lead embebido y centrado */}
+            <div className="pt-2 flex justify-center">
+              <Card className="w-full max-w-md border-2 border-primary/20 shadow-xl text-left">
+                <CardContent className="p-8 space-y-6">
+                  <div className="space-y-2">
+                    <h2 className="text-2xl font-bold text-balance">{t.oportunidad.formTitle}</h2>
+                    <p className="text-sm text-muted-foreground text-pretty">{t.oportunidad.formSubtitle}</p>
+                  </div>
+                  <OportunidadLeadStep origen="Home" ctaLabel={t.oportunidad.cta} labels={t.oportunidad.form} />
+                  <p className="text-xs text-muted-foreground text-center">{t.oportunidad.disclaimer}</p>
+                </CardContent>
+              </Card>
+            </div>
+            <div className="flex justify-center">
               <Button size="lg" variant="outline" className="text-lg px-8 py-6 bg-transparent" asChild>
                 <Link href="#beneficios">{t.landing.hero.benefits}</Link>
               </Button>
@@ -144,7 +155,7 @@ export default function HomePage() {
                 {t.landing.cta.subtitle}
               </p>
               <Button size="lg" className="text-lg px-8 py-6" asChild>
-                <Link href="/contacto">{t.landing.cta.button}</Link>
+                <Link href="#empezar">{t.landing.cta.button}</Link>
               </Button>
             </CardContent>
           </Card>

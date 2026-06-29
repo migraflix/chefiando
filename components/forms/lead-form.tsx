@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { leadSchema, type LeadFormData } from "@/lib/validation/lead-schema";
 import { useUtmParams } from "@/hooks/use-utm-params";
+import { useLanguage } from "@/contexts/language-context";
 
 type FieldErrors = Partial<Record<keyof LeadFormData, string>>;
 
@@ -50,6 +51,7 @@ export function LeadForm({
   const whatsappPlaceholder = labels?.whatsappPlaceholder ?? "52 55 1234 5678";
   const router = useRouter();
   const utm = useUtmParams();
+  const { language } = useLanguage();
   const [data, setData] = useState<LeadFormData>(INITIAL_DATA);
   const [errors, setErrors] = useState<FieldErrors>({});
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -80,7 +82,7 @@ export function LeadForm({
       const response = await fetch("/api/leads", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...result.data, origen, utm }),
+        body: JSON.stringify({ ...result.data, origen, utm, language }),
       });
 
       if (!response.ok) {

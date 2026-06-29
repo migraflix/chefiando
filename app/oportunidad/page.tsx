@@ -10,6 +10,7 @@ import { OportunidadLeadStep } from "./lead-step";
 export default function OportunidadPage() {
   const { t } = useLanguage();
   const o = t.oportunidad;
+  const hero = t.landing.hero;
 
   return (
     <main className="min-h-screen bg-background">
@@ -25,11 +26,11 @@ export default function OportunidadPage() {
               <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
               </svg>
-              {o.badge}
+              {t.landing.badge}
             </div>
-            <h1 className="text-5xl md:text-7xl font-bold text-balance leading-tight">{o.title}</h1>
+            <h1 className="text-5xl md:text-7xl font-bold text-balance leading-tight">{hero.title}</h1>
             <p className="text-xl md:text-2xl text-muted-foreground text-pretty leading-relaxed max-w-2xl mx-auto">
-              {o.description}
+              {hero.description}
             </p>
 
             {/* Formulario de lead embebido y centrado */}
