@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useLanguage } from "@/contexts/language-context";
 import { LanguageSelector } from "@/components/language-selector";
+import { trackCompleteRegistration } from "@/lib/ads-events";
 // Using inline SVG for check icon
 
 export default function GraciasPage() {
@@ -28,6 +29,13 @@ export default function GraciasPage() {
       body: JSON.stringify({ brandRecordId: marca }),
     }).catch((err) => console.warn("No se pudo cerrar el lead:", err));
   }, [marca]);
+
+  // Solo cuenta como conversion real cuando ?processed=1 — evita doble disparo
+  // si el usuario refresca o aterriza sin procesar.
+  useEffect(() => {
+    if (processed !== "1") return;
+    trackCompleteRegistration({ content_name: "FotosGracias", brand_id: marca ?? undefined });
+  }, [processed, marca]);
 
   const handleGoToBrand = () => {
     console.log('🖱️ Click en botón "Ver minha marca"', { marca });

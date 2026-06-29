@@ -17,6 +17,7 @@ export default function AdminNav({ email }: { email?: string }) {
     { href: '/admin/airtable', label: 'Base de datos' },
     { href: '/admin/linear', label: 'Kanban' },
     { href: '/admin/workflows', label: 'Workflows' },
+    { href: '/admin/setup/ads', label: 'Ads' },
   ]
 
   return (

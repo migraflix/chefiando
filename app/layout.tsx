@@ -10,6 +10,7 @@ import { Suspense } from "react"
 import { Toaster } from "@/components/ui/toaster"
 import { LanguageProvider } from "@/contexts/language-context"
 import { SentryInit } from "@/components/sentry-init"
+import { AdsPixels } from "@/components/ads-pixels"
 
 export const metadata: Metadata = {
   title: "ChefIAndo",
@@ -24,6 +25,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <AdsPixels />
+      </head>
       <body className={`font-sans ${GeistSans.variable} ${GeistMono.variable}`}>
         <SentryInit />
         <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur">
